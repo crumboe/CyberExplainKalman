@@ -1,0 +1,69 @@
+# Circle Constants for Venn Diagram Slides
+# Use these values for consistent positioning across all slides
+
+## Circle 1 (Target Hit - Red)
+CIRCLE1_LEFT = 200px
+CIRCLE1_TOP = 200px
+CIRCLE1_WIDTH = 700px
+CIRCLE1_HEIGHT = 700px
+CIRCLE1_COLOR_NORMAL = rgba(255, 100, 100, 0.3)
+CIRCLE1_COLOR_DIMMED = rgba(134, 134, 134, 1)
+CIRCLE1_COLOR_WHITE = rgba(255, 255, 255, 1)
+CIRCLE1_COLOR_BLACK = rgba(0, 0, 0, 1)
+CIRCLE1_BORDER_NORMAL = 3px solid #ff6464
+CIRCLE1_BORDER_NONE = 0px solid #ff6464
+
+## Circle 2 (Shooter Was Broken - Green)
+CIRCLE2_LEFT = 800px
+CIRCLE2_TOP = 350px
+CIRCLE2_WIDTH = 240px
+CIRCLE2_HEIGHT = 240px
+CIRCLE2_COLOR_NORMAL = rgba(100, 255, 100, 0.3)
+CIRCLE2_COLOR_DIMMED = rgba(146, 146, 146, 1)
+CIRCLE2_COLOR_WHITE = rgba(255, 255, 255, 1)
+CIRCLE2_COLOR_BLACK = rgba(0, 0, 0, 1)
+CIRCLE2_BORDER_NORMAL = 3px solid #64ff64
+CIRCLE2_BORDER_NONE = 0px solid #64ff64
+
+## Smaller Circle 1 (for conditional probability slides)
+CIRCLE1_SMALL_LEFT = 200px
+CIRCLE1_SMALL_TOP = 200px
+CIRCLE1_SMALL_WIDTH = 300px
+CIRCLE1_SMALL_HEIGHT = 300px
+
+## Labels
+LABEL1_LEFT = 150px
+LABEL1_TOP = 150px
+LABEL1_COLOR_NORMAL = white
+LABEL1_COLOR_DIMMED = #666666
+LABEL1_FONTSIZE = 50px
+
+LABEL2_LEFT = 900px
+LABEL2_TOP = 280px
+LABEL2_COLOR_NORMAL = white
+LABEL2_COLOR_DIMMED = #666666
+LABEL2_FONTSIZE = 50px
+
+## Container Box
+BOX_LEFT = 100px
+BOX_TOP = 100px
+BOX_WIDTH = 1500px
+BOX_HEIGHT = 880px
+BOX_BORDER = 3px solid #42affa
+
+## Box Label
+BOX_LABEL_LEFT = 700px
+BOX_LABEL_TOP = 40px
+BOX_LABEL_TOP_HIGHER = 100px
+BOX_LABEL_COLOR = #42affa
+BOX_LABEL_FONTSIZE = 50px
+
+## Usage Examples:
+## Normal state:
+## <div data-id="circle1" style="position: absolute; left: 200px; top: 200px; width: 700px; height: 700px; background: rgba(255, 100, 100, 0.3); border: 3px solid #ff6464; border-radius: 50%;"></div>
+
+## Dimmed state (AND/OR):
+## <div data-id="circle1" style="position: absolute; left: 200px; top: 200px; width: 700px; height: 700px; background: rgba(134, 134, 134, 1); border: 0px solid #ff6464; border-radius: 50%; mix-blend-mode: overlay;"></div>
+
+## Small state (conditional):
+## <div data-id="circle1" style="position: absolute; left: 200px; top: 200px; width: 300px; height: 300px; background: rgba(134, 134, 134, 1); border: 0px solid #ff6464; border-radius: 50%; mix-blend-mode: overlay;"></div>

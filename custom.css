@@ -1,0 +1,203 @@
+/* Custom animations and styling for the presentation */
+
+/* Smooth transitions for all elements */
+.reveal .slides section {
+  transition: all 0.8s ease;
+}
+
+/* Custom fade animations */
+.reveal .fade-in {
+  animation: fadeIn 1s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Slide-in from left animation */
+.slide-in-left {
+  animation: slideInLeft 0.8s ease-out;
+}
+
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Bounce animation */
+.bounce {
+  animation: bounce 1s ease;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-30px);
+  }
+  60% {
+    transform: translateY(-15px);
+  }
+}
+
+/* Glow effect for important text */
+.glow {
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.8),
+               0 0 20px rgba(255, 255, 255, 0.6),
+               0 0 30px rgba(255, 255, 255, 0.4);
+}
+
+/* Highlight box */
+.highlight-box {
+  background: rgba(255, 255, 255, 0.1);
+  border-left: 4px solid #42affa;
+  padding: 1em;
+  margin: 1em 0;
+  border-radius: 4px;
+  backdrop-filter: blur(10px);
+}
+
+/* Code block enhancements - output text */
+.reveal pre code {
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 8px;
+  padding: 1.5em;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  font-size: 2em;
+}
+
+/* Python source code size */
+.reveal div.sourceCode {
+  font-size: .9em;
+}
+
+.reveal div.sourceCode pre {
+  font-size: .9em;
+}
+
+.reveal div.sourceCode code {
+  font-size: 1em;
+  line-height: 1.4;
+}
+
+/* Center content vertically */
+.center {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+/* Left-align content */
+.left {
+  text-align: left !important;
+}
+
+.left h3, .left ul, .left p {
+  text-align: left;
+}
+
+/* Rounded box styling for fragments */
+.reveal .fragment {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  padding: 1.5em;
+  margin: 1em 0;
+  backdrop-filter: blur(10px);
+}
+
+/* Today's Goal box styling */
+.goal-box {
+  background: rgba(66, 175, 250, 0.15);
+  border: 2px solid rgba(66, 175, 250, 0.5);
+  border-radius: 15px;
+  padding: 2em 1.5em;
+  margin: 2em 0;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 15px rgba(66, 175, 250, 0.2);
+}
+
+.goal-box h3 {
+  color: #42affa;
+  margin-top: 0;
+  text-align: center;
+  border-bottom: 2px solid rgba(66, 175, 250, 0.3);
+  padding-bottom: 0.5em;
+}
+
+/* Pulse animation for attention */
+.pulse {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* Rotate animation */
+.rotate {
+  animation: rotate 1s ease-in-out;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Custom fragment animations */
+.reveal .fragment.zoom-in {
+  opacity: 0;
+  transform: scale(0.5);
+}
+
+.reveal .fragment.zoom-in.visible {
+  opacity: 1;
+  transform: scale(1);
+  transition: all 0.5s ease;
+}
+
+/* Column styling */
+.reveal .columns {
+  display: flex;
+  gap: 2em;
+}
+
+/* Enhanced title styling */
+.reveal h1, .reveal h2, .reveal h3 {
+  text-transform: none;
+  font-weight: 700;
+}
+
+/* Smooth hover effects for links */
+.reveal a {
+  transition: all 0.3s ease;
+}
+
+.reveal a:hover {
+  transform: scale(1.05);
+  text-shadow: 0 0 10px currentColor;
+}
+
+/* Increase equation size */
+.reveal .math.display {
+  font-size: 1.25em;
+}
