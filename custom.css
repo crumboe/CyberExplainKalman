@@ -201,3 +201,6 @@
 .reveal .math.display {
   font-size: 1.25em;
 }
+.panel-button {
+    font-size: 500px; /* or use px, e.g., 24px */
+}

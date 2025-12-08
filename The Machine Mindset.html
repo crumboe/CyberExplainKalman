@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en"><head>
-<script src="The Machine Mindset_files/libs/clipboard/clipboard.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="The Machine Mindset_files/libs/clipboard/clipboard.min.js"></script>
 <script src="The Machine Mindset_files/libs/quarto-html/tabby.min.js"></script>
 <script src="The Machine Mindset_files/libs/quarto-html/popper.min.js"></script>
 <script src="The Machine Mindset_files/libs/quarto-html/tippy.umd.min.js"></script>
@@ -190,6 +190,9 @@
       margin-right: 0; 
     }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+  
+  <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 </head>
 <body class="quarto-dark">
   <div class="reveal">
@@ -298,18 +301,18 @@ Christopher Reckner
 <div class="column" style="width:50%;">
 <div class="fragment">
 <h3 id="boolean-logic">Boolean Logic</h3>
-<div id="588d7725" class="cell" data-execution_count="1">
+<div id="a65d7ed9" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href=""></a><span class="co"># Boolean logic example</span></span>
-<span id="cb1-2"><a href=""></a><span class="cf">if</span> (Shooter_will_make_the_shot <span class="op">==</span> <span class="va">True</span>):</span>
-<span id="cb1-3"><a href=""></a>    shoot</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-2"><a href=""></a><span class="co"># if (Shooter_will_make_the_shot == True):</span></span>
+<span id="cb1-3"><a href=""></a><span class="co">#     shoot</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 <div class="fragment">
 <h3 id="probabilistic-logic">Probabilistic Logic</h3>
-<div id="139440a9" class="cell" data-execution_count="2">
+<div id="6bf4b670" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href=""></a><span class="co"># Probability logic example</span></span>
-<span id="cb2-2"><a href=""></a><span class="cf">if</span> (Probability_we_make_the_shot <span class="op">&gt;=</span> <span class="dv">80</span><span class="op">%</span>)</span>
-<span id="cb2-3"><a href=""></a>    shoot</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-2"><a href=""></a><span class="co"># if (Probability_we_make_the_shot &gt;= 80%)</span></span>
+<span id="cb2-3"><a href=""></a><span class="co">#     shoot</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 </div><div class="column" style="width:50%;">
@@ -394,7 +397,7 @@ All Possible States: Balls Shot
 <div data-id="label2" style="position: absolute;left: 900px; top: 200px; color: white; font-size: 30px;">
 <span class="math display">\[P(\text{Shooter Was Broken})\]</span>
 </div>
-<div style="position: absolute; left: 950px; top: 0px; color: #64ff64; font-size: 30px; font-weight: bold; text-shadow: 2px 2px 4px black;">
+<div style="position: absolute; left: 950px; top: 800px; color: #64ff64; font-size: 30px; font-weight: bold; text-shadow: 2px 2px 4px black;">
 <span class="math display">\[P(\text{Target Hit} \cap \text{Shooter Broken})\]</span>
 </div>
 </div>
@@ -472,6 +475,7 @@ All Possible States: Balls Shot
 <section id="understanding-state-space-5" class="slide level2 center" data-auto-animate="true">
 <h2 data-id="quarto-animate-title">Understanding State Space</h2>
 <h3 id="probability-of-hitting-the-shot-given-the-evidence-the-shooter-is-broken">Probability of Hitting The shot GIVEN the evidence the Shooter is broken</h3>
+<p>We need to change our frame of reference</p>
 <div style="position: relative; width: 1500px; height: 880px; margin: auto;">
 <div data-id="box" style="position: absolute; left: 100px; top: 100px; width: 1500px; height: 880px; border: 3px solid #42affa; border-radius: 10px;">
 
@@ -497,6 +501,7 @@ All Possible States: Balls Shot
 <section id="understanding-state-space-6" class="slide level2 center" data-auto-animate="true">
 <h2 data-id="quarto-animate-title">Understanding State Space</h2>
 <h3 id="probability-of-hitting-the-shot-given-the-evidence-the-shooter-is-broken-1">Probability of Hitting The shot GIVEN the evidence the Shooter is broken</h3>
+<p>By setting our Evidence to true, we shrink the universe of posibility to the subset of P(Shooter Was Broken). The overlapping portion of P(Target hit) shows up in this space, though is smaller, since it is harder to hit the shot with a broken shooter.</p>
 <div style="position: relative; width: 1500px; height: 880px; margin: auto;">
 <div data-id="circle2" style="position: absolute; left: 100px; top: 100px; width: 1500px; height: 880px; border: 3px solid #42affa; border-radius: 10px;">
 
@@ -505,7 +510,7 @@ All Possible States: Balls Shot
 <!-- Container for blend mode effect -->
 <div style="position: absolute; left: 0; top: 0; width: 1500px; height: 880px; isolation: isolate;">
 <!-- Circle 1 - darker with blend mode -->
-<div data-id="circle1" style="position: absolute; left: 200px; top: 200px; width: 300px; height: 300px; background: rgba(134, 134, 134, 1); border: 0px solid #ff6464; border-radius: 50%; mix-blend-mode: overlay;">
+<div data-id="circle1" style="position: absolute; left: 400px; top: 200px; width: 300px; height: 300px; background: rgba(134, 134, 134, 1); border: 0px solid #ff6464; border-radius: 50%; mix-blend-mode: overlay;">
 
 </div>
 </div>
@@ -529,7 +534,7 @@ All Possible States: Balls Shot
 <!-- Container for blend mode effect -->
 <div style="position: absolute; left: 0; top: 0; width: 1500px; height: 880px; isolation: isolate;">
 <!-- Circle 1 - darker with blend mode -->
-<div data-id="circle1" style="position: absolute; left: 200px; top: 200px; width: 300px; height: 300px; background: rgba(134, 134, 134, 1); border: 0px solid #ff6464; border-radius: 50%; mix-blend-mode: overlay;">
+<div data-id="circle1" style="position: absolute; left: 400px; top: 200px; width: 300px; height: 300px; background: rgba(134, 134, 134, 1); border: 0px solid #ff6464; border-radius: 50%; mix-blend-mode: overlay;">
 
 </div>
 </div>
@@ -553,7 +558,7 @@ All Possible States: Balls Shot
 <!-- Container for blend mode effect -->
 <div style="position: absolute; left: 0; top: 0; width: 1500px; height: 880px; isolation: isolate;">
 <!-- Circle 1 - darker with blend mode -->
-<div data-id="circle1" style="position: absolute; left: 200px; top: 200px; width: 300px; height: 300px; background: rgba(134, 134, 134, 1); border: 0px solid #ff6464; border-radius: 50%; mix-blend-mode: overlay;">
+<div data-id="circle1" style="position: absolute; left: 400px; top: 200px; width: 300px; height: 300px; background: rgba(134, 134, 134, 1); border: 0px solid #ff6464; border-radius: 50%; mix-blend-mode: overlay;">
 
 </div>
 </div>
@@ -628,9 +633,191 @@ All Possible States: Balls Shot
 <p><span class="math display">\[P(\text{Event} \mid \text{Evidence}) = \frac{P(\text{Event}) \times \text{Likelihood of this evidence given the event happening}}{P(\text{Evidence})}\]</span></p>
 </div>
 <div data-id="explanation" style="position: absolute;left: 50px; top: 200px; color: #42affa; font-size: 48px; width: 95%; line-height: 1.4;">
-<p><strong>How Evidence Accumulation Works:</strong> <br><br> • <strong>Start with Prior Belief</strong>: P(Event) - our initial confidence before new evidence <br><br> • <strong>Update with Evidence</strong>: Each new observation becomes “Evidence” <br><br> • <strong>Calculate New Confidence</strong>: The posterior P(Event|Evidence) becomes our new prior for the next update <br><br> • <strong>Iterative Process</strong>: Previous posterior → new prior → collect evidence → update → repeat <br><br> This creates a <strong>feedback loop</strong> where reliable evidence strengthens our confidence, while contradictory evidence appropriately weakens it, leading to increasingly accurate beliefs over time.</p>
+<p><strong>How Evidence Accumulation Works:</strong> <br><br> • <strong>Start with Prior Belief</strong>: P(Event) - our initial confidence before new evidence <br><br> • <strong>Update with Evidence</strong>: Each new observation becomes “Evidence,” and we set up a way of determining if this evidence is likely <br><br> • <strong>Calculate New Confidence</strong>: The posterior P(Event|Evidence) becomes our new prior for the next update <br><br> • <strong>Iterative Process</strong>: Previous posterior → new prior → collect evidence → update → repeat <br><br> This creates a <strong>feedback loop</strong> where reliable evidence strengthens our confidence, while contradictory evidence appropriately weakens it, leading to increasingly accurate beliefs over time.</p>
 </div>
 </div>
+</section>
+<section id="activity-bayes-and-the-broken-motor" class="slide level2 center">
+<h2>Activity: Bayes and the Broken Motor</h2>
+<h3 id="setup">Setup</h3>
+<ul>
+<li><strong>Box A (Good Motor):</strong> 36 Green beads (90%), 4 Red beads (10%)</li>
+<li><strong>Box B (Bad Motor):</strong> 20 Green beads (50%), 20 Red beads (50%)</li>
+<li>Student draws a bead from a randomly chosen box.</li>
+</ul>
+<h3 id="scenario">Scenario</h3>
+<p>Suppose a student draws a <strong>red bead</strong>. What is the probability it came from Box B?</p>
+<h3 id="bayes-calculation">Bayes Calculation</h3>
+<p><span class="math display">\[
+P(\text{Box B} \mid \text{Red}) = \frac{P(\text{Red} \mid \text{Box B}) \cdot P(\text{Box B})}{P(\text{Red})}
+\]</span></p>
+</section>
+<section id="activity-bayes-and-the-broken-motor-1" class="slide level2 center">
+<h2>Activity: Bayes and the Broken Motor</h2>
+<p><strong>Step 1: Priors</strong><br>
+<span class="math inline">\(P(\text{Box A}) = 0.5\)</span><br>
+<span class="math inline">\(P(\text{Box B}) = 0.5\)</span></p>
+<p><strong>Step 2: Likelihoods</strong><br>
+<span class="math inline">\(P(\text{Red} \mid \text{Box A}) = \frac{4}{40} = 0.10\)</span><br>
+<span class="math inline">\(P(\text{Red} \mid \text{Box B}) = \frac{20}{40} = 0.50\)</span></p>
+<p><strong>Step 3: Total probability of red bead</strong><br>
+<span class="math inline">\(P(\text{Red}) = 0.10 \times 0.5 + 0.50 \times 0.5 = 0.05 + 0.25 = 0.30\)</span></p>
+<p><span class="math display">\[
+P(\text{Box B} \mid \text{Red}) = \frac{P(\text{Red} \mid \text{Box B}) \cdot P(\text{Box B})}{P(\text{Red})}
+\]</span></p>
+<!-- Slide 18: Live Bayesian Updating Activity -->
+</section>
+<section id="the-setup" class="slide level2 center">
+<h2>The Setup</h2>
+<ul>
+<li class="fragment"><strong>Box A</strong>: 36 green beads, 4 red beads (90% green)</li>
+<li class="fragment"><strong>Box B</strong>: 20 green beads, 20 red beads (50% green)</li>
+<li class="fragment">We start with 50% probability for each box</li>
+<li class="fragment">Draw beads and watch probabilities update!</li>
+</ul>
+</section>
+<section id="example-draw-sequences" class="slide level2 center">
+<h2>Example Draw Sequences</h2>
+<div id="c31ca804" class="cell" data-execution_count="3">
+<div class="cell-output cell-output-display">
+<div style="display: flex; justify-content: space-between; gap: 20px;">
+    <div style="flex: 1;">
+<table id="bayesian-table" class="dataframe table table-striped caption-top" data-border="1">
+<thead>
+<tr class="header" style="text-align: right;">
+<th data-quarto-table-cell-role="th">Step</th>
+<th data-quarto-table-cell-role="th">Bead Color</th>
+<th data-quarto-table-cell-role="th">P(Box B) % - Sequence 1</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Initial</td>
+<td>-</td>
+<td>50.0</td>
+</tr>
+<tr class="even">
+<td>Draw 1</td>
+<td>R</td>
+<td>83.3</td>
+</tr>
+<tr class="odd">
+<td>Draw 2</td>
+<td>G</td>
+<td>73.5</td>
+</tr>
+<tr class="even">
+<td>Draw 3</td>
+<td>R</td>
+<td>93.3</td>
+</tr>
+<tr class="odd">
+<td>Draw 4</td>
+<td>G</td>
+<td>88.5</td>
+</tr>
+</tbody>
+</table>
+</div>
+    <div style="flex: 1;">
+<table id="bayesian-table" class="dataframe table table-striped caption-top" data-border="1">
+<thead>
+<tr class="header" style="text-align: right;">
+<th data-quarto-table-cell-role="th">Step</th>
+<th data-quarto-table-cell-role="th">Bead Color</th>
+<th data-quarto-table-cell-role="th">P(Box B) % - Sequence 2</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Initial</td>
+<td>-</td>
+<td>50.0</td>
+</tr>
+<tr class="even">
+<td>Draw 1</td>
+<td>G</td>
+<td>35.7</td>
+</tr>
+<tr class="odd">
+<td>Draw 2</td>
+<td>G</td>
+<td>23.6</td>
+</tr>
+<tr class="even">
+<td>Draw 3</td>
+<td>R</td>
+<td>60.7</td>
+</tr>
+<tr class="odd">
+<td>Draw 4</td>
+<td>G</td>
+<td>46.2</td>
+</tr>
+<tr class="even">
+<td>Draw 5</td>
+<td>R</td>
+<td>81.1</td>
+</tr>
+</tbody>
+</table>
+</div>
+    <div style="flex: 1;">
+<table id="bayesian-table" class="dataframe table table-striped caption-top" data-border="1">
+<thead>
+<tr class="header" style="text-align: right;">
+<th data-quarto-table-cell-role="th">Step</th>
+<th data-quarto-table-cell-role="th">Bead Color</th>
+<th data-quarto-table-cell-role="th">P(Box B) % - Sequence 3</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Initial</td>
+<td>-</td>
+<td>50.0</td>
+</tr>
+<tr class="even">
+<td>Draw 1</td>
+<td>R</td>
+<td>83.3</td>
+</tr>
+<tr class="odd">
+<td>Draw 2</td>
+<td>R</td>
+<td>96.2</td>
+</tr>
+<tr class="even">
+<td>Draw 3</td>
+<td>G</td>
+<td>93.3</td>
+</tr>
+<tr class="odd">
+<td>Draw 4</td>
+<td>R</td>
+<td>98.6</td>
+</tr>
+<tr class="even">
+<td>Draw 5</td>
+<td>G</td>
+<td>97.5</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+<p><strong>Notice:</strong> Red beads increase P(Box B), green beads decrease it!</p>
+</section>
+<section id="how-bayes-theorem-works" class="slide level2 center">
+<h2>How Bayes’ Theorem Works</h2>
+<p><span class="math display">\[P(Box|Data) = \frac{P(Data|Box) \times P(Box)}{P(Data)}\]</span></p>
+<ul>
+<li><strong>Prior</strong>: Initial belief (50% each)</li>
+<li><strong>Likelihood</strong>: How probable is this bead from each box?</li>
+<li><strong>Posterior</strong>: Updated belief after seeing data</li>
+</ul>
 
 </section>
     </div>

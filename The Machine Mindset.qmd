@@ -18,6 +18,7 @@ format:
     height: 1080
     margin: 0.1
     css: custom.css
+engine: jupyter
 ---
 
 <!-- Slide 1: Agenda -->
@@ -80,8 +81,8 @@ The Mathmatics of finding truth through Error, and incorporating new data as Evi
 #| echo: true
 #| eval: false
 # Boolean logic example
-if (Shooter_will_make_the_shot == True):
-    shoot
+# if (Shooter_will_make_the_shot == True):
+#     shoot
 ```
 
 
@@ -93,8 +94,8 @@ if (Shooter_will_make_the_shot == True):
 #| echo: true
 #| eval: false
 # Probability logic example
-if (Probability_we_make_the_shot >= 80%)
-    shoot
+# if (Probability_we_make_the_shot >= 80%)
+#     shoot
 ```
 
 :::
@@ -172,7 +173,7 @@ Lets add a second event to track
 
 <div data-id="label2" style="position: absolute;left: 900px; top: 200px; color: white; font-size: 30px;">$$P(\text{Shooter Was Broken})$$</div>
 
-<div style="position: absolute; left: 950px; top: 0px; color: #64ff64; font-size: 30px; font-weight: bold; text-shadow: 2px 2px 4px black;">$$P(\text{Target Hit} \cap \text{Shooter Broken})$$</div>
+<div style="position: absolute; left: 950px; top: 800px; color: #64ff64; font-size: 30px; font-weight: bold; text-shadow: 2px 2px 4px black;">$$P(\text{Target Hit} \cap \text{Shooter Broken})$$</div>
 
 :::
 
@@ -237,6 +238,8 @@ Lets add a second event to track
 <!-- Slide 4: Understanding State Space (Given -->
 ## Understanding State Space {auto-animate=true}
 ### Probability of Hitting The shot GIVEN the evidence the Shooter is broken
+We need to change our frame of reference
+
 ::: {style="position: relative; width: 1500px; height: 880px; margin: auto;"}
 
 <div data-id="box" style="position: absolute; left: 100px; top: 100px; width: 1500px; height: 880px; border: 3px solid #42affa; border-radius: 10px;"></div>
@@ -258,6 +261,7 @@ Lets add a second event to track
 <!-- Slide 5: Understanding State Space (Part 3 - AND) -->
 ## Understanding State Space {auto-animate=true}
 ### Probability of Hitting The shot GIVEN the evidence the Shooter is broken
+By setting our Evidence to true, we shrink the universe of posibility to the subset of P(Shooter Was Broken). The overlapping portion of P(Target hit) shows up in this space, though is smaller, since it is harder to hit the shot with a broken shooter.
 
 ::: {style="position: relative; width: 1500px; height: 880px; margin: auto;"}
 
@@ -268,7 +272,7 @@ Lets add a second event to track
 <!-- Container for blend mode effect -->
 <div style="position: absolute; left: 0; top: 0; width: 1500px; height: 880px; isolation: isolate;">
   <!-- Circle 1 - darker with blend mode -->
-  <div data-id="circle1" style="position: absolute; left: 200px; top: 200px; width: 300px; height: 300px; background: rgba(134, 134, 134, 1); border: 0px solid #ff6464; border-radius: 50%; mix-blend-mode: overlay;"></div>
+  <div data-id="circle1" style="position: absolute; left: 400px; top: 200px; width: 300px; height: 300px; background: rgba(134, 134, 134, 1); border: 0px solid #ff6464; border-radius: 50%; mix-blend-mode: overlay;"></div>
   
  
 </div>
@@ -292,7 +296,7 @@ Lets define ratios in terms of prior Set "All Possible States: Balls Shot"
 <!-- Container for blend mode effect -->
 <div style="position: absolute; left: 0; top: 0; width: 1500px; height: 880px; isolation: isolate;">
   <!-- Circle 1 - darker with blend mode -->
-  <div data-id="circle1" style="position: absolute; left: 200px; top: 200px; width: 300px; height: 300px; background: rgba(134, 134, 134, 1); border: 0px solid #ff6464; border-radius: 50%; mix-blend-mode: overlay;"></div>
+  <div data-id="circle1" style="position: absolute; left: 400px; top: 200px; width: 300px; height: 300px; background: rgba(134, 134, 134, 1); border: 0px solid #ff6464; border-radius: 50%; mix-blend-mode: overlay;"></div>
   
  
 </div>
@@ -321,7 +325,7 @@ So what is P(Target Hit | Shooter was broken)?
 <!-- Container for blend mode effect -->
 <div style="position: absolute; left: 0; top: 0; width: 1500px; height: 880px; isolation: isolate;">
   <!-- Circle 1 - darker with blend mode -->
-  <div data-id="circle1" style="position: absolute; left: 200px; top: 200px; width: 300px; height: 300px; background: rgba(134, 134, 134, 1); border: 0px solid #ff6464; border-radius: 50%; mix-blend-mode: overlay;"></div>
+  <div data-id="circle1" style="position: absolute; left: 400px; top: 200px; width: 300px; height: 300px; background: rgba(134, 134, 134, 1); border: 0px solid #ff6464; border-radius: 50%; mix-blend-mode: overlay;"></div>
   
  
 </div>
@@ -411,9 +415,9 @@ $$P(\text{Event} \mid \text{Evidence}) = \frac{P(\text{Event}) \times \text{Like
 <div data-id="explanation" style="position: absolute;left: 50px; top: 200px; color: #42affa; font-size: 48px; width: 95%; line-height: 1.4;">
 **How Evidence Accumulation Works:**
 <br><br>
-• **Start with Prior Belief**: P(Event) - our initial confidence before new evidence
+• **Start with Prior Belief**: P(Event) - our initial confidence before new evidence 
 <br><br>
-• **Update with Evidence**: Each new observation becomes "Evidence" 
+• **Update with Evidence**: Each new observation becomes "Evidence," and we set up a way of determining if this evidence is likely
 <br><br>
 • **Calculate New Confidence**: The posterior P(Event|Evidence) becomes our new prior for the next update
 <br><br>
@@ -424,3 +428,142 @@ This creates a **feedback loop** where reliable evidence strengthens our confide
 
 
 :::
+
+## Activity: Bayes and the Broken Motor
+
+### Setup
+* **Box A (Good Motor):** 36 Green beads (90%), 4 Red beads (10%)
+* **Box B (Bad Motor):** 20 Green beads (50%), 20 Red beads (50%)
+* Student draws a bead from a randomly chosen box.
+
+### Scenario
+Suppose a student draws a **red bead**. What is the probability it came from Box B?
+
+### Bayes Calculation
+$$
+P(\text{Box B} \mid \text{Red}) = \frac{P(\text{Red} \mid \text{Box B}) \cdot P(\text{Box B})}{P(\text{Red})}
+$$
+
+## Activity: Bayes and the Broken Motor
+
+**Step 1: Priors**  
+$P(\text{Box A}) = 0.5$  
+$P(\text{Box B}) = 0.5$
+
+**Step 2: Likelihoods**  
+$P(\text{Red} \mid \text{Box A}) = \frac{4}{40} = 0.10$  
+$P(\text{Red} \mid \text{Box B}) = \frac{20}{40} = 0.50$
+
+**Step 3: Total probability of red bead**  
+$P(\text{Red}) = 0.10 \times 0.5 + 0.50 \times 0.5 = 0.05 + 0.25 = 0.30$
+
+$$
+P(\text{Box B} \mid \text{Red}) = \frac{P(\text{Red} \mid \text{Box B}) \cdot P(\text{Box B})}{P(\text{Red})}
+$$
+
+<!-- Slide 18: Live Bayesian Updating Activity -->
+
+## The Setup
+
+::: {.incremental}
+- **Box A**: 36 green beads, 4 red beads (90% green)
+- **Box B**: 20 green beads, 20 red beads (50% green)
+- We start with 50% probability for each box
+- Draw beads and watch probabilities update!
+:::
+
+---
+
+## Example Draw Sequences
+```{python}
+#| echo: false
+#| eval: true
+import pandas as pd
+from IPython.display import display, Markdown
+
+# Likelihoods
+pRGB = 0.5  # P(Red | Box B)
+pRGA = 0.1  # P(Red | Box A)
+pGGB = 0.5  # P(Green | Box B)
+pGGA = 0.9  # P(Green | Box A)
+
+# Initial priors
+pB_init = 0.5
+pA_init = 0.5
+
+sequence1 = ["r", "g", "r", "g"]
+sequence2 = ["g", "g", "r", "g", "r"]
+sequence3 = ["r", "r", "g", "r", "g"]
+
+sequences = [
+    ("Sequence 1", sequence1),
+    ("Sequence 2", sequence2),
+    ("Sequence 3", sequence3)
+]
+
+# Process all sequences and store results
+all_results = []
+
+for seq_name, sequence in sequences:
+    pB = pB_init
+    pA = pA_init
+    
+    results = [("Initial", "-", round(pB * 100, 1))]
+    
+    for i, color in enumerate(sequence, 1):
+        if color == "r":
+            # Red bead drawn
+            likelihood_A = pRGA
+            likelihood_B = pRGB
+        else:
+            # Green bead drawn
+            likelihood_A = pGGA
+            likelihood_B = pGGB
+        
+        # Calculate total probability of observing this color
+        p_color = likelihood_A * pA + likelihood_B * pB
+        
+        # Update posteriors using Bayes' theorem
+        pA = (likelihood_A * pA) / p_color
+        pB = (likelihood_B * pB) / p_color
+        
+        results.append((f"Draw {i}", color.upper(), round(pB * 100, 1)))
+    
+    # Create DataFrame for this sequence
+    df = pd.DataFrame(results, columns=['Step', 'Bead Color', f'P(Box B) % - {seq_name}'])
+    all_results.append(df)
+
+# Display in 3 columns using HTML
+from IPython.display import HTML
+
+# Convert DataFrames to HTML
+html_tables = []
+for df in all_results:
+    html_table = df.to_html(index=False, table_id="bayesian-table", 
+                           classes="table table-striped",
+                           escape=False)
+    html_tables.append(html_table)
+
+# Create 3-column layout
+html_output = f"""
+<div style="display: flex; justify-content: space-between; gap: 20px;">
+    <div style="flex: 1;">{html_tables[0]}</div>
+    <div style="flex: 1;">{html_tables[1]}</div>
+    <div style="flex: 1;">{html_tables[2]}</div>
+</div>
+"""
+
+display(HTML(html_output))
+```
+
+**Notice:** Red beads increase P(Box B), green beads decrease it!
+
+---
+
+## How Bayes' Theorem Works
+
+$$P(Box|Data) = \frac{P(Data|Box) \times P(Box)}{P(Data)}$$
+
+- **Prior**: Initial belief (50% each)
+- **Likelihood**: How probable is this bead from each box?
+- **Posterior**: Updated belief after seeing data
