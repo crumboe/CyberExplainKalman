@@ -115,6 +115,13 @@
   margin: 1em 0;
   backdrop-filter: blur(10px);
 }
+.reveal .clearfragment {
+  background: rgba(255, 255, 255, 0.00);
+  border: 1px solid rgba(255, 255, 255, 0.0);
+  border-radius: 15px;
+  padding: 1.5em;
+  margin: 1em 0;
+}
 
 /* Today's Goal box styling */
 .goal-box {

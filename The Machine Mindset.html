@@ -288,7 +288,7 @@ Christopher Reckner
 </div>
 <div class="fragment goal-box fade-up">
 <h3 id="todays-goal">Today’s Goal</h3>
-<p>The Mathmatics of finding truth through Error, and incorporating new data as Evidence, rather than defined truth</p>
+<p>The Mathmatics of finding truth through Error, and incorporating new data as Evidence rather than truth. Since by definition we cannot measure the error of any particular measurment, We use probability to model the likelyhood of sensing a true value</p>
 </div>
 <div style="height: 2em;">
 
@@ -301,7 +301,7 @@ Christopher Reckner
 <div class="column" style="width:50%;">
 <div class="fragment">
 <h3 id="boolean-logic">Boolean Logic</h3>
-<div id="a65d7ed9" class="cell" data-execution_count="1">
+<div id="e8cf2c3f" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href=""></a><span class="co"># Boolean logic example</span></span>
 <span id="cb1-2"><a href=""></a><span class="co"># if (Shooter_will_make_the_shot == True):</span></span>
 <span id="cb1-3"><a href=""></a><span class="co">#     shoot</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -309,7 +309,7 @@ Christopher Reckner
 </div>
 <div class="fragment">
 <h3 id="probabilistic-logic">Probabilistic Logic</h3>
-<div id="6bf4b670" class="cell" data-execution_count="2">
+<div id="f557a7cb" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href=""></a><span class="co"># Probability logic example</span></span>
 <span id="cb2-2"><a href=""></a><span class="co"># if (Probability_we_make_the_shot &gt;= 80%)</span></span>
 <span id="cb2-3"><a href=""></a><span class="co">#     shoot</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -318,22 +318,61 @@ Christopher Reckner
 </div><div class="column" style="width:50%;">
 <div class="fragment">
 <h3 id="key-difference">Key difference:</h3>
-<p>If we have the ability to bring together pieces of evidence, and guage our trust of that information, we can make better decisions.</p>
+<p>Combining evidence with trust levels enables better decisions.</p>
 <ul>
-<li><p>The first boolean option will take an instantaneous read of all appropriate sensors and make a judgement.</p></li>
-<li><p>The Probabilistic option can be set up to average in sensor noise, and reduce the posibility of false positives and negatives</p></li>
+<li><p>Boolean: Instantaneous sensor read → immediate judgment</p></li>
+<li><p>Probabilistic: Averages sensor noise, reduces false positives/negatives</p></li>
+</ul>
+</div>
+<div class="fragment">
+<h3 id="caveat">Caveat:</h3>
+<p>There are alternative filtering approaches that don’t rely on probability:</p>
+<ul>
+<li>Rolling average on distance sensors</li>
+<li>Debounce period on limit switches<br>
+</li>
+<li>Moving median filters</li>
+<li>Exponential smoothing</li>
+<li>These can work very well depending on implementation and use case</li>
 </ul>
 </div>
 </div></div>
-<!-- Slide 3: Understanding State Space (Part 1) -->
 </section>
-<section id="understanding-state-space" class="slide level2 center" data-auto-animate="true">
-<h2 data-id="quarto-animate-title">Understanding State Space</h2>
-<div style="position: relative; width: 1500px; height: 880px; margin: auto;">
+<section id="understanding-set-space" class="slide level2 center" data-auto-animate="true" data-autoslide="0">
+<h2 data-id="quarto-animate-title">Understanding Set Space</h2>
+<div class="fragment">
+<ul>
+<li>We want a number that represents how often something happens, or does not</li>
+</ul>
+</div>
+<div class="fragment">
+<ul>
+<li>If you know nothing about an event, you could assume it’s a 50:50 chance, pass or fail, it will happen or it wont</li>
+</ul>
+</div>
+<div class="fragment">
+<ul>
+<li>With Evidence about the type of event (I.E. Rolling a 2 on a D6 Die) you can refine your guess, in this case to 1:6</li>
+</ul>
+</div>
+<div class="fragment">
+<ul>
+<li>You can also experiment to find probability. If given a weighted die, you could roll it many times to gather data, and hone in on the true likelyhood of any given face landing up.</li>
+</ul>
+</div>
+<!-- Slide 3: Understanding Set Space (Part 1) -->
+</section>
+<section id="lets-visualize-set-space" class="slide level2 center" data-auto-animate="true" data-autoslide="0">
+<h2 data-id="quarto-animate-title">Let’s Visualize Set Space</h2>
+<div class="fragment">
+<p>For Example: We have ball shooter, and a scout finds that during competition we make our shot ~ 30 % of the time</p>
+</div>
+<div class="clearfragment">
+<div style="position: absolute; width: 1500px; height: 880px; margin: auto;">
 <div data-id="box" style="position: absolute; left: 100px; top: 100px; width: 1500px; height: 880px; border: 3px solid #42affa; border-radius: 10px;">
 
 </div>
-<div data-id="box-label" style="position: absolute; left: 700px; top: 100px;  color: #42affa; font-size: 50px;">
+<div data-id="box-label" style="position: absolute; left: 700px; top: -20px;  color: #42affa; font-size: 50px;">
 All Possible States: Balls Shot – Our Set/Universe
 </div>
 <div data-id="circle1" style="position: absolute; left: 200px; top: 200px; width: 700px; height: 700px; background: rgba(255, 100, 100, 0.3); border: 3px solid #ff6464; border-radius: 50%;">
@@ -343,11 +382,15 @@ All Possible States: Balls Shot – Our Set/Universe
 Target Hit – Our Event. The fraction of balls shot which made it to the target
 </div>
 </div>
-<!-- Slide 4: Understanding State Space (Part 2) -->
+</div>
+<!-- Slide 4: Understanding Set Space (Part 2) -->
 </section>
-<section id="understanding-state-space-1" class="slide level2 center" data-auto-animate="true">
-<h2 data-id="quarto-animate-title">Understanding State Space</h2>
-<p>Lets add a second event to track</p>
+<section id="understanding-set-space-1" class="slide level2 center" data-auto-animate="true" data-autoslide="0">
+<h2 data-id="quarto-animate-title">Understanding Set Space</h2>
+<ul>
+<li>The scout also notices that our shooter was broken for some part of the competition, and also collects that data. Suprisingly, we still made a few shots despite the mechanical failure.</li>
+<li>Our set representation below uses area to show how often each event occured for all the shots we fired during</li>
+</ul>
 <div style="position: relative; width: 1500px; height: 880px; margin: auto;">
 <div data-id="box" style="position: absolute; left: 100px; top: 100px; width: 1500px; height: 880px; border: 3px solid #42affa; border-radius: 10px;">
 
@@ -368,11 +411,13 @@ All Possible States: Balls Shot
 <span class="math display">\[P(\text{Shooter Was Broken})\]</span>
 </div>
 </div>
-<!-- Slide 5: Understanding State Space (Part 3 - AND) -->
+<!-- Slide 5: Understanding Set Space (Part 3 - AND) -->
 </section>
-<section id="understanding-state-space-2" class="slide level2 center" data-auto-animate="true">
-<h2 data-id="quarto-animate-title">Understanding State Space</h2>
+<section id="what-can-we-identify-in-our-set" class="slide level2 center" data-auto-animate="true" data-autoslide="0">
+<h2 data-id="quarto-animate-title">What Can we Identify in our Set?</h2>
+<div class="fragment">
 <h3 id="target-hit-and-shooter-was-broken">Target Hit AND Shooter Was Broken</h3>
+</div>
 <div style="position: relative; width: 1500px; height: 880px; margin: auto;">
 <div data-id="box" style="position: absolute; left: 100px; top: 100px; width: 1500px; height: 880px; border: 3px solid #42affa; border-radius: 10px;">
 
@@ -397,15 +442,19 @@ All Possible States: Balls Shot
 <div data-id="label2" style="position: absolute;left: 900px; top: 200px; color: white; font-size: 30px;">
 <span class="math display">\[P(\text{Shooter Was Broken})\]</span>
 </div>
+<div class="clearfragment">
 <div style="position: absolute; left: 950px; top: 800px; color: #64ff64; font-size: 30px; font-weight: bold; text-shadow: 2px 2px 4px black;">
 <span class="math display">\[P(\text{Target Hit} \cap \text{Shooter Broken})\]</span>
 </div>
 </div>
-<!-- Slide 6: Understanding State Space (Part 4 - OR) -->
+</div>
+<!-- Slide 6: Understanding Set Space (Part 4 - OR) -->
 </section>
-<section id="understanding-state-space-3" class="slide level2 center" data-auto-animate="true">
-<h2 data-id="quarto-animate-title">Understanding State Space</h2>
+<section id="what-can-we-identify-in-our-set-1" class="slide level2 center" data-auto-animate="true" data-autoslide="0">
+<h2 data-id="quarto-animate-title">What Can we Identify in our Set?</h2>
+<div class="fragment">
 <h3 id="target-hit-or-shooter-was-broken">Target Hit OR Shooter Was Broken</h3>
+</div>
 <div style="position: relative; width: 1500px; height: 880px; margin: auto;">
 <div data-id="box" style="position: absolute; left: 100px; top: 100px; width: 1500px; height: 880px; border: 3px solid #42affa; border-radius: 10px;">
 
@@ -430,15 +479,19 @@ All Possible States: Balls Shot
 <div data-id="label2" style="position: absolute; left: 900px; top: 200px; color: white; font-size: 30px;">
 <span class="math display">\[P(\text{Shooter Was Broken})\]</span>
 </div>
+<div class="clearfragment">
 <div style="position: absolute; left: 950px; top: 650px; color: #64ff64; font-size: 30px; font-weight: bold; text-shadow: 2px 2px 4px black;">
 <span class="math display">\[P(\text{Target Hit} \cup \text{Shooter Broken})\]</span>
 </div>
 </div>
-<!-- Slide 7: Understanding State Space (Part 5 - NEITHER) -->
+</div>
+<!-- Slide 7: Understanding Set Space (Part 5 - NEITHER) -->
 </section>
-<section id="understanding-state-space-4" class="slide level2 center" data-auto-animate="true">
-<h2 data-id="quarto-animate-title">Understanding State Space</h2>
+<section id="what-can-we-identify-in-our-set-2" class="slide level2 center" data-auto-animate="true" data-autoslide="0">
+<h2 data-id="quarto-animate-title">What Can we Identify in our Set?</h2>
+<div class="fragment">
 <h3 id="neither-target-hit-nor-shooter-was-broken">Neither Target Hit NOR Shooter Was Broken</h3>
+</div>
 <div style="position: relative; width: 1500px; height: 880px; margin: auto;">
 <div data-id="box" style="position: absolute; left: 100px; top: 100px; width: 1500px; height: 880px; border: 3px solid #42affa; border-radius: 10px;">
 
@@ -466,15 +519,19 @@ All Possible States: Balls Shot
 <div data-id="label2" style="position: absolute; left: 900px; top: 200px; color: black; font-size: 30px;">
 <span class="math display">\[P(\text{Shooter Was Broken})\]</span>
 </div>
+<div class="clearfragment">
 <div style="position: absolute; left: 950px; top: 720px; color: #051e2eff; font-size: 30px; font-weight: bold; text-shadow: 2px 2px 4px black;">
 <span class="math display">\[P(\overline{\text{Target Hit}} \cap \overline{\text{Shooter Broken}})\]</span>
 </div>
 </div>
-<!-- Slide 4: Understanding State Space (Given -->
+</div>
+<!-- Slide 4: Understanding Set Space (Given -->
 </section>
-<section id="understanding-state-space-5" class="slide level2 center" data-auto-animate="true">
-<h2 data-id="quarto-animate-title">Understanding State Space</h2>
+<section id="what-can-we-identify-in-our-set-3" class="slide level2 center" data-auto-animate="true" data-autoslide="0">
+<h2 data-id="quarto-animate-title">What Can we Identify in our Set?</h2>
+<div class="fragment">
 <h3 id="probability-of-hitting-the-shot-given-the-evidence-the-shooter-is-broken">Probability of Hitting The shot GIVEN the evidence the Shooter is broken</h3>
+</div>
 <p>We need to change our frame of reference</p>
 <div style="position: relative; width: 1500px; height: 880px; margin: auto;">
 <div data-id="box" style="position: absolute; left: 100px; top: 100px; width: 1500px; height: 880px; border: 3px solid #42affa; border-radius: 10px;">
@@ -496,12 +553,12 @@ All Possible States: Balls Shot
 <span class="math display">\[P(\text{Shooter Was Broken})\]</span>
 </div>
 </div>
-<!-- Slide 5: Understanding State Space (Part 3 - AND) -->
+<!-- Slide 5: Understanding Set Space (Part 3 - AND) -->
 </section>
-<section id="understanding-state-space-6" class="slide level2 center" data-auto-animate="true">
-<h2 data-id="quarto-animate-title">Understanding State Space</h2>
+<section id="understanding-set-space-2" class="slide level2 center" data-auto-animate="true" data-autoslide="0">
+<h2 data-id="quarto-animate-title">Understanding Set Space</h2>
 <h3 id="probability-of-hitting-the-shot-given-the-evidence-the-shooter-is-broken-1">Probability of Hitting The shot GIVEN the evidence the Shooter is broken</h3>
-<p>By setting our Evidence to true, we shrink the universe of posibility to the subset of P(Shooter Was Broken). The overlapping portion of P(Target hit) shows up in this space, though is smaller, since it is harder to hit the shot with a broken shooter.</p>
+<p>By setting our Evidence to true, we shrink the universe of posibility to the subset of P(Shooter Was Broken).</p>
 <div style="position: relative; width: 1500px; height: 880px; margin: auto;">
 <div data-id="circle2" style="position: absolute; left: 100px; top: 100px; width: 1500px; height: 880px; border: 3px solid #42affa; border-radius: 10px;">
 
@@ -521,10 +578,10 @@ All Possible States: Balls Shot
 <span class="math display">\[P(\text{Shooter Was Broken})\]</span>
 </div>
 </div>
-<!-- Slide 5: Understanding State Space (Part 3 - AND) -->
+<!-- Slide 5: Understanding Set Space (Part 3 - AND) -->
 </section>
-<section id="understanding-state-space-7" class="slide level2 center" data-auto-animate="true">
-<h2 data-id="quarto-animate-title">Understanding State Space</h2>
+<section id="understanding-set-space-3" class="slide level2 center" data-auto-animate="true" data-autoslide="0">
+<h2 data-id="quarto-animate-title">Understanding Set Space</h2>
 <h3 id="probability-of-hitting-the-shot-given-the-evidence-the-shooter-is-broken-2">Probability of Hitting The shot GIVEN the evidence the Shooter is broken</h3>
 <p>Lets define ratios in terms of prior Set “All Possible States: Balls Shot”</p>
 <div style="position: relative; width: 1500px; height: 880px; margin: auto;">
@@ -545,10 +602,10 @@ All Possible States: Balls Shot
 <span class="math display">\[P(\text{Shooter Was Broken})\]</span>
 </div>
 </div>
-<!-- Slide 5: Understanding State Space (Part 3 - AND) -->
+<!-- Slide 5: Understanding Set Space (Part 3 - AND) -->
 </section>
-<section id="understanding-state-space-8" class="slide level2 center" data-auto-animate="true">
-<h2 data-id="quarto-animate-title">Understanding State Space</h2>
+<section id="understanding-set-space-4" class="slide level2 center" data-auto-animate="true" data-autoslide="0">
+<h2 data-id="quarto-animate-title">Understanding Set Space</h2>
 <h3 id="probability-of-hitting-the-shot-given-the-evidence-the-shooter-is-broken-3">Probability of Hitting The shot GIVEN the evidence the Shooter is broken</h3>
 <p>So what is P(Target Hit | Shooter was broken)?</p>
 <div style="position: relative; width: 1500px; height: 880px; margin: auto;">
@@ -573,10 +630,10 @@ All Possible States: Balls Shot
 <p><span class="math display">\[P(\text{Target Hit} \mid \text{Shooter Broken}) = \frac{P(\text{Target Hit} \cap \text{Shooter Broken})}{P(\text{Shooter Broken})}\]</span></p>
 </div>
 </div>
-<!-- Slide 5: Understanding State Space (Part 3 - AND) -->
+<!-- Slide 5: Understanding Set Space (Part 3 - AND) -->
 </section>
-<section id="understanding-state-space-9" class="slide level2 center" data-auto-animate="true">
-<h2 data-id="quarto-animate-title">Understanding State Space</h2>
+<section id="understanding-set-space-5" class="slide level2 center" data-auto-animate="true" data-autoslide="0">
+<h2 data-id="quarto-animate-title">Understanding Set Space</h2>
 <h3 id="bayes-theorem">Bayes Theorem</h3>
 <div style="position: relative; width: 1500px; height: 880px; margin: auto;">
 <div data-id="eq" style="position: absolute;left: 50px; top: 200px; color: white; font-size: 30px; text-align: center; width: 95%;">
@@ -589,10 +646,10 @@ All Possible States: Balls Shot
 <p><span class="math display">\[P(\text{Target Hit} \cap \text{Shooter Broken}) = P(\text{Shooter Broken}) \times P(\text{Target Hit} \mid \text{Shooter Broken})\]</span></p>
 </div>
 </div>
-<!-- Slide 5: Understanding State Space (Part 3 - AND) -->
+<!-- Slide 5: Understanding Set Space (Part 3 - AND) -->
 </section>
-<section id="understanding-state-space-10" class="slide level2 center" data-auto-animate="true">
-<h2 data-id="quarto-animate-title">Understanding State Space</h2>
+<section id="understanding-set-space-6" class="slide level2 center" data-auto-animate="true" data-autoslide="0">
+<h2 data-id="quarto-animate-title">Understanding Set Space</h2>
 <h3 id="bayes-theorem-generally">Bayes Theorem – Generally</h3>
 <div style="position: relative; width: 1500px; height: 880px; margin: auto;">
 <div data-id="eq" style="position: absolute;left: 50px; top: 200px; color: white; font-size: 30px; text-align: center; width: 95%;">
@@ -605,10 +662,10 @@ All Possible States: Balls Shot
 <p><span class="math display">\[P(\text{Event} \cap \text{Evidence}) = P(\text{Evidence}) \times P(\text{Event} \mid \text{Evidence})\]</span></p>
 </div>
 </div>
-<!-- Slide 5: Understanding State Space (Part 3 - AND) -->
+<!-- Slide 5: Understanding Set Space (Part 3 - AND) -->
 </section>
-<section id="understanding-state-space-11" class="slide level2 center" data-auto-animate="true">
-<h2 data-id="quarto-animate-title">Understanding State Space</h2>
+<section id="understanding-set-space-7" class="slide level2 center" data-auto-animate="true" data-autoslide="0">
+<h2 data-id="quarto-animate-title">Understanding Set Space</h2>
 <h3 id="bayes-theorem-generally-1">Bayes Theorem – Generally</h3>
 <p>For events that are dependent, finding The intersection (AND) can be difficult. So Bayes tells us =&gt;</p>
 <div style="position: relative; width: 1500px; height: 880px; margin: auto;">
@@ -622,10 +679,10 @@ All Possible States: Balls Shot
 <p><span class="math display">\[P(\text{Event} \mid \text{Evidence}) = \frac{P(\text{Event}) \times P(\text{Evidence} \mid \text{Event})}{P(\text{Evidence})}\]</span></p>
 </div>
 </div>
-<!-- Slide 5: Understanding State Space (Part 3 - AND) -->
+<!-- Slide 5: Understanding Set Space (Part 3 - AND) -->
 </section>
-<section id="understanding-state-space-12" class="slide level2 center" data-auto-animate="true">
-<h2 data-id="quarto-animate-title">Understanding State Space</h2>
+<section id="understanding-set-space-8" class="slide level2 center" data-auto-animate="true" data-autoslide="0">
+<h2 data-id="quarto-animate-title">Understanding Set Space</h2>
 <h3 id="bayes-theorem-generally-2">Bayes Theorem – Generally</h3>
 <p>For events that are dependent, finding The intersection (AND) can be difficult. So Bayes tells us =&gt;</p>
 <div style="position: relative; width: 1500px; height: 880px; margin: auto;">
@@ -665,20 +722,10 @@ P(\text{Box B} \mid \text{Red}) = \frac{P(\text{Red} \mid \text{Box B}) \cdot P(
 <p><span class="math display">\[
 P(\text{Box B} \mid \text{Red}) = \frac{P(\text{Red} \mid \text{Box B}) \cdot P(\text{Box B})}{P(\text{Red})}
 \]</span></p>
-<!-- Slide 18: Live Bayesian Updating Activity -->
-</section>
-<section id="the-setup" class="slide level2 center">
-<h2>The Setup</h2>
-<ul>
-<li class="fragment"><strong>Box A</strong>: 36 green beads, 4 red beads (90% green)</li>
-<li class="fragment"><strong>Box B</strong>: 20 green beads, 20 red beads (50% green)</li>
-<li class="fragment">We start with 50% probability for each box</li>
-<li class="fragment">Draw beads and watch probabilities update!</li>
-</ul>
 </section>
 <section id="example-draw-sequences" class="slide level2 center">
 <h2>Example Draw Sequences</h2>
-<div id="c31ca804" class="cell" data-execution_count="3">
+<div id="dca013ac" class="cell" data-execution_count="3">
 <div class="cell-output cell-output-display">
 <div style="display: flex; justify-content: space-between; gap: 20px;">
     <div style="flex: 1;">
@@ -810,14 +857,48 @@ P(\text{Box B} \mid \text{Red}) = \frac{P(\text{Red} \mid \text{Box B}) \cdot P(
 </div>
 <p><strong>Notice:</strong> Red beads increase P(Box B), green beads decrease it!</p>
 </section>
-<section id="how-bayes-theorem-works" class="slide level2 center">
-<h2>How Bayes’ Theorem Works</h2>
-<p><span class="math display">\[P(Box|Data) = \frac{P(Data|Box) \times P(Box)}{P(Data)}\]</span></p>
-<ul>
-<li><strong>Prior</strong>: Initial belief (50% each)</li>
-<li><strong>Likelihood</strong>: How probable is this bead from each box?</li>
-<li><strong>Posterior</strong>: Updated belief after seeing data</li>
-</ul>
+<section id="lets-take-a-break" class="slide level2 center">
+<h2>Let’s Take a Break</h2>
+</section>
+<section id="the-gaussian-bell-curve---starting-position" class="slide level2 center" data-auto-animate="true" data-autoslide="2000" data-auto-animate-easing="ease-in-out">
+<h2 data-id="quarto-animate-title">The Gaussian Bell Curve - Starting Position</h2>
+<div style="position: relative; width: 1500px; height: 880px; margin: auto;">
+<div data-id="box" style="position: absolute; left: 100px; top: 100px; width: 1500px; height: 880px; border: 3px solid #42affa; border-radius: 10px;">
+
+</div>
+<div data-id="xaxis" style="position: absolute; left: 100px; top: 880px; width: 1500px; height: 0px; background: rgba(255, 100, 100, 0.3); border: 1px solid #ff6464; border-radius: 1px;">
+
+</div>
+<div data-id="yaxis" style="position: absolute; left: 850px; top: 100px; width: 0px; height: 880px; background: rgba(255, 100, 100, 0.3); border: 1px solid #ff6464; border-radius: 1px;">
+
+</div>
+<svg data-id="bellcurveog1" style="position: absolute; left: 100px; top: 100px; width: 1500px; height: 830px;">
+<polygon points="0.00,779.98 15.15,779.97 30.30,779.96 45.45,779.93 60.61,779.90 75.76,779.85 90.91,779.79 106.06,779.69 121.21,779.56 136.36,779.37 151.52,779.12 166.67,778.77 181.82,778.30 196.97,777.69 212.12,776.88 227.27,775.83 242.42,774.48 257.58,772.78 272.73,770.64 287.88,767.99 303.03,764.75 318.18,760.84 333.33,756.16 348.48,750.65 363.64,744.22 378.79,736.83 393.94,728.45 409.09,719.06 424.24,708.69 439.39,697.40 454.55,685.30 469.70,672.53 484.85,659.27 500.00,645.75 515.15,632.24 530.30,619.02 545.45,606.39 560.61,594.68 575.76,584.18 590.91,575.19 606.06,567.96 621.21,562.71 636.36,559.58 651.52,558.68 666.67,560.03 681.82,563.59 696.97,569.26 712.12,576.86 727.27,586.17 742.42,596.93 757.58,608.86 772.73,621.63 787.88,634.93 803.03,648.47 818.18,661.95 833.33,675.13 848.48,687.78 863.64,699.73 878.79,710.84 893.94,721.01 909.09,730.20 924.24,738.39 939.39,745.58 954.55,751.82 969.70,757.16 984.85,761.68 1000.00,765.45 1015.15,768.57 1030.30,771.10 1045.45,773.15 1060.61,774.78 1075.76,776.06 1090.91,777.06 1106.06,777.82 1121.21,778.41 1136.36,778.85 1151.52,779.17 1166.67,779.41 1181.82,779.59 1196.97,779.71 1212.12,779.80 1227.27,779.87 1242.42,779.91 1257.58,779.94 1272.73,779.96 1287.88,779.97 1303.03,779.98 1318.18,779.99 1333.33,779.99 1348.48,780.00 1363.64,780.00 1378.79,780.00 1393.94,780.00 1409.09,780.00 1424.24,780.00 1439.39,780.00 1454.55,780.00 1469.70,780.00 1484.85,780.00 1500.00,780.00 1500.00,780 0.00,780" fill="rgba(85, 167, 9, 0.1)" stroke="#55a709ff" stroke-width="4" stroke-linejoin="round"></polygon>
+</svg>
+<svg data-id="bellcurveog2" style="position: absolute; left: 100px; top: 100px; width: 1500px; height: 830px;">
+<polygon points="0.00,780.00 15.15,780.00 30.30,780.00 45.45,780.00 60.61,780.00 75.76,780.00 90.91,780.00 106.06,780.00 121.21,780.00 136.36,780.00 151.52,780.00 166.67,780.00 181.82,780.00 196.97,780.00 212.12,780.00 227.27,780.00 242.42,780.00 257.58,780.00 272.73,780.00 287.88,780.00 303.03,780.00 318.18,780.00 333.33,780.00 348.48,780.00 363.64,780.00 378.79,780.00 393.94,780.00 409.09,780.00 424.24,780.00 439.39,780.00 454.55,780.00 469.70,780.00 484.85,780.00 500.00,780.00 515.15,780.00 530.30,780.00 545.45,780.00 560.61,780.00 575.76,780.00 590.91,780.00 606.06,780.00 621.21,780.00 636.36,780.00 651.52,780.00 666.67,780.00 681.82,780.00 696.97,780.00 712.12,780.00 727.27,780.00 742.42,780.00 757.58,779.99 772.73,779.98 787.88,779.92 803.03,779.72 818.18,779.11 833.33,777.43 848.48,773.27 863.64,763.89 878.79,744.84 893.94,710.00 909.09,652.85 924.24,569.30 939.39,461.49 954.55,340.75 969.70,227.40 984.85,145.80 1000.00,116.00 1015.15,145.80 1030.30,227.40 1045.45,340.75 1060.61,461.49 1075.76,569.30 1090.91,652.85 1106.06,710.00 1121.21,744.84 1136.36,763.89 1151.52,773.27 1166.67,777.43 1181.82,779.11 1196.97,779.72 1212.12,779.92 1227.27,779.98 1242.42,779.99 1257.58,780.00 1272.73,780.00 1287.88,780.00 1303.03,780.00 1318.18,780.00 1333.33,780.00 1348.48,780.00 1363.64,780.00 1378.79,780.00 1393.94,780.00 1409.09,780.00 1424.24,780.00 1439.39,780.00 1454.55,780.00 1469.70,780.00 1484.85,780.00 1500.00,780.00 1500.00,780 0.00,780" fill="rgba(81, 120, 248, 0.1)" stroke="#5178f8ff" stroke-width="4" stroke-linejoin="round"></polygon>
+</svg>
+</div>
+</section>
+<section id="the-gaussian-bell-curve---final-position" class="slide level2 center" data-auto-animate="true" data-autoslide="0" data-auto-animate-easing="ease-in-out">
+<h2 data-id="quarto-animate-title">The Gaussian Bell Curve - Final Position</h2>
+<div style="position: relative; width: 1500px; height: 880px; margin: auto;">
+<div data-id="box" style="position: absolute; left: 100px; top: 100px; width: 1500px; height: 880px; border: 3px solid #42affa; border-radius: 10px;">
+
+</div>
+<div data-id="xaxis" style="position: absolute; left: 100px; top: 880px; width: 1500px; height: 0px; background: rgba(255, 100, 100, 0.3); border: 1px solid #ff6464; border-radius: 1px;">
+
+</div>
+<div data-id="yaxis" style="position: absolute; left: 850px; top: 100px; width: 0px; height: 880px; background: rgba(255, 100, 100, 0.3); border: 1px solid #ff6464; border-radius: 1px;">
+
+</div>
+<svg data-id="bellcurve" style="position: absolute; left: 100px; top: 100px; width: 1500px; height: 830px;">
+<polygon points="0.00,780.00 15.15,780.00 30.30,780.00 45.45,780.00 60.61,780.00 75.76,780.00 90.91,780.00 106.06,780.00 121.21,780.00 136.36,780.00 151.52,780.00 166.67,780.00 181.82,780.00 196.97,780.00 212.12,780.00 227.27,780.00 242.42,780.00 257.58,780.00 272.73,780.00 287.88,780.00 303.03,780.00 318.18,780.00 333.33,780.00 348.48,780.00 363.64,780.00 378.79,780.00 393.94,780.00 409.09,780.00 424.24,780.00 439.39,780.00 454.55,780.00 469.70,780.00 484.85,780.00 500.00,780.00 515.15,780.00 530.30,780.00 545.45,780.00 560.61,780.00 575.76,780.00 590.91,780.00 606.06,780.00 621.21,780.00 636.36,780.00 651.52,780.00 666.67,780.00 681.82,780.00 696.97,780.00 712.12,780.00 727.27,779.98 742.42,779.90 757.58,779.46 772.73,777.58 787.88,770.90 803.03,751.06 818.18,702.18 833.33,603.00 848.48,439.60 863.64,226.40 878.79,18.68 893.94,-105.34 909.09,-90.62 924.24,56.03 939.39,270.93 954.55,477.30 969.70,627.80 984.85,715.28 1000.00,756.73 1015.15,772.93 1030.30,778.18 1045.45,779.60 1060.61,779.93 1075.76,779.99 1090.91,780.00 1106.06,780.00 1121.21,780.00 1136.36,780.00 1151.52,780.00 1166.67,780.00 1181.82,780.00 1196.97,780.00 1212.12,780.00 1227.27,780.00 1242.42,780.00 1257.58,780.00 1272.73,780.00 1287.88,780.00 1303.03,780.00 1318.18,780.00 1333.33,780.00 1348.48,780.00 1363.64,780.00 1378.79,780.00 1393.94,780.00 1409.09,780.00 1424.24,780.00 1439.39,780.00 1454.55,780.00 1469.70,780.00 1484.85,780.00 1500.00,780.00 1500.00,780 0.00,780" fill="rgba(85, 167, 9, 0.3)" stroke="#55a709ff" stroke-width="4" stroke-linejoin="round"></polygon>
+</svg>
+<svg data-id="bellcurve2" style="position: absolute; left: 100px; top: 100px; width: 1500px; height: 830px;">
+<polygon points="0.00,780.00 15.15,780.00 30.30,780.00 45.45,780.00 60.61,780.00 75.76,780.00 90.91,780.00 106.06,780.00 121.21,780.00 136.36,780.00 151.52,780.00 166.67,780.00 181.82,780.00 196.97,780.00 212.12,780.00 227.27,780.00 242.42,780.00 257.58,780.00 272.73,780.00 287.88,780.00 303.03,780.00 318.18,780.00 333.33,780.00 348.48,780.00 363.64,780.00 378.79,780.00 393.94,780.00 409.09,780.00 424.24,780.00 439.39,780.00 454.55,780.00 469.70,780.00 484.85,780.00 500.00,780.00 515.15,780.00 530.30,780.00 545.45,780.00 560.61,780.00 575.76,780.00 590.91,780.00 606.06,780.00 621.21,780.00 636.36,780.00 651.52,780.00 666.67,780.00 681.82,780.00 696.97,780.00 712.12,780.00 727.27,779.98 742.42,779.90 757.58,779.46 772.73,777.58 787.88,770.90 803.03,751.06 818.18,702.18 833.33,603.00 848.48,439.60 863.64,226.40 878.79,18.68 893.94,-105.34 909.09,-90.62 924.24,56.03 939.39,270.93 954.55,477.30 969.70,627.80 984.85,715.28 1000.00,756.73 1015.15,772.93 1030.30,778.18 1045.45,779.60 1060.61,779.93 1075.76,779.99 1090.91,780.00 1106.06,780.00 1121.21,780.00 1136.36,780.00 1151.52,780.00 1166.67,780.00 1181.82,780.00 1196.97,780.00 1212.12,780.00 1227.27,780.00 1242.42,780.00 1257.58,780.00 1272.73,780.00 1287.88,780.00 1303.03,780.00 1318.18,780.00 1333.33,780.00 1348.48,780.00 1363.64,780.00 1378.79,780.00 1393.94,780.00 1409.09,780.00 1424.24,780.00 1439.39,780.00 1454.55,780.00 1469.70,780.00 1484.85,780.00 1500.00,780.00 1500.00,780 0.00,780" fill="rgba(81, 120, 248, 0.3)" stroke="#5178f8ff" stroke-width="4" stroke-linejoin="round"></polygon>
+</svg>
+</div>
 
 </section>
     </div>
@@ -852,7 +933,7 @@ P(\text{Box B} \mid \text{Red}) = \frac{P(\text{Red} \mid \text{Box B}) \cdot P(
 'controlsAuto': false,
 'previewLinksAuto': false,
 'pdfSeparateFragments': false,
-'autoAnimateEasing': "ease",
+'autoAnimateEasing': "ease-in-out",
 'autoAnimateDuration': 1,
 'autoAnimateUnmatched': true,
 'jumpToSlide': true,

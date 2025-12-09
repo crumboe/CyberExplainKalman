@@ -3,7 +3,10 @@ title: "Probability, Bayes, and Kalman Filter"
 subtitle: "Finding Truth in a Noisy World"
 author: "Christopher Reckner"
 format:
-  revealjs:
+  revealjs: 
+    auto-animate: true
+    auto-animate-easing: ease-in-out
+    auto-animate-duration: 1.0
     theme: dark
     transition: slide
     transition-speed: default
@@ -17,7 +20,9 @@ format:
     width: 1920
     height: 1080
     margin: 0.1
+    
     css: custom.css
+
 engine: jupyter
 ---
 
@@ -61,7 +66,8 @@ What is 5 cm truely? Can we ever measure a perfect 5cm?
 :::
 ::: {.fragment .goal-box .fade-up}
 ### Today's Goal
-The Mathmatics of finding truth through Error, and incorporating new data as Evidence, rather than defined truth
+The Mathmatics of finding truth through Error, and incorporating new data as Evidence rather than truth. 
+Since by definition we cannot measure the error of any particular measurment, We use probability to model the likelyhood of sensing a true value
 :::
 ::: {style="height: 2em;"}
 :::
@@ -104,34 +110,68 @@ The Mathmatics of finding truth through Error, and incorporating new data as Evi
 :::{.column width="50%"}
 :::{.fragment}
 ### Key difference:
-If we have the ability to bring together pieces of evidence, and guage our trust of that information, we can make better decisions. 
+Combining evidence with trust levels enables better decisions.
 
-* The first boolean option will take an instantaneous read of all appropriate sensors and make a judgement. 
+* Boolean: Instantaneous sensor read → immediate judgment
 
-* The Probabilistic option can be set up to average in sensor noise, and reduce the posibility of false positives and negatives
+* Probabilistic: Averages sensor noise, reduces false positives/negatives
 
+:::
+:::{.fragment}
+### Caveat:
+There are alternative filtering approaches that don't rely on probability:
+
+- Rolling average on distance sensors
+- Debounce period on limit switches  
+- Moving median filters
+- Exponential smoothing
+- These can work very well depending on implementation and use case
 :::
 :::
 ::::
 
-<!-- Slide 3: Understanding State Space (Part 1) -->
-## Understanding State Space {auto-animate=true}
+## Understanding Set Space {auto-animate=true data-autoslide="0"}
+:::{.fragment}
+- We want a number that represents how often something happens, or does not
+:::
+:::{.fragment}
+- If you know nothing about an event, you could assume it's a 50:50 chance, pass or fail, it will happen or it wont
+:::
+:::{.fragment}
+- With Evidence about the type of event (I.E. Rolling a 2 on a D6 Die) you can refine your guess, in this case to 1:6
+:::
+:::{.fragment}
+- You can also experiment to find probability. If given a weighted die, you could roll it many times to gather data, and hone in on the true likelyhood of any given face landing up. 
+:::
 
-::: {style="position: relative; width: 1500px; height: 880px; margin: auto;"}
+<!-- Slide 3: Understanding Set Space (Part 1) -->
+## Let's Visualize Set Space {auto-animate=true data-autoslide="0"}
+
+
+:::{.fragment}
+For Example: We have ball shooter, and a scout finds that during competition we make our shot ~ 30 % of the time
+:::
+
+
+:::{.clearfragment}
+::: {style="position: absolute; width: 1500px; height: 880px; margin: auto;"}
 
 <div data-id="box" style="position: absolute; left: 100px; top: 100px; width: 1500px; height: 880px; border: 3px solid #42affa; border-radius: 10px;"></div>
 
-<div data-id="box-label" style="position: absolute; left: 700px; top: 100px;  color: #42affa; font-size: 50px;">All Possible States: Balls Shot -- Our Set/Universe</div>
+<div data-id="box-label" style="position: absolute; left: 700px; top: -20px;  color: #42affa; font-size: 50px;">All Possible States: Balls Shot -- Our Set/Universe</div>
 
 <div data-id="circle1" style="position: absolute; left: 200px; top: 200px; width: 700px; height: 700px; background: rgba(255, 100, 100, 0.3); border: 3px solid #ff6464; border-radius: 50%;"></div>
 
 <div data-id="label1" style="position: absolute; left: 900px; top: 250px; color: rgba(255, 100, 100, 1); font-size: 50px;">Target Hit -- Our Event. The fraction of balls shot which made it to the target</div>
 
 :::
+:::
 
-<!-- Slide 4: Understanding State Space (Part 2) -->
-## Understanding State Space {auto-animate=true}
-Lets add a second event to track
+<!-- Slide 4: Understanding Set Space (Part 2) -->
+## Understanding Set Space {auto-animate=true data-autoslide="0"}
+
+- The scout also notices that our shooter was broken for some part of the competition, and also collects that data. Suprisingly, we still made a few shots despite the mechanical failure. 
+- Our set representation below uses area to show how often each event occured for all the shots we fired during
 
 ::: {style="position: relative; width: 1500px; height: 880px; margin: auto;"}
 
@@ -149,10 +189,11 @@ Lets add a second event to track
 
 :::
 
-<!-- Slide 5: Understanding State Space (Part 3 - AND) -->
-## Understanding State Space {auto-animate=true}
+<!-- Slide 5: Understanding Set Space (Part 3 - AND) -->
+## What Can we Identify in our Set? {auto-animate=true data-autoslide="0"}
+:::{.fragment}
 ### Target Hit AND Shooter Was Broken
-
+:::
 ::: {style="position: relative; width: 1500px; height: 880px; margin: auto;"}
 
 <div data-id="box" style="position: absolute; left: 100px; top: 100px; width: 1500px; height: 880px; border: 3px solid #42affa; border-radius: 10px;"></div>
@@ -172,14 +213,16 @@ Lets add a second event to track
 <div data-id="label1" style="position: absolute; left: 100px; top: 100px; color: white; font-size: 40px; ">$$P(\text{Target Hit})$$</div>
 
 <div data-id="label2" style="position: absolute;left: 900px; top: 200px; color: white; font-size: 30px;">$$P(\text{Shooter Was Broken})$$</div>
-
+:::{.clearfragment}
 <div style="position: absolute; left: 950px; top: 800px; color: #64ff64; font-size: 30px; font-weight: bold; text-shadow: 2px 2px 4px black;">$$P(\text{Target Hit} \cap \text{Shooter Broken})$$</div>
-
+:::
 :::
 
-<!-- Slide 6: Understanding State Space (Part 4 - OR) -->
-## Understanding State Space {auto-animate=true}
+<!-- Slide 6: Understanding Set Space (Part 4 - OR) -->
+## What Can we Identify in our Set? {auto-animate=true data-autoslide="0"}
+:::{.fragment}
 ### Target Hit OR Shooter Was Broken
+:::
 
 ::: {style="position: relative; width: 1500px; height: 880px; margin: auto;"}
 
@@ -200,14 +243,16 @@ Lets add a second event to track
 <div data-id="label1" style="position: absolute; left: 100px; top: 100px; color: white; font-size: 40px; ">$$P(\text{Target Hit})$$</div>
 
 <div data-id="label2" style="position: absolute; left: 900px; top: 200px; color: white; font-size: 30px;">$$P(\text{Shooter Was Broken})$$</div>
-
+:::{.clearfragment}
 <div style="position: absolute; left: 950px; top: 650px; color: #64ff64; font-size: 30px; font-weight: bold; text-shadow: 2px 2px 4px black;">$$P(\text{Target Hit} \cup \text{Shooter Broken})$$</div>
-
+:::
 :::
 
-<!-- Slide 7: Understanding State Space (Part 5 - NEITHER) -->
-## Understanding State Space {auto-animate=true}
+<!-- Slide 7: Understanding Set Space (Part 5 - NEITHER) -->
+## What Can we Identify in our Set? {auto-animate=true data-autoslide="0"}
+:::{.fragment}
 ### Neither Target Hit NOR Shooter Was Broken
+:::
 
 ::: {style="position: relative; width: 1500px; height: 880px; margin: auto;"}
 
@@ -231,13 +276,16 @@ Lets add a second event to track
 <div data-id="label1" style="position: absolute; left: 100px; top: 100px; color: black; font-size: 40px; ">$$P(\text{Target Hit})$$</div>
 
 <div data-id="label2" style="position: absolute; left: 900px; top: 200px; color: black; font-size: 30px;">$$P(\text{Shooter Was Broken})$$</div>
-
+:::{.clearfragment}
 <div style="position: absolute; left: 950px; top: 720px; color: #051e2eff; font-size: 30px; font-weight: bold; text-shadow: 2px 2px 4px black;">$$P(\overline{\text{Target Hit}} \cap \overline{\text{Shooter Broken}})$$</div>
+:::
 
 :::
-<!-- Slide 4: Understanding State Space (Given -->
-## Understanding State Space {auto-animate=true}
+<!-- Slide 4: Understanding Set Space (Given -->
+## What Can we Identify in our Set? {auto-animate=true data-autoslide="0"}
+:::{.fragment}
 ### Probability of Hitting The shot GIVEN the evidence the Shooter is broken
+:::
 We need to change our frame of reference
 
 ::: {style="position: relative; width: 1500px; height: 880px; margin: auto;"}
@@ -258,10 +306,10 @@ We need to change our frame of reference
 
 
 
-<!-- Slide 5: Understanding State Space (Part 3 - AND) -->
-## Understanding State Space {auto-animate=true}
+<!-- Slide 5: Understanding Set Space (Part 3 - AND) -->
+## Understanding Set Space {auto-animate=true data-autoslide="0"}
 ### Probability of Hitting The shot GIVEN the evidence the Shooter is broken
-By setting our Evidence to true, we shrink the universe of posibility to the subset of P(Shooter Was Broken). The overlapping portion of P(Target hit) shows up in this space, though is smaller, since it is harder to hit the shot with a broken shooter.
+By setting our Evidence to true, we shrink the universe of posibility to the subset of P(Shooter Was Broken). 
 
 ::: {style="position: relative; width: 1500px; height: 880px; margin: auto;"}
 
@@ -283,8 +331,8 @@ By setting our Evidence to true, we shrink the universe of posibility to the sub
 
 :::
 
-<!-- Slide 5: Understanding State Space (Part 3 - AND) -->
-## Understanding State Space {auto-animate=true}
+<!-- Slide 5: Understanding Set Space (Part 3 - AND) -->
+## Understanding Set Space {auto-animate=true data-autoslide="0"}
 ### Probability of Hitting The shot GIVEN the evidence the Shooter is broken
 Lets define ratios in terms of prior Set "All Possible States: Balls Shot"
 
@@ -312,8 +360,8 @@ Lets define ratios in terms of prior Set "All Possible States: Balls Shot"
 :::
 
 
-<!-- Slide 5: Understanding State Space (Part 3 - AND) -->
-## Understanding State Space {auto-animate=true}
+<!-- Slide 5: Understanding Set Space (Part 3 - AND) -->
+## Understanding Set Space {auto-animate=true data-autoslide="0"}
 ### Probability of Hitting The shot GIVEN the evidence the Shooter is broken
 So what is P(Target Hit | Shooter was broken)?
 
@@ -341,8 +389,8 @@ $$P(\text{Target Hit} \mid \text{Shooter Broken}) = \frac{P(\text{Target Hit} \c
 </div>
 
 :::
-<!-- Slide 5: Understanding State Space (Part 3 - AND) -->
-## Understanding State Space {auto-animate=true}
+<!-- Slide 5: Understanding Set Space (Part 3 - AND) -->
+## Understanding Set Space {auto-animate=true data-autoslide="0"}
 ### Bayes Theorem
 
 ::: {style="position: relative; width: 1500px; height: 880px; margin: auto;"}
@@ -359,8 +407,8 @@ $$P(\text{Target Hit} \cap \text{Shooter Broken}) = P(\text{Shooter Broken}) \ti
 </div>
 
 :::
-<!-- Slide 5: Understanding State Space (Part 3 - AND) -->
-## Understanding State Space {auto-animate=true}
+<!-- Slide 5: Understanding Set Space (Part 3 - AND) -->
+## Understanding Set Space {auto-animate=true data-autoslide="0"}
 ### Bayes Theorem -- Generally
 
 ::: {style="position: relative; width: 1500px; height: 880px; margin: auto;"}
@@ -377,8 +425,8 @@ $$P(\text{Event} \cap \text{Evidence}) = P(\text{Evidence}) \times P(\text{Event
 </div>
 
 :::
-<!-- Slide 5: Understanding State Space (Part 3 - AND) -->
-## Understanding State Space {auto-animate=true}
+<!-- Slide 5: Understanding Set Space (Part 3 - AND) -->
+## Understanding Set Space {auto-animate=true data-autoslide="0"}
 ### Bayes Theorem -- Generally
 For events that are dependent, finding The intersection (AND) can be difficult. So Bayes tells us =>
 
@@ -400,8 +448,8 @@ $$P(\text{Event} \mid \text{Evidence}) = \frac{P(\text{Event}) \times P(\text{Ev
 
 :::
 
-<!-- Slide 5: Understanding State Space (Part 3 - AND) -->
-## Understanding State Space {auto-animate=true}
+<!-- Slide 5: Understanding Set Space (Part 3 - AND) -->
+## Understanding Set Space {auto-animate=true data-autoslide="0"}
 ### Bayes Theorem -- Generally
 For events that are dependent, finding The intersection (AND) can be difficult. So Bayes tells us =>
 
@@ -461,18 +509,6 @@ $$
 P(\text{Box B} \mid \text{Red}) = \frac{P(\text{Red} \mid \text{Box B}) \cdot P(\text{Box B})}{P(\text{Red})}
 $$
 
-<!-- Slide 18: Live Bayesian Updating Activity -->
-
-## The Setup
-
-::: {.incremental}
-- **Box A**: 36 green beads, 4 red beads (90% green)
-- **Box B**: 20 green beads, 20 red beads (50% green)
-- We start with 50% probability for each box
-- Draw beads and watch probabilities update!
-:::
-
----
 
 ## Example Draw Sequences
 ```{python}
@@ -559,11 +595,189 @@ display(HTML(html_output))
 **Notice:** Red beads increase P(Box B), green beads decrease it!
 
 ---
+## Let's Take a Break
+```{python}
+#| echo: false
+#| output: asis
+import numpy as np
+from scipy.stats import norm
 
-## How Bayes' Theorem Works
+def generate_gaussian_svg(mu_px, sigma_px, data_id="bellcurve", 
+                         svg_width=1500, svg_height=880,
+                         color="#4296ff", fill_opacity=0.3):
+    """
+    Generate SVG element for a Gaussian/normal distribution curve.
+    WITHOUT section wrapper for embedding in slides.
+    """
+    
+    # Define x range
+    x_min = 0
+    x_max = svg_width
+    baseline = svg_height - 50
+    
+    # FIXED number of points for consistent structure
+    num_points = 100
+    x_values = np.linspace(x_min, x_max, num_points)
+    
+    # Calculate y values using Gaussian formula
+    peak_height = (40/sigma_px) * svg_height
+    
+    y_values = []
+    for x in x_values:
+        exponent = -((x - mu_px) ** 2) / (2 * sigma_px ** 2)
+        y = np.exp(exponent)
+        y_pixel = baseline - (y * peak_height)
+        y_values.append(y_pixel)
+    
+    # Create points string for polyline
+    points = " ".join([f"{x:.2f},{y:.2f}" for x, y in zip(x_values, y_values)])
+    
+    # Create points for filled polygon (add baseline corners)
+    fill_points = points + f" {x_values[-1]:.2f},{baseline} {x_values[0]:.2f},{baseline}"
+    
+    # Generate SVG with RGB color conversion
+    rgb = tuple(int(color.lstrip('#')[i:i+2], 16) for i in (0, 2, 4))
+    fill_color = f"rgba({rgb[0]}, {rgb[1]}, {rgb[2]}, {fill_opacity})"
+    
+    # Return ONLY the SVG element, no section wrapper
+    svg = f'''<svg data-id="{data_id}" style="position: absolute; left: 100px; top: 100px; width: {svg_width}px; height: {svg_height}px;">
+  <polygon points="{fill_points}" 
+           fill="{fill_color}" 
+           stroke="{color}" 
+           stroke-width="4"
+           stroke-linejoin="round"/>
+</svg>'''
+    
+    return svg
 
-$$P(Box|Data) = \frac{P(Data|Box) \times P(Box)}{P(Data)}$$
+_generate_gaussian_svg = generate_gaussian_svg
+```
 
-- **Prior**: Initial belief (50% each)
-- **Likelihood**: How probable is this bead from each box?
-- **Posterior**: Updated belief after seeing data
+```{python}
+#| echo: false
+#| output: false
+
+# Generate all SVG strings upfront
+svg1_slide1 = _generate_gaussian_svg(mu_px=650, sigma_px=150, svg_height=830, data_id="bellcurveog1", color="#55a709ff",fill_opacity=0.1)
+svg2_slide1 = _generate_gaussian_svg(mu_px=1000, sigma_px=50, svg_height=830, svg_width=1500, data_id="bellcurveog2", color="#5178f8ff",fill_opacity=0.1)
+
+svg1_slide2 = _generate_gaussian_svg(mu_px=900, sigma_px=37, svg_height=830, data_id="bellcurve", color="#55a709ff")
+svg2_slide2 = _generate_gaussian_svg(mu_px=900, sigma_px=37, svg_height=830, svg_width=1500, data_id="bellcurve2", color="#5178f8ff")
+
+```
+
+```{python}
+#| echo: false
+#| output: false
+
+def generate_morph_slides(start_params, end_params, num_steps=10):
+    """
+    Generate intermediate slides for smooth morphing animation.
+    
+    start_params: dict with 'mu_px' and 'sigma_px' for starting positions
+    end_params: dict with 'mu_px' and 'sigma_px' for ending positions
+    num_steps: number of intermediate frames
+    """
+    slides = []
+    
+    for i in range(num_steps + 1):
+        # Linear interpolation factor (0 to 1)
+        t = i / num_steps
+        
+        # Interpolate parameters for both curves
+        mu1 = start_params['curve1']['mu_px'] + t * (end_params['curve1']['mu_px'] - start_params['curve1']['mu_px'])
+        sigma1 = start_params['curve1']['sigma_px'] + t * (end_params['curve1']['sigma_px'] - start_params['curve1']['sigma_px'])
+        
+        mu2 = start_params['curve2']['mu_px'] + t * (end_params['curve2']['mu_px'] - start_params['curve2']['mu_px'])
+        sigma2 = start_params['curve2']['sigma_px'] + t * (end_params['curve2']['sigma_px'] - start_params['curve2']['sigma_px'])
+        
+        # Generate SVGs for this frame
+        svg1 = _generate_gaussian_svg(mu_px=mu1, sigma_px=sigma1, svg_height=830, 
+                                      data_id="bellcurve3", color="#55a709ff")
+        svg2 = _generate_gaussian_svg(mu_px=mu2, sigma_px=sigma2, svg_height=830, 
+                                      svg_width=1500, data_id="bellcurve4", color="#5178f8ff")
+        
+        slides.append((svg1, svg2))
+    
+    return slides
+
+# Define start and end states
+start_state = {
+    'curve1': {'mu_px': 650, 'sigma_px': 150},
+    'curve2': {'mu_px': 1000, 'sigma_px': 50}
+}
+
+end_state = {
+    'curve1': {'mu_px': 900, 'sigma_px': 37},
+    'curve2': {'mu_px': 900, 'sigma_px': 37}
+}
+
+# Generate 15 intermediate frames for smooth animation
+morph_slides = generate_morph_slides(start_state, end_state, num_steps=15)
+```
+
+
+## The Gaussian Bell Curve {auto-animate=true data-autoslide="0" auto-animate-easing="ease-in-out" data-autoslide="0"}
+
+::: {style="position: relative; width: 1500px; height: 880px; margin: auto;"}
+
+<div data-id="box" style="position: absolute; left: 100px; top: 100px; width: 1500px; height: 880px; border: 3px solid #42affa; border-radius: 10px;"></div>
+
+<div data-id="xaxis" style="position: absolute; left: 100px; top: 880px; width: 1500px; height: 0px; background: rgba(255, 100, 100, 0.3); border: 1px solid #ff6464; border-radius: 1px;"></div>
+<div data-id="yaxis" style="position: absolute; left: 850px; top: 100px; width: 0px; height: 880px; background: rgba(255, 100, 100, 0.3); border: 1px solid #ff6464; border-radius: 1px;"></div>
+```{python}
+#| echo: false
+#| output: asis
+# First slide (index 0)
+svg1, svg2 =(svg1_slide1,svg2_slide1)
+print(svg1)
+print(svg2)
+```
+
+:::
+::: {.section data-autoslide="200"}
+```{python}
+#| echo: false
+#| output: asis
+# Generate all intermediate slides
+for i in range(1, len(morph_slides)):
+    svg1, svg2 = morph_slides[i]
+    
+    # Determine title based on progress
+    if i < len(morph_slides) - 1:
+        title = f"The Gaussian Bell Curve -> morphing"
+        auto_slide = "data-autoslide=\"200\""  # Auto-advance after 100ms
+    else:
+        title = f"The Gaussian Bell Curve -> combined"
+        auto_slide = "data-autoslide=\"0\""  # Stop auto-advancing on final slide
+    
+    print(f'''
+## {title} {{auto-animate=true auto-animate-easing="ease-in-out" {auto_slide}}}
+
+::: {{style="position: relative; width: 1500px; height: 880px; margin: auto;"}}
+
+<div data-id="box" style="position: absolute; left: 100px; top: 100px; width: 1500px; height: 880px; border: 3px solid #42affa; border-radius: 10px;"></div>
+
+<div data-id="xaxis" style="position: absolute; left: 100px; top: 880px; width: 1500px; height: 0px; background: rgba(255, 100, 100, 0.3); border: 1px solid #ff6464; border-radius: 1px;"></div>
+<div data-id="yaxis" style="position: absolute; left: 850px; top: 100px; width: 0px; height: 880px; background: rgba(255, 100, 100, 0.3); border: 1px solid #ff6464; border-radius: 1px;"></div>
+
+{svg2}
+{svg1}
+''')
+    print(f'{svg2_slide1}')
+    print(f'{svg1_slide1}')
+    print(f':::')
+
+    if i == len(morph_slides) -1:
+        print('''
+<button onclick="Reveal.slide(Reveal.getIndices().h + 1); Reveal.configure({autoSlide: 200});" 
+        style="padding: 10px 20px; font-size: 18px; cursor: pointer;">
+   Play Animation
+</button>
+
+::: {style="position: relative; width: 1500px; height: 880px; margin: auto;"}
+...
+    
+    ''')
+```
+:::
