@@ -617,7 +617,7 @@ We will turn the same **prior → evidence → posterior** loop into a better es
 
 ---
 
-## Bayes Updates the Belief {.gaussian-slide auto-animate=true auto-animate-easing="ease-in-out"}
+## Combine Two Imperfect Guesses {.gaussian-slide auto-animate=true auto-animate-easing="ease-in-out"}
 
 <div class="gaussian-canvas" role="img" aria-label="The model prediction moves toward the more precise sensor measurement and becomes a narrower posterior distribution.">
   <div class="probability-baseline"></div>
@@ -625,43 +625,40 @@ We will turn the same **prior → evidence → posterior** loop into a better es
   <div data-id="sensor-curve" class="distribution sensor-distribution" style="left: 900px; width: 420px; height: 520px; opacity: 0.22;"></div>
   <div data-id="model-mean" class="mean-line posterior-mean" style="left: 960px; height: 580px;"></div>
   <div data-id="sensor-mean" class="mean-line sensor-mean" style="left: 1110px; height: 530px; opacity: 0.22;"></div>
-  <div data-id="model-label" class="curve-label posterior-label" style="left: 790px;">Posterior: fused estimate</div>
-  <div data-id="sensor-label" class="curve-label muted-label" style="left: 1020px; opacity: 0.35;">Sensor evidence</div>
+  <div data-id="model-label" class="curve-label posterior-label" style="left: 790px;">Updated best guess</div>
+  <div data-id="sensor-label" class="curve-label muted-label" style="left: 1020px; opacity: 0.35;">New sensor reading</div>
 </div>
 
 ::: {.highlight-box}
-The posterior moves toward the more trustworthy input and is more precise than the original prediction. This is the idea a Kalman filter repeats over time.
+The new best guess lands between the prediction and the sensor reading—but closer to whichever one is more dependable. The narrower shape means **we are now more confident**.
 :::
 
 ---
 
-## From Bayes to a Kalman Filter
+## A Kalman Filter Is Bayes in Motion
 
 ::: {.columns}
 
 ::: {.column width="48%"}
 
-### Bayes asks
+### Bayes asks one useful question
 
-> Given what I believed before and what I just observed, what should I believe now?
+> “Given my old guess and this new evidence, what is my better guess now?”
 
-$$
-P(\text{state}\mid\text{measurement})
-\propto
-P(\text{measurement}\mid\text{state})P(\text{state})
-$$
+::: {.plain-language-card}
+**Old guess** + **new evidence** → **updated guess**
+:::
 
 :::
 
 ::: {.column width="52%"}
 
-### A Kalman filter applies that question to motion
+### A Kalman filter asks it again and again
 
-- The **state** is usually position and velocity.
-- The **prior** comes from the motion model.
-- The **evidence** comes from sensors.
-- The **posterior** is the corrected state estimate.
-- That posterior becomes the next prediction's starting point.
+- **Old guess:** where motion says the object should be.
+- **New evidence:** where a sensor says the object is.
+- **Updated guess:** the most believable location right now.
+- Then motion carries that answer forward to the next moment.
 
 :::
 
@@ -669,74 +666,67 @@ $$
 
 ---
 
-## One Loop, Every Time Step
+## The Four-Step Loop
 
-<div class="kalman-flow" aria-label="Kalman filter cycle: predict, measure, weight, correct, then repeat.">
+<div class="kalman-flow" aria-label="Kalman filter cycle: make a prediction, read the sensor, compare confidence, update the guess, then repeat.">
 <div class="flow-card fragment fade-up">
 <span class="flow-number">1</span>
-<h3>Predict</h3>
-<p>Advance position and velocity with the motion model.</p>
+<h3>Make a guess</h3>
+<p>Use the last position and direction of travel to predict what happens next.</p>
 </div>
 <div class="flow-arrow" aria-hidden="true">→</div>
 <div class="flow-card fragment fade-up">
 <span class="flow-number">2</span>
-<h3>Measure</h3>
-<p>Read the new sensor value and its expected noise.</p>
+<h3>Read the sensor</h3>
+<p>Get a fresh—but imperfect—observation of where the object is.</p>
 </div>
 <div class="flow-arrow" aria-hidden="true">→</div>
 <div class="flow-card fragment fade-up">
 <span class="flow-number">3</span>
-<h3>Weight</h3>
-<p>Use uncertainty to decide how much to trust each source.</p>
+<h3>Compare confidence</h3>
+<p>Ask which source has usually been more dependable.</p>
 </div>
 <div class="flow-arrow" aria-hidden="true">→</div>
 <div class="flow-card fragment fade-up">
 <span class="flow-number">4</span>
-<h3>Correct</h3>
-<p>Move the prediction toward the measurement, then repeat.</p>
+<h3>Update the guess</h3>
+<p>Move toward the sensor by the appropriate amount, then repeat.</p>
 </div>
 </div>
 
 ::: {.takeaway-line}
-**Predict with physics. Correct with evidence. Carry the improved belief forward.**
+**Predict where it is going. Check what the sensor saw. Blend them according to trust.**
 :::
 
 ---
 
-## What the Filter Is Tracking
+## It Carries Three Things Forward {.tracking-slide}
 
 ::: {.columns}
 
 ::: {.column width="48%"}
 
-### The hidden state
+### The current story
 
-For motion in one dimension, the state can be:
+::: {.tracking-list}
+<span class="tracking-icon">📍</span><span><strong>Where is it?</strong><br>Our best estimate of position.</span>
 
-$$
-\mathbf{x}_k =
-\begin{bmatrix}
-\text{position} \\
-\text{velocity}
-\end{bmatrix}
-$$
-
-The state is our best estimate of what is actually happening.
+<span class="tracking-icon">➡️</span><span><strong>How is it moving?</strong><br>Our best estimate of speed and direction.</span>
+:::
 
 :::
 
 ::: {.column width="52%"}
 
-### The uncertainty
+### Its confidence
 
-The filter also carries an uncertainty matrix, $\mathbf{P}_k$.
+::: {.confidence-card}
+<span class="tracking-icon">🎯</span>
 
-- Larger uncertainty means “I am less sure.”
-- Motion and disturbances increase uncertainty.
-- Good measurements reduce uncertainty.
-- Position and velocity uncertainty can be related.
+**How sure are we?**
 
-The estimate and its uncertainty always travel together.
+A wide possible range means “not very sure.” A narrow range means “quite sure.” Time and unexpected motion widen the range; dependable measurements narrow it.
+:::
 
 :::
 
@@ -744,102 +734,98 @@ The estimate and its uncertainty always travel together.
 
 ---
 
-## A Spatial Prediction Example
+## One Update on a Number Line {.number-line-slide}
 
-<div class="position-track" role="img" aria-label="A predicted position at 10 meters, a sensor measurement at 11.2 meters, and a fused estimate at 10.96 meters.">
+<div class="position-track" role="img" aria-label="Motion predicts 10 meters, the sensor reports 11.2 meters, and the updated best guess is 10.96 meters.">
 <div class="track-line"></div>
 <div class="track-tick" style="left: 12%;"><span>9 m</span></div>
 <div class="track-tick" style="left: 45%;"><span>10 m</span></div>
 <div class="track-tick" style="left: 78%;"><span>11 m</span></div>
 <div class="position-marker prediction-marker" style="left: 45%;">
 <span class="marker-dot"></span>
-<strong>Prediction</strong>
-<small>10.0 m ± 1.0 m</small>
+<strong>Motion says</strong>
+<small>about 10.0 m</small>
 </div>
 <div class="position-marker sensor-marker" style="left: 84%;">
 <span class="marker-dot"></span>
-<strong>Sensor</strong>
-<small>11.2 m ± 0.5 m</small>
+<strong>Sensor says</strong>
+<small>about 11.2 m</small>
 </div>
 <div class="position-marker fused-marker" style="left: 76%;">
 <span class="marker-dot"></span>
-<strong>Fused estimate</strong>
-<small>10.96 m ± 0.45 m</small>
+<strong>Best combined guess</strong>
+<small>about 10.96 m</small>
 </div>
 </div>
 
 ::: {.columns}
 
 ::: {.column width="50%"}
-### Before the update
+### Why not just average them?
 
-The model predicts **10.0 m**, but it is relatively uncertain.
+The sensor is more dependable in this example, so the answer should land closer to **11.2 m** than to **10.0 m**.
 :::
 
 ::: {.column width="50%"}
-### After the update
+### What did we gain?
 
-The accurate sensor pulls the estimate toward **11.2 m** and reduces uncertainty.
+We get a location that respects both motion and evidence—and more confidence than we had from the prediction alone.
 :::
 
 :::
 
 ---
 
-## The Kalman Gain Is the Trust Dial
+## The “Trust Dial” Controls the Move
 
 <div class="gain-grid">
 <div class="gain-card">
-<span class="gain-value">K ≈ 0</span>
-<h3>Trust the model</h3>
-<p>The sensor is noisy, so the estimate barely moves.</p>
+<span class="gain-value">Dial near 0</span>
+<h3>Mostly trust motion</h3>
+<p>The sensor is unreliable, so the guess barely moves toward it.</p>
 </div>
 <div class="gain-card active-gain">
-<span class="gain-value">0 &lt; K &lt; 1</span>
+<span class="gain-value">Dial in the middle</span>
 <h3>Blend both</h3>
-<p>Most real updates land here: a weighted correction.</p>
+<p>Both sources have value, so the answer lands between them.</p>
 </div>
 <div class="gain-card">
-<span class="gain-value">K ≈ 1</span>
-<h3>Trust the sensor</h3>
-<p>The measurement is precise, so the estimate moves close to it.</p>
+<span class="gain-value">Dial near 1</span>
+<h3>Mostly trust the sensor</h3>
+<p>The reading is dependable, so the guess moves close to it.</p>
 </div>
 </div>
 
-$$
-\text{new estimate}
-=
-\text{prediction}
-+
-K(\text{measurement}-\text{prediction})
-$$
+::: {.plain-language-equation}
+**Updated guess** = motion prediction + **some fraction of the gap** toward the sensor
+:::
 
-The difference in parentheses is the **innovation**: the new information the sensor contributed.
+Engineers call that fraction the **Kalman gain**. It is calculated from the relative uncertainty of the prediction and the sensor—not chosen by hand each time.
 
 ---
 
-## Why Spatial Predictions Improve
+## Why the Combination Works Better
 
 <div class="comparison-grid">
 <div class="comparison-card">
-<span class="comparison-icon">Model only</span>
-<h3>Drift grows</h3>
-<p>Small errors in velocity and timing accumulate into position error.</p>
+<span class="comparison-icon">Motion only</span>
+<h3>It drifts</h3>
+<p>Tiny errors accumulate, so the predicted position slowly wanders away.</p>
 </div>
 <div class="comparison-card">
 <span class="comparison-icon">Sensor only</span>
-<h3>Noise jumps</h3>
-<p>Each reading can bounce around the true position.</p>
+<h3>It jitters</h3>
+<p>Individual readings bounce around, even when the object moves smoothly.</p>
 </div>
 <div class="comparison-card comparison-best">
-<span class="comparison-icon">Kalman fusion</span>
-<h3>Smoother and predictive</h3>
-<p>The model fills gaps; measurements pull the estimate back toward reality.</p>
+<span class="comparison-icon">Kalman filter</span>
+<h3>It stays smooth and grounded</h3>
+<p>Motion fills the gaps; sensors keep the prediction connected to reality.</p>
 </div>
 </div>
 
 ::: {.highlight-box}
-A Kalman filter does not magically remove uncertainty. It **tracks uncertainty explicitly** and uses it to make the best correction available at each step.
+A Kalman filter does not claim to know the exact truth. It keeps a **best guess plus an honest measure of confidence**, then improves both whenever new evidence arrives.
 :::
 
 ---
@@ -848,23 +834,23 @@ A Kalman filter does not magically remove uncertainty. It **tracks uncertainty e
 
 <div class="big-picture">
 
-**Prior**
-where the object should be
+**Prediction**
+where motion says it should be
 
 <span aria-hidden="true">+</span>
 
-**Evidence**
+**Observation**
 where the sensor says it is
 
 <span aria-hidden="true">→</span>
 
-**Posterior**
-a better estimate, with updated confidence
+**Updated best guess**
+where we now think it is—and how sure we are
 
 </div>
 
 ### Then repeat at the next time step.
 
 ::: {.takeaway-line}
-Bayes provides the logic. The motion model provides the prediction. The Kalman filter turns both into a continuously improving estimate of position and velocity.
+**A Kalman filter is a repeating trust exercise:** predict, observe, blend, and carry the improved guess forward.
 :::
