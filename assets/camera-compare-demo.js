@@ -23,7 +23,7 @@
       keys.clear();
       root.querySelectorAll("[data-drive]").forEach(b=>b.classList.remove("pressed"));
       truth={x:6,y:3.5,a:-Math.PI/2,left:0,right:0,biasL:.14,biasR:.25,t:0};
-      filters={single:{ex:6,ey:3.5,ea:-Math.PI/2,p:.12,k:0,hits:[]},multi:{ex:6,ey:3.5,ea:-Math.PI/2,p:.12,k:0,hits:[]}};
+      filters={single:{ex:6,ey:3.5,ea:-Math.PI/2,p:.12,k:0,hits:[],errors:[]},multi:{ex:6,ey:3.5,ea:-Math.PI/2,p:.12,k:0,hits:[],errors:[]}};
       paused=false;get("pause").textContent="Pause";drawAll();readout();
     }
 
@@ -59,6 +59,7 @@
         const sensed=observe(angles,noise);f.hits=sensed.hits;
         if(sensed.measurement){f.k=f.p/(f.p+sensed.variance);if(truth.t%4===0){f.ex+=f.k*(sensed.measurement.x-f.ex);f.ey+=f.k*(sensed.measurement.y-f.ey);f.p=(1-f.k)*f.p;}}
         else f.k=0;
+        f.errors.push(Math.hypot(f.ex-truth.x,f.ey-truth.y));if(f.errors.length>160)f.errors.shift();
       });
       drawAll();readout();
     }
@@ -79,7 +80,7 @@
     }
     const drawAll=()=>{draw("single",[0]);draw("multi",[-.48,0,.48]);};
     function readout(){
-      ["single","multi"].forEach(name=>{const f=filters[name];get(name+"-error").textContent=Math.hypot(f.ex-truth.x,f.ey-truth.y).toFixed(2)+" m error";get(name+"-k").textContent="K "+f.k.toFixed(2);get(name+"-sigma").textContent="σ "+Math.sqrt(f.p).toFixed(2)+" m";});
+      ["single","multi"].forEach(name=>{const f=filters[name],rms=Math.sqrt(f.errors.reduce((sum,e)=>sum+e*e,0)/Math.max(1,f.errors.length));get(name+"-error").textContent=rms.toFixed(2)+" m average error";get(name+"-k").textContent="K "+f.k.toFixed(2);get(name+"-sigma").textContent="σ "+Math.sqrt(f.p).toFixed(2)+" m";});
     }
     ["noise","motion"].forEach(name=>get(name).addEventListener("input",()=>{get(name+"-out").textContent=(+get(name).value).toFixed(2)+(name==="noise"?" m":"");}));
     root.querySelectorAll("[data-drive]").forEach(button=>{const key=button.dataset.drive;button.addEventListener("pointerdown",e=>{e.preventDefault();button.setPointerCapture(e.pointerId);keys.add(key);button.classList.add("pressed");});["pointerup","pointercancel","lostpointercapture"].forEach(type=>button.addEventListener(type,()=>{keys.delete(key);button.classList.remove("pressed");}));button.addEventListener("click",e=>e.preventDefault());});
