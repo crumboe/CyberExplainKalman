@@ -683,6 +683,127 @@ body,
   transition: opacity 320ms ease, transform 320ms ease;
 }
 
+/* Guided Bayes activity */
+.activity-grid,
+.bayes-weights {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8em;
+  margin: 0.6em 0;
+}
+
+.activity-card,
+.weight-card {
+  box-sizing: border-box;
+  padding: 0.8em 0.95em;
+  background: var(--panel-bg);
+  border: 2px solid var(--panel-border);
+  border-radius: 16px;
+}
+
+.activity-card h4,
+.weight-card h4 {
+  margin: 0 0 0.35em;
+}
+
+.activity-card > p:first-child strong,
+.weight-card > p:first-child strong,
+.evidence-card > p:first-child strong {
+  display: block;
+  margin-bottom: 0.28em;
+  color: #ffffff;
+  font-size: 1.08em;
+}
+
+.activity-card.good-motor {
+  border-color: rgba(98, 223, 166, 0.65);
+}
+
+.activity-card.bad-motor,
+.weight-card.emphasis {
+  border-color: rgba(255, 100, 100, 0.7);
+}
+
+.prior-strip,
+.update-chain,
+.activity-loop {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7em;
+  box-sizing: border-box;
+  margin: 0.65em 0;
+  padding: 0.55em 0.8em;
+  background: rgba(255, 255, 255, 0.055);
+  border-radius: 14px;
+}
+
+.prior-value {
+  padding: 0.18em 0.55em;
+  border-radius: 999px;
+  font-weight: 750;
+}
+
+.prior-value.good {
+  background: rgba(98, 223, 166, 0.2);
+}
+
+.prior-value.bad {
+  background: rgba(255, 100, 100, 0.2);
+}
+
+.presenter-prompt {
+  margin-top: 0.6em;
+  padding: 0.6em 0.8em;
+  color: #e6f5ff;
+  background: rgba(36, 168, 255, 0.12);
+  border-left: 5px solid var(--accent);
+  border-radius: 10px;
+}
+
+.belief-bar {
+  display: flex;
+  width: 100%;
+  min-height: 2.2em;
+  margin: 0.55em 0;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+}
+
+.belief-bar span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 0.2em;
+  font-size: 0.68em;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.belief-bar > p {
+  display: flex;
+  width: 100%;
+  margin: 0;
+}
+
+.belief-good {
+  color: #07111f;
+  background: var(--success);
+}
+
+.belief-bad {
+  color: #ffffff;
+  background: #c94f64;
+}
+
+.activity-loop {
+  flex-wrap: wrap;
+  color: var(--accent);
+  font-size: 0.9em;
+}
+
 @media (max-width: 900px), (max-height: 650px) {
   .reveal .slides section {
     padding: 28px 36px;

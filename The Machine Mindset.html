@@ -215,10 +215,6 @@ Christopher Reckner
 </div>
 
 </section>
-<section class="slide level2">
-
-<!-- Slide 1: Agenda -->
-</section>
 <section id="agenda" class="slide level2 center">
 <h2>Agenda</h2>
 <h3 id="timing-summary">Timing Summary</h3>
@@ -678,108 +674,160 @@ P(\text{Event} \mid \text{Evidence})
 \frac{P(\text{Event})\,P(\text{Evidence} \mid \text{Event})}{P(\text{Evidence})}
 \]</span></p>
 <div class="evidence-flow">
-<section id="start-with-a-prior" class="evidence-card">
-<h4>1. Start with a prior</h4>
-<p>Our confidence before the new observation.</p>
-</section>
-<section id="evaluate-the-evidence" class="evidence-card">
-<h4>2. Evaluate the evidence</h4>
-<p>Ask how likely this observation is under the event.</p>
-</section>
-<section id="calculate-the-posterior" class="evidence-card">
-<h4>3. Calculate the posterior</h4>
-<p>The updated confidence after incorporating the evidence.</p>
-</section>
-<section id="repeat" class="evidence-card">
-<h4>4. Repeat</h4>
-<p>Use the posterior as the prior for the next observation.</p>
-</section>
+<div class="evidence-card">
+<p><strong>1. Start with a prior</strong> Our confidence before the new observation.</p>
+</div>
+<div class="evidence-card">
+<p><strong>2. Evaluate the evidence</strong> Ask how likely this observation is under the event.</p>
+</div>
+<div class="evidence-card">
+<p><strong>3. Calculate the posterior</strong> The updated confidence after incorporating the evidence.</p>
+</div>
+<div class="evidence-card">
+<p><strong>4. Repeat</strong> Use the posterior as the prior for the next observation.</p>
+</div>
 </div>
 <div class="highlight-box">
 <p>Reliable evidence strengthens confidence; contradictory evidence weakens it. Repeating the loop produces increasingly informed beliefs.</p>
 </div>
 </section>
-<section id="activity-bayes-and-the-broken-motor" class="slide level2">
-<h2>Activity: Bayes and the Broken Motor</h2>
-<h3 id="setup">Setup</h3>
-<ul>
-<li><strong>Box A (Good Motor):</strong> 36 Green beads (90%), 4 Red beads (10%)</li>
-<li><strong>Box B (Bad Motor):</strong> 20 Green beads (50%), 20 Red beads (50%)</li>
-<li>Student draws a bead from a randomly chosen box.</li>
-</ul>
-<h3 id="scenario">Scenario</h3>
-<p>Suppose a student draws a <strong>red bead</strong>. What is the probability it came from Box B?</p>
-<h3 id="bayes-calculation">Bayes Calculation</h3>
-<p><span class="math display">\[
-P(\text{Box B} \mid \text{Red}) = \frac{P(\text{Red} \mid \text{Box B}) \cdot P(\text{Box B})}{P(\text{Red})}
-\]</span></p>
+<section id="activity-setup" class="slide level2 compact-slide">
+<h2>Activity — Diagnose the Hidden Motor</h2>
+<h3 id="the-question">The question</h3>
+<p>One box was chosen and stays hidden. Each bead is a new test result. <strong>Which motor is more likely?</strong></p>
+<div class="activity-grid">
+<div class="activity-card good-motor">
+<p><strong>Hypothesis A — motor is good</strong></p>
+<p>🟢 <strong>90% green</strong> · 🔴 <strong>10% red</strong></p>
+<p>A red result is unusual when the motor is healthy.</p>
+</div>
+<div class="activity-card bad-motor">
+<p><strong>Hypothesis B — motor is broken</strong></p>
+<p>🟢 <strong>50% green</strong> · 🔴 <strong>50% red</strong></p>
+<p>A red result is five times more likely when it is broken.</p>
+</div>
+</div>
+<div class="prior-strip">
+<p><span><strong>Starting prior:</strong> no preference yet</span> <span class="prior-value good">Good 50%</span> <span class="prior-value bad">Broken 50%</span></p>
+</div>
+<div class="presenter-prompt">
+<p><strong>Ask the room:</strong> If the first test is red, which hypothesis should gain confidence—and why?</p>
+</div>
 </section>
-<section id="activity-bayes-and-the-broken-motor-1" class="slide level2">
-<h2>Activity: Bayes and the Broken Motor</h2>
-<p><strong>Step 1: Priors</strong><br>
-<span class="math inline">\(P(\text{Box A}) = 0.5\)</span><br>
-<span class="math inline">\(P(\text{Box B}) = 0.5\)</span></p>
-<p><strong>Step 2: Likelihoods</strong><br>
-<span class="math inline">\(P(\text{Red} \mid \text{Box A}) = \frac{4}{40} = 0.10\)</span><br>
-<span class="math inline">\(P(\text{Red} \mid \text{Box B}) = \frac{20}{40} = 0.50\)</span></p>
-<p><strong>Step 3: Total probability of red bead</strong><br>
-<span class="math inline">\(P(\text{Red}) = 0.10 \times 0.5 + 0.50 \times 0.5 = 0.05 + 0.25 = 0.30\)</span></p>
+<section id="activity-test-one" class="slide level2 compact-slide">
+<h2>Test 1 — A Red Result</h2>
+<h3 id="step-1-weight-each-hypothesis-by-how-well-it-predicts-red">Step 1: weight each hypothesis by how well it predicts red</h3>
+<div class="bayes-weights">
+<div class="weight-card">
+<p><strong>Good motor</strong> Prior × likelihood<br> <span class="math inline">\(0.50 \times 0.10 = 0.05\)</span></p>
+</div>
+<div class="weight-card emphasis">
+<p><strong>Broken motor</strong> Prior × likelihood<br> <span class="math inline">\(0.50 \times 0.50 = 0.25\)</span></p>
+</div>
+</div>
+<h3 id="step-2-normalize-the-two-weights">Step 2: normalize the two weights</h3>
 <p><span class="math display">\[
-P(\text{Box B} \mid \text{Red}) = \frac{P(\text{Red} \mid \text{Box B}) \cdot P(\text{Box B})}{P(\text{Red})}
+P(\text{Broken}\mid\text{Red})
+=\frac{0.25}{0.05+0.25}
+=\mathbf{83.3\%}
 \]</span></p>
+<div class="belief-bar" role="img" aria-label="Posterior probability: good motor 16.7 percent, broken motor 83.3 percent.">
+<p><span class="belief-good" style="width: 16.7%;">Good 16.7%</span><span class="belief-bad" style="width: 83.3%;">Broken 83.3%</span></p>
+</div>
+<div class="highlight-box">
+<p>The <strong>posterior is 83.3% broken</strong>. That posterior becomes the prior for the next test.</p>
+</div>
 </section>
-<section id="example-draw-sequences" class="slide level2">
-<h2>Example Draw Sequences</h2>
+<section id="activity-test-two" class="slide level2 compact-slide">
+<h2>Test Again — A Green Result</h2>
+<h3 id="step-3-reuse-the-posterior-as-the-new-prior">Step 3: reuse the posterior as the new prior</h3>
+<div class="update-chain">
+<p><span>Previous posterior</span><strong>83.3% broken</strong><span class="flow-arrow">→</span><span>New prior</span><strong>83.3% broken</strong></p>
+</div>
+<h3 id="step-4-apply-the-green-likelihoods">Step 4: apply the green likelihoods</h3>
+<div class="bayes-weights">
+<div class="weight-card">
+<p><strong>Good motor</strong> <span class="math inline">\(0.167 \times 0.90 = 0.150\)</span></p>
+</div>
+<div class="weight-card emphasis">
+<p><strong>Broken motor</strong> <span class="math inline">\(0.833 \times 0.50 = 0.417\)</span></p>
+</div>
+</div>
+<p><span class="math display">\[
+P(\text{Broken}\mid\text{Red, Green})
+=\frac{0.417}{0.150+0.417}
+=\mathbf{73.5\%}
+\]</span></p>
+<div class="belief-bar" role="img" aria-label="Updated probability: good motor 26.5 percent, broken motor 73.5 percent.">
+<p><span class="belief-good" style="width: 26.5%;">Good 26.5%</span><span class="belief-bad" style="width: 73.5%;">Broken 73.5%</span></p>
+</div>
+<div class="presenter-prompt">
+<p>Green is evidence for a good motor, so confidence in “broken” falls—but one green result does not erase the earlier red result.</p>
+</div>
+</section>
+<section id="activity-repeat" class="slide level2 compact-slide">
+<h2>Repeat — Each Test Refines the Estimate</h2>
+<h3 id="example-sequence-from-the-same-hidden-box">Example sequence from the same hidden box: 🔴 → 🟢 → 🔴 → 🟢</h3>
 <table class="caption-top">
+<colgroup>
+<col style="width: 18%">
+<col style="width: 25%">
+<col style="width: 18%">
+<col style="width: 18%">
+<col style="width: 18%">
+</colgroup>
 <thead>
 <tr class="header">
-<th style="text-align: left;">Step</th>
-<th style="text-align: left;">Sequence 1</th>
-<th style="text-align: left;">Sequence 2</th>
-<th style="text-align: left;">Sequence 3</th>
+<th style="text-align: left;">Test</th>
+<th style="text-align: center;">Observation</th>
+<th style="text-align: right;">Prior: broken</th>
+<th style="text-align: right;">Updated belief: broken</th>
+<th style="text-align: left;">Interpretation</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">Initial</td>
-<td style="text-align: left;">50.0%</td>
-<td style="text-align: left;">50.0%</td>
-<td style="text-align: left;">50.0%</td>
+<td style="text-align: left;">Start</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;"><strong>50.0%</strong></td>
+<td style="text-align: left;">Both hypotheses are equally plausible</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Draw 1</td>
-<td style="text-align: left;">Red → <strong>83.3%</strong></td>
-<td style="text-align: left;">Green → <strong>35.7%</strong></td>
-<td style="text-align: left;">Red → <strong>83.3%</strong></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: center;">🔴 Red</td>
+<td style="text-align: right;">50.0%</td>
+<td style="text-align: right;"><strong>83.3%</strong></td>
+<td style="text-align: left;">Strong evidence for broken</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Draw 2</td>
-<td style="text-align: left;">Green → <strong>73.5%</strong></td>
-<td style="text-align: left;">Green → <strong>23.6%</strong></td>
-<td style="text-align: left;">Red → <strong>96.2%</strong></td>
+<td style="text-align: left;">2</td>
+<td style="text-align: center;">🟢 Green</td>
+<td style="text-align: right;">83.3%</td>
+<td style="text-align: right;"><strong>73.5%</strong></td>
+<td style="text-align: left;">Evidence pulls back toward good</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Draw 3</td>
-<td style="text-align: left;">Red → <strong>93.3%</strong></td>
-<td style="text-align: left;">Red → <strong>60.7%</strong></td>
-<td style="text-align: left;">Green → <strong>93.3%</strong></td>
+<td style="text-align: left;">3</td>
+<td style="text-align: center;">🔴 Red</td>
+<td style="text-align: right;">73.5%</td>
+<td style="text-align: right;"><strong>93.3%</strong></td>
+<td style="text-align: left;">Repeated red makes broken very likely</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Draw 4</td>
-<td style="text-align: left;">Green → <strong>88.5%</strong></td>
-<td style="text-align: left;">Green → <strong>46.2%</strong></td>
-<td style="text-align: left;">Red → <strong>98.6%</strong></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Draw 5</td>
-<td style="text-align: left;">—</td>
-<td style="text-align: left;">Red → <strong>81.1%</strong></td>
-<td style="text-align: left;">Green → <strong>97.5%</strong></td>
+<td style="text-align: left;">4</td>
+<td style="text-align: center;">🟢 Green</td>
+<td style="text-align: right;">93.3%</td>
+<td style="text-align: right;"><strong>88.5%</strong></td>
+<td style="text-align: left;">Estimate adjusts, but remains confident</td>
 </tr>
 </tbody>
 </table>
+<div class="activity-loop">
+<p><strong>Prior</strong><span>×</span><strong>likelihood of new result</strong><span>→</span><strong>normalize</strong><span>→</span><strong>posterior</strong><span>↻ next test</span></p>
+</div>
 <div class="highlight-box">
-<p><strong>Notice:</strong> A red bead supports the “bad motor” hypothesis, while a green bead supports the “good motor” hypothesis. Every posterior becomes the prior for the next draw.</p>
+<p>We never “start over.” We carry forward what we learned, then let each new observation correct the estimate. A Kalman filter performs this same cycle with position measurements.</p>
 </div>
 </section>
 <section id="lets-take-a-break" class="slide level2 center">

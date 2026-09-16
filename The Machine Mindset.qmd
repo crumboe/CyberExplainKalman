@@ -29,7 +29,6 @@ format:
     include-after-body: disable-mobile-scroll.html
 ---
 
-<!-- Slide 1: Agenda -->
 ## Agenda {.center}
 
 ### Timing Summary
@@ -440,22 +439,22 @@ $$
 ::: {.evidence-flow}
 
 ::: {.evidence-card}
-#### 1. Start with a prior
+**1. Start with a prior**
 Our confidence before the new observation.
 :::
 
 ::: {.evidence-card}
-#### 2. Evaluate the evidence
+**2. Evaluate the evidence**
 Ask how likely this observation is under the event.
 :::
 
 ::: {.evidence-card}
-#### 3. Calculate the posterior
+**3. Calculate the posterior**
 The updated confidence after incorporating the evidence.
 :::
 
 ::: {.evidence-card}
-#### 4. Repeat
+**4. Repeat**
 Use the posterior as the prior for the next observation.
 :::
 
@@ -465,52 +464,128 @@ Use the posterior as the prior for the next observation.
 Reliable evidence strengthens confidence; contradictory evidence weakens it. Repeating the loop produces increasingly informed beliefs.
 :::
 
-## Activity: Bayes and the Broken Motor
+## Activity — Diagnose the Hidden Motor {#activity-setup .compact-slide}
 
-### Setup
-* **Box A (Good Motor):** 36 Green beads (90%), 4 Red beads (10%)
-* **Box B (Bad Motor):** 20 Green beads (50%), 20 Red beads (50%)
-* Student draws a bead from a randomly chosen box.
+### The question
 
-### Scenario
-Suppose a student draws a **red bead**. What is the probability it came from Box B?
+One box was chosen and stays hidden. Each bead is a new test result. **Which motor is more likely?**
 
-### Bayes Calculation
+::: {.activity-grid}
+::: {.activity-card .good-motor}
+**Hypothesis A — motor is good**
+
+🟢 **90% green** · 🔴 **10% red**
+
+A red result is unusual when the motor is healthy.
+:::
+
+::: {.activity-card .bad-motor}
+**Hypothesis B — motor is broken**
+
+🟢 **50% green** · 🔴 **50% red**
+
+A red result is five times more likely when it is broken.
+:::
+:::
+
+::: {.prior-strip}
+<span><strong>Starting prior:</strong> no preference yet</span>
+<span class="prior-value good">Good 50%</span>
+<span class="prior-value bad">Broken 50%</span>
+:::
+
+::: {.presenter-prompt}
+**Ask the room:** If the first test is red, which hypothesis should gain confidence—and why?
+:::
+
+## Test 1 — A Red Result {#activity-test-one .compact-slide}
+
+### Step 1: weight each hypothesis by how well it predicts red
+
+::: {.bayes-weights}
+::: {.weight-card}
+**Good motor**
+Prior × likelihood<br>
+$0.50 \times 0.10 = 0.05$
+:::
+
+::: {.weight-card .emphasis}
+**Broken motor**
+Prior × likelihood<br>
+$0.50 \times 0.50 = 0.25$
+:::
+:::
+
+### Step 2: normalize the two weights
+
 $$
-P(\text{Box B} \mid \text{Red}) = \frac{P(\text{Red} \mid \text{Box B}) \cdot P(\text{Box B})}{P(\text{Red})}
+P(\text{Broken}\mid\text{Red})
+=\frac{0.25}{0.05+0.25}
+=\mathbf{83.3\%}
 $$
 
-## Activity: Bayes and the Broken Motor
-
-**Step 1: Priors**  
-$P(\text{Box A}) = 0.5$  
-$P(\text{Box B}) = 0.5$
-
-**Step 2: Likelihoods**  
-$P(\text{Red} \mid \text{Box A}) = \frac{4}{40} = 0.10$  
-$P(\text{Red} \mid \text{Box B}) = \frac{20}{40} = 0.50$
-
-**Step 3: Total probability of red bead**  
-$P(\text{Red}) = 0.10 \times 0.5 + 0.50 \times 0.5 = 0.05 + 0.25 = 0.30$
-
-$$
-P(\text{Box B} \mid \text{Red}) = \frac{P(\text{Red} \mid \text{Box B}) \cdot P(\text{Box B})}{P(\text{Red})}
-$$
-
-
-## Example Draw Sequences
-
-| Step | Sequence 1 | Sequence 2 | Sequence 3 |
-|:--|:--|:--|:--|
-| Initial | 50.0% | 50.0% | 50.0% |
-| Draw 1 | Red → **83.3%** | Green → **35.7%** | Red → **83.3%** |
-| Draw 2 | Green → **73.5%** | Green → **23.6%** | Red → **96.2%** |
-| Draw 3 | Red → **93.3%** | Red → **60.7%** | Green → **93.3%** |
-| Draw 4 | Green → **88.5%** | Green → **46.2%** | Red → **98.6%** |
-| Draw 5 | — | Red → **81.1%** | Green → **97.5%** |
+<div class="belief-bar" role="img" aria-label="Posterior probability: good motor 16.7 percent, broken motor 83.3 percent.">
+  <span class="belief-good" style="width: 16.7%;">Good 16.7%</span><span class="belief-bad" style="width: 83.3%;">Broken 83.3%</span>
+</div>
 
 ::: {.highlight-box}
-**Notice:** A red bead supports the “bad motor” hypothesis, while a green bead supports the “good motor” hypothesis. Every posterior becomes the prior for the next draw.
+The **posterior is 83.3% broken**. That posterior becomes the prior for the next test.
+:::
+
+## Test Again — A Green Result {#activity-test-two .compact-slide}
+
+### Step 3: reuse the posterior as the new prior
+
+::: {.update-chain}
+<span>Previous posterior</span><strong>83.3% broken</strong><span class="flow-arrow">→</span><span>New prior</span><strong>83.3% broken</strong>
+:::
+
+### Step 4: apply the green likelihoods
+
+::: {.bayes-weights}
+::: {.weight-card}
+**Good motor**
+$0.167 \times 0.90 = 0.150$
+:::
+
+::: {.weight-card .emphasis}
+**Broken motor**
+$0.833 \times 0.50 = 0.417$
+:::
+:::
+
+$$
+P(\text{Broken}\mid\text{Red, Green})
+=\frac{0.417}{0.150+0.417}
+=\mathbf{73.5\%}
+$$
+
+<div class="belief-bar" role="img" aria-label="Updated probability: good motor 26.5 percent, broken motor 73.5 percent.">
+  <span class="belief-good" style="width: 26.5%;">Good 26.5%</span><span class="belief-bad" style="width: 73.5%;">Broken 73.5%</span>
+</div>
+
+::: {.presenter-prompt}
+Green is evidence for a good motor, so confidence in “broken” falls—but one green result does not erase the earlier red result.
+:::
+
+## Repeat — Each Test Refines the Estimate {#activity-repeat .compact-slide}
+
+### Example sequence from the same hidden box: 🔴 → 🟢 → 🔴 → 🟢
+
+| Test | Observation | Prior: broken | Updated belief: broken | Interpretation |
+|:--|:--:|--:|--:|:--|
+| Start | — | — | **50.0%** | Both hypotheses are equally plausible |
+| 1 | 🔴 Red | 50.0% | **83.3%** | Strong evidence for broken |
+| 2 | 🟢 Green | 83.3% | **73.5%** | Evidence pulls back toward good |
+| 3 | 🔴 Red | 73.5% | **93.3%** | Repeated red makes broken very likely |
+| 4 | 🟢 Green | 93.3% | **88.5%** | Estimate adjusts, but remains confident |
+
+::: {.activity-loop}
+<strong>Prior</strong><span>×</span><strong>likelihood of new result</strong><span>→</span><strong>normalize</strong><span>→</span><strong>posterior</strong><span>↻ next test</span>
+:::
+
+::: {.highlight-box}
+We never “start over.” We carry forward what we learned, then let each new observation correct the estimate. A Kalman filter performs this same cycle with position measurements.
 :::
 
 ---
