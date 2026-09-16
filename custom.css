@@ -1089,6 +1089,8 @@ body,
 /* Live cart / ultrasonic Kalman simulation */
 .tank-demo { font-size: 0.65em; }
 .tank-controls { display: grid; grid-template-columns: repeat(3,1fr) auto auto; gap: 18px; margin-bottom: 16px; align-items: center; }
+.tank-fusion-controls { grid-template-columns: repeat(4,1fr) auto auto; gap: 12px; }
+.tank-fusion-controls label { padding-right: 11px; padding-left: 11px; }
 .tank-controls label { display:grid; grid-template-columns:1fr auto; gap:8px; background:var(--panel-bg); padding:12px 16px; border-radius:10px; }
 .tank-controls input { grid-column:1 / -1; width:100%; accent-color:#62c3ff; }
 .tank-controls output { color:#62c3ff; font-variant-numeric:tabular-nums; }
@@ -1107,6 +1109,8 @@ body,
 .tank-sidebar dt { color:#9eb4c8; font-size:0.8em; margin-top:10px; }
 .tank-sidebar dd { margin:2px 0 0; font-weight:700; font-variant-numeric:tabular-nums; }
 .tank-green { color:#62dfa6; }
+.tank-blue { color:#62c3ff; }
+.tank-purple { color:#b57fff; }
 .tank-orange { color:#ffb957; }
 .tank-caption { margin-top:12px; color:#d4e4ef; }
 .tank-assumption { display:block; margin-top:8px; font-size:0.7em; color:#9eb4c8; }
