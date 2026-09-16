@@ -1129,15 +1129,15 @@ where we now think it is—and how sure we are
 <div><h3>Calibration lowers the floor</h3><p>Recalibration attacks the error that sensor fusion alone can never average away.</p><strong>\(\lim_{N\to\infty}\sigma_{total}=\sigma_{bias}\)</strong></div>
 </div>
 <table class="calibration-table">
-<thead><tr><th>Setup</th><th>Random part after averaging</th><th>Shared bias</th><th>Effective σ</th></tr></thead>
+<thead><tr><th>Setup</th><th>Independent noise left after averaging<br><small>extra cameras can reduce this</small></th><th>Shared calibration bias<br><small>averaging cannot remove this</small></th><th>Total σ<br><small>combined from the two columns at left</small></th></tr></thead>
 <tbody>
-<tr><td>1 camera, uncalibrated</td><td>0.89 m</td><td>0.45 m</td><td>1.00 m</td></tr>
-<tr><td>4 cameras, same bad calibration</td><td>0.45 m</td><td>0.45 m</td><td>0.63 m</td></tr>
-<tr><td>Many cameras, same bad calibration</td><td>approaches 0</td><td>0.45 m</td><td>approaches 0.45 m</td></tr>
-<tr class="calibrated-row"><td>4 cameras, well calibrated</td><td>0.45 m</td><td>0.05 m</td><td>0.45 m</td></tr>
+<tr><td>1 camera, uncalibrated</td><td>0.80 m</td><td>0.60 m</td><td>1.00 m</td></tr>
+<tr><td>4 cameras, same bad calibration</td><td>0.40 m</td><td>0.60 m</td><td>0.72 m</td></tr>
+<tr><td>Many cameras, same bad calibration</td><td>approaches 0</td><td>0.60 m</td><td>approaches 0.60 m</td></tr>
+<tr class="calibrated-row"><td>4 cameras, well calibrated</td><td>0.40 m</td><td>0.05 m</td><td>0.403 m</td></tr>
 </tbody>
 </table>
 <p class="calibration-takeaway"><strong>Sensor fusion reduces noise; calibration removes shared bias.</strong></p>
-<small>Illustrative example: the 1.00 m starting spread is made from 0.89 m of random noise plus 0.45 m of shared bias.</small>
+<small>The total σ column uses \(\sqrt{\sigma_{random}^2 + \sigma_{bias}^2}\). In this version, 4 calibrated cameras give \(\sqrt{0.40^2 + 0.05^2} = 0.403\text{ m}\), while many badly calibrated cameras still approach the 0.60 m bias floor.</small>
 </div>
 ```

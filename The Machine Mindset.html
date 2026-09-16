@@ -1434,53 +1434,62 @@ Motion fills the gaps; sensors keep the prediction connected to reality.
 <section id="calibration-error-floor" class="slide level2 compact-slide">
 <h2>Calibration Sets the Error Floor</h2>
 <div class="calibration-explainer">
-<p class="calibration-lead">Every camera measurement contains <strong>random noise</strong> and a <strong>shared calibration bias</strong>.</p>
-<div class="calibration-equation"><strong>z<sub>i</sub> = x + b + ε<sub>i</sub></strong><span>camera reading = truth + shared bias + independent noise</span></div>
+<p class="calibration-lead"><strong>More cameras reduce random scatter.</strong> They do <em>not</em> remove the calibration mistake that every camera shares.</p>
+<div class="calibration-equation"><strong>z<sub>i</sub> = x + b + ε<sub>i</sub></strong><span>measured position = truth + shared bias + one camera's random noise</span></div>
 <div class="calibration-logic">
-<div><h3>Adding cameras</h3><p>Independent noise averages down as the camera count grows.</p><strong>\(\sigma_{random}/\sqrt{N}\)</strong></div>
-<div><h3>The shared bias remains</h3><p>All cameras can agree while every estimate is displaced by the same calibration error.</p><strong>\(\sigma_{total}^2 = \sigma_{bias}^2 + \sigma_{random}^2/N\)</strong></div>
-<div><h3>Calibration lowers the floor</h3><p>Better lens, mounting, and robot-to-camera calibration reduces the error that averaging cannot remove.</p><strong>\(\lim_{N\to\infty}\sigma_{total}=\sigma_{bias}\)</strong></div>
+<div><h3>Average the random part</h3><p>Independent noise shrinks as more cameras contribute to the estimate.</p><strong>\(\sigma_{random}/\sqrt{N}\)</strong></div>
+<div><h3>The shared offset stays</h3><p>If every camera is misaligned the same way, averaging still preserves that common shift.</p><strong>\(\sigma_{total}^2 = \sigma_{bias}^2 + \sigma_{random}^2/N\)</strong></div>
+<div><h3>Calibration lowers the floor</h3><p>Recalibration attacks the error that sensor fusion alone can never average away.</p><strong>\(\lim_{N\to\infty}\sigma_{total}=\sigma_{bias}\)</strong></div>
 </div>
 
 <table class="calibration-table caption-top">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th">Setup</th>
-<th data-quarto-table-cell-role="th">Independent noise after averaging</th>
-<th data-quarto-table-cell-role="th">Shared bias</th>
-<th data-quarto-table-cell-role="th">Effective σ</th>
+<th data-quarto-table-cell-role="th">Independent noise left after averaging<br>
+<span class="small">extra cameras can reduce this</span></th>
+<th data-quarto-table-cell-role="th">Shared calibration bias<br>
+<span class="small">averaging cannot remove this</span></th>
+<th data-quarto-table-cell-role="th">Total σ<br>
+<span class="small">combined from the two columns at left</span></th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>1 uncalibrated camera</td>
-<td>0.89 m</td>
-<td>0.45 m</td>
+<td>1 camera, uncalibrated</td>
+<td>0.80 m</td>
+<td>0.60 m</td>
 <td>1.00 m</td>
 </tr>
 <tr class="even">
-<td>4 uncalibrated cameras</td>
-<td>0.45 m</td>
-<td>0.45 m</td>
-<td>0.63 m</td>
+<td>4 cameras, same bad calibration</td>
+<td>0.40 m</td>
+<td>0.60 m</td>
+<td>0.72 m</td>
 </tr>
 <tr class="odd">
-<td>Infinitely many uncalibrated cameras</td>
+<td>Many cameras, same bad calibration</td>
 <td>approaches 0</td>
-<td>0.45 m</td>
-<td>approaches 0.45 m</td>
+<td>0.60 m</td>
+<td>approaches 0.60 m</td>
 </tr>
 <tr class="calibrated-row even">
-<td>4 well-calibrated cameras</td>
-<td>0.45 m</td>
+<td>4 cameras, well calibrated</td>
+<td>0.40 m</td>
 <td>0.05 m</td>
-<td>0.45 m</td>
+<td>0.403 m</td>
 </tr>
 </tbody>
 </table>
 
-<p class="calibration-takeaway"><strong>Calibration changes the limit.</strong> More cameras only move the system toward its existing limit.</p>
-<small>Illustrative values: the 1.00 m starting error contains 0.45 m of shared bias and 0.89 m of independent noise.</small>
+<p class="calibration-takeaway"><strong>Sensor fusion reduces noise; calibration removes shared bias.</strong></p>
+<small>The total σ column uses \(\sqrt{\sigma_{random}^2 + \sigma_{bias}^2}\). In this version, 4 calibrated cameras give \(\sqrt{0.40^2 + 0.05^2} = 0.403\text{ m}\), while many badly calibrated cameras still approach the 0.60 m bias floor.</small>
 </div>
 
 </section>
