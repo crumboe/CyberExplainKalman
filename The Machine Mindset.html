@@ -1390,7 +1390,7 @@ Motion fills the gaps; sensors keep the prediction connected to reality.
 <h2>The Filter Chooses Its Gain</h2>
 <div class="tank-demo tank-auto-demo" data-tank-auto-demo="">
 <div class="tank-controls tank-auto-controls">
-<label class="tank-auto-gain">Filter-calculated K <output data-tank="gain-out">0.35</output><span>K = P⁻ ÷ (P⁻ + R)</span></label>
+<label class="tank-auto-gain">Calculated K position / heading <output data-tank="gain-out">0.35 / 0.35</output><span>Each state uses its own uncertainty</span></label>
 <label>Camera noise σ <output data-tank="sensor-out">0.25 m</output><input data-tank="sensor" aria-label="Camera position deviation" type="range" min="0.05" max="1.5" step="0.05" value="0.25"></label>
 <label>Motion deviation <output data-tank="motion-out">0.35</output><input data-tank="motion" aria-label="Robot motion deviation" type="range" min="0" max="1.2" step="0.05" value="0.35"></label>
 <button type="button" data-tank="pause">Pause</button><button type="button" data-tank="reset">Reset</button>
@@ -1407,7 +1407,7 @@ Motion fills the gaps; sensors keep the prediction connected to reality.
 </div>
 <p>Arrow keys or WASD also work. Combine forward + turn to curve.</p>
 <p><span class="tank-green">Green robot</span>: reality<br><span class="tank-orange">Orange glow</span>: position belief<br>White cross: best estimate</p>
-<dl><dt>Camera evidence</dt><dd data-tank="sight">No tags visible</dd><dt>Prior variance P⁻</dt><dd data-tank="prior">0.120 m²</dd><dt>Camera variance R</dt><dd data-tank="measurement">Waiting for a tag</dd><dt>Automatic gain K</dt><dd data-tank="auto-k">Waiting for a tag</dd><dt>Position error</dt><dd data-tank="error">0.00 m</dd><dt>Position uncertainty σ</dt><dd data-tank="sigma">0.35 m</dd><dt>Filter update</dt><dd data-tank="status">Predicting from wheels</dd></dl>
+<dl><dt>Camera evidence</dt><dd data-tank="sight">No tags visible</dd><dt>Position gain Kxy</dt><dd data-tank="auto-k">Waiting for a tag</dd><dt>Heading gain Kθ</dt><dd data-tank="heading-k">Waiting for a tag</dd><dt>Position variance P⁻ / R</dt><dd data-tank="position-variance">0.120 / waiting</dd><dt>Heading variance P⁻θ / Rθ</dt><dd data-tank="heading-variance">0.003 / waiting</dd><dt>Position error</dt><dd data-tank="error">0.00 m</dd><dt>Position uncertainty σ</dt><dd data-tank="sigma">0.35 m</dd><dt>Filter update</dt><dd data-tank="status">Predicting from wheels</dd></dl>
 </div>
 </div>
 <div class="tank-caption"><strong>The filter recalculates K whenever a tag is visible.</strong> Wheel drift raises P⁻ and makes the camera more useful. Camera noise raises R and makes the filter trust its wheel prediction.</div>
@@ -1423,11 +1423,11 @@ Motion fills the gaps; sensors keep the prediction connected to reality.
 <button type="button" data-compare="pause">Pause</button><button type="button" data-compare="reset">Reset</button>
 </div>
 <div class="camera-compare-panels">
-<div><h3>One noisy camera</h3><canvas data-compare="single" width="820" height="500" role="img" aria-label="Robot localization using one noisy camera"></canvas><p><strong data-compare="single-error">0.00 m average error</strong><span data-compare="single-k">K 0.00</span><span data-compare="single-sigma">σ 0.35 m</span></p></div>
-<div><h3>Three partially overlapping cameras</h3><canvas data-compare="multi" width="820" height="500" role="img" aria-label="Robot localization using three noisy cameras with overlapping views"></canvas><p><strong data-compare="multi-error">0.00 m average error</strong><span data-compare="multi-k">K 0.00</span><span data-compare="multi-sigma">σ 0.35 m</span></p></div>
+<div><h3>One noisy camera</h3><canvas data-compare="single" width="820" height="500" role="img" aria-label="Robot localization using one noisy camera"></canvas><p><strong data-compare="single-error">0.00 m average error</strong><span data-compare="single-count">0 cameras</span><span data-compare="single-measurement">measurement σ —</span><span data-compare="single-sigma">belief σ 0.35 m</span></p></div>
+<div><h3>Three partially overlapping cameras</h3><canvas data-compare="multi" width="820" height="500" role="img" aria-label="Robot localization using three noisy cameras with overlapping views"></canvas><p><strong data-compare="multi-error">0.00 m average error</strong><span data-compare="multi-count">0 cameras</span><span data-compare="multi-measurement">measurement σ —</span><span data-compare="multi-sigma">belief σ 0.35 m</span></p></div>
 </div>
 <div class="camera-compare-drive"><span>Hold to drive both simulations</span><button data-drive="left" aria-label="Turn left">←</button><button data-drive="forward" aria-label="Drive forward">↑</button><button data-drive="right" aria-label="Turn right">→</button></div>
-<div class="camera-compare-caption"><strong>Independent measurements add precision.</strong> In an overlap region, three equally noisy cameras reduce measurement variance from R to about R ÷ 3. Shared calibration errors would reduce this benefit.</div>
+<div class="camera-compare-caption"><strong>Colored dots are individual camera readings. The white ring is their fused measurement.</strong> Independent cameras reduce σ by √N in overlap regions. Shared calibration errors reduce this benefit.</div>
 </div>
 
 </section>
@@ -2049,8 +2049,8 @@ Motion fills the gaps; sensors keep the prediction connected to reality.
         });
       });
     </script>
-    <script src="assets/tank-demo.js?v=40"></script>
-    <script src="assets/camera-compare-demo.js?v=41"></script>
+    <script src="assets/tank-demo.js?v=42"></script>
+    <script src="assets/camera-compare-demo.js?v=42"></script>
     <script id="quarto-html-after-body" type="application/javascript">
       window.document.addEventListener("DOMContentLoaded", function (event) {
         const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")

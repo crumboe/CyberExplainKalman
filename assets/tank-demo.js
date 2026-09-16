@@ -25,7 +25,7 @@
     function reset() {
       stop();
       s = {x:6,y:3.5,a:-Math.PI/2,ex:6,ey:3.5,ea:-Math.PI/2,
-        left:0,right:0,p:0.12,prior:0.12,pa:0.003,t:0,biasL:0.12,biasR:0.24,k:0,q:0,r:null};
+        left:0,right:0,p:0.12,prior:0.12,pa:0.003,headingPrior:0.003,t:0,biasL:0.12,biasR:0.24,k:0,hk:0,q:0,r:null,hr:null};
       seen = []; seenRear = []; lastWeights = "No camera update";
       paused = false; get("pause").textContent = "Pause"; draw(); readout(false);
     }
@@ -56,6 +56,7 @@
       s.pa += dt * (0.00015 + m*m*(0.015*moving + 0.01*Math.abs(ew)));
       s.p += q;
       s.prior = s.p;
+      s.headingPrior = s.pa;
       s.q = q;
       const visible = angle => tags.map((tag,i) => ({...tag,i,d:Math.hypot(tag.x-s.x,tag.y-s.y)}))
         .filter(tag => tag.d <= 4.6 && Math.abs(wrap(Math.atan2(tag.y-s.y,tag.x-s.x)-angle)) <= Math.PI/5);
@@ -64,10 +65,14 @@
       if (autoGain && seen.length) {
         s.r = noise * noise / seen.length;
         s.k = s.prior / (s.prior + s.r);
+        s.hr = s.r * 0.14 * 0.14;
+        s.hk = s.headingPrior / (s.headingPrior + s.hr);
         k = s.k;
       } else if (autoGain) {
         s.r = null;
+        s.hr = null;
         s.k = 0;
+        s.hk = 0;
       }
       s.t++;
       const corrected = (seen.length > 0 || seenRear.length > 0) && s.t % 4 === 0;
@@ -87,10 +92,11 @@
         const my = (front?.y || 0)*wf + (rear?.y || 0)*wr;
         const ma = wrap(s.ea + (front ? wf*wrap(front.a-s.ea) : 0) + (rear ? wr*wrap(rear.a-s.ea) : 0));
         const variance = 1/total, headingVariance = variance*0.14*0.14;
+        const headingK = autoGain ? s.hk : k;
         s.ex += k * (mx-s.ex); s.ey += k * (my-s.ey);
-        s.ea = wrap(s.ea + k*wrap(ma-s.ea));
+        s.ea = wrap(s.ea + headingK*wrap(ma-s.ea));
         s.p = (1-k)**2*s.p + k*k*variance;
-        s.pa = (1-k)**2*s.pa + k*k*headingVariance;
+        s.pa = (1-headingK)**2*s.pa + headingK*headingK*headingVariance;
         lastWeights = fusion ? `Front ${Math.round(wf*100)}% · rear ${Math.round(wr*100)}%` : "Front camera 100%";
       }
       draw(); readout(corrected);
@@ -107,10 +113,11 @@
       const gainActive = autoGain ? s.k > 0 : +get("gain").value > 0;
       get("status").textContent = paused ? "Paused" : anyCamera && gainActive ? (fusion ? "Wheel prediction + fused camera correction" : autoGain ? "Automatic camera correction" : "Wheel prediction + camera correction") : "Predicting from wheels only";
       if (autoGain) {
-        get("gain-out").textContent = anyCamera ? s.k.toFixed(2) : "—";
-        get("prior").textContent = s.prior.toFixed(3) + " m²";
-        get("measurement").textContent = s.r === null ? "Waiting for a tag" : s.r.toFixed(3) + " m²";
-        get("auto-k").textContent = s.r === null ? "Waiting for a tag" : `${s.prior.toFixed(3)} ÷ (${s.prior.toFixed(3)} + ${s.r.toFixed(3)}) = ${s.k.toFixed(2)}`;
+        get("gain-out").textContent = anyCamera ? `${s.k.toFixed(2)} / ${s.hk.toFixed(2)}` : "— / —";
+        get("auto-k").textContent = s.r === null ? "Waiting for a tag" : s.k.toFixed(2);
+        get("heading-k").textContent = s.hr === null ? "Waiting for a tag" : s.hk.toFixed(2);
+        get("position-variance").textContent = s.r === null ? `${s.prior.toFixed(3)} / waiting` : `${s.prior.toFixed(3)} / ${s.r.toFixed(3)} m²`;
+        get("heading-variance").textContent = s.hr === null ? `${s.headingPrior.toFixed(4)} / waiting` : `${s.headingPrior.toFixed(4)} / ${s.hr.toFixed(4)} rad²`;
       }
     }
     function draw() {

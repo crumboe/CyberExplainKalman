@@ -23,7 +23,7 @@
       keys.clear();
       root.querySelectorAll("[data-drive]").forEach(b=>b.classList.remove("pressed"));
       truth={x:6,y:3.5,a:-Math.PI/2,left:0,right:0,biasL:.14,biasR:.25,t:0};
-      filters={single:{ex:6,ey:3.5,ea:-Math.PI/2,p:.12,k:0,hits:[],errors:[]},multi:{ex:6,ey:3.5,ea:-Math.PI/2,p:.12,k:0,hits:[],errors:[]}};
+      filters={single:{ex:6,ey:3.5,ea:-Math.PI/2,p:.12,pa:.003,k:0,hk:0,hits:[],samples:[],fused:null,measurementSigma:null,errors:[]},multi:{ex:6,ey:3.5,ea:-Math.PI/2,p:.12,pa:.003,k:0,hk:0,hits:[],samples:[],fused:null,measurementSigma:null,errors:[]}};
       paused=false;get("pause").textContent="Pause";drawAll();readout();
     }
 
@@ -33,11 +33,14 @@
         const hits=visible(wrap(truth.a+offset),truth.x,truth.y);allHits=allHits.concat(hits);
         if(!hits.length)return;
         const sigma=noise/Math.sqrt(hits.length);
-        observations.push({x:truth.x+rand()*sigma,y:truth.y+rand()*sigma,variance:sigma*sigma});
+        const headingSigma=sigma*.14;
+        observations.push({x:truth.x+rand()*sigma,y:truth.y+rand()*sigma,a:wrap(truth.a+rand()*headingSigma),variance:sigma*sigma,headingVariance:headingSigma*headingSigma});
       });
-      if(!observations.length)return {measurement:null,variance:null,hits:allHits};
+      if(!observations.length)return {measurement:null,variance:null,headingVariance:null,hits:allHits,samples:[]};
       const precision=observations.reduce((sum,o)=>sum+1/o.variance,0);
-      return {measurement:{x:observations.reduce((sum,o)=>sum+o.x/o.variance,0)/precision,y:observations.reduce((sum,o)=>sum+o.y/o.variance,0)/precision},variance:1/precision,hits:allHits};
+      const headingPrecision=observations.reduce((sum,o)=>sum+1/o.headingVariance,0);
+      const sin=observations.reduce((sum,o)=>sum+Math.sin(o.a)/o.headingVariance,0),cos=observations.reduce((sum,o)=>sum+Math.cos(o.a)/o.headingVariance,0);
+      return {measurement:{x:observations.reduce((sum,o)=>sum+o.x/o.variance,0)/precision,y:observations.reduce((sum,o)=>sum+o.y/o.variance,0)/precision,a:Math.atan2(sin,cos)},variance:1/precision,headingVariance:1/headingPrecision,hits:allHits,samples:observations};
     }
 
     function update(){
@@ -56,9 +59,10 @@
       [["single",[0]],["multi",[-.48,0,.48]]].forEach(([name,angles])=>{
         const f=filters[name];f.ea=wrap(f.ea+ew*dt);f.ex+=ev*Math.cos(f.ea)*dt;f.ey+=ev*Math.sin(f.ea)*dt;
         f.p+=dt*(.005+motion*motion*(.07*moving+.025*Math.abs(ew)));
-        const sensed=observe(angles,noise);f.hits=sensed.hits;
-        if(sensed.measurement){f.k=f.p/(f.p+sensed.variance);if(truth.t%4===0){f.ex+=f.k*(sensed.measurement.x-f.ex);f.ey+=f.k*(sensed.measurement.y-f.ey);f.p=(1-f.k)*f.p;}}
-        else f.k=0;
+        f.pa+=dt*(.00015+motion*motion*(.015*moving+.01*Math.abs(ew)));
+        const sensed=observe(angles,noise);f.hits=sensed.hits;f.samples=sensed.samples;f.fused=sensed.measurement;f.measurementSigma=sensed.variance===null?null:Math.sqrt(sensed.variance);
+        if(sensed.measurement){f.k=f.p/(f.p+sensed.variance);f.hk=f.pa/(f.pa+sensed.headingVariance);if(truth.t%4===0){f.ex+=f.k*(sensed.measurement.x-f.ex);f.ey+=f.k*(sensed.measurement.y-f.ey);f.ea=wrap(f.ea+f.hk*wrap(sensed.measurement.a-f.ea));f.p=(1-f.k)*f.p;f.pa=(1-f.hk)*f.pa;}}
+        else {f.k=0;f.hk=0;}
         f.errors.push(Math.hypot(f.ex-truth.x,f.ey-truth.y));if(f.errors.length>160)f.errors.shift();
       });
       drawAll();readout();
@@ -75,12 +79,15 @@
       g.addColorStop(0,"rgba(255,166,55,.68)");g.addColorStop(.45,"rgba(255,166,55,.20)");g.addColorStop(1,"rgba(255,166,55,0)");ctx.fillStyle=g;ctx.fillRect(ox,oy,720,420);
       angles.forEach((offset,i)=>{ctx.fillStyle=i===0?"rgba(98,195,255,.09)":"rgba(181,127,255,.07)";ctx.strokeStyle=i===0?"#529fc3":"#9c73d6";const a=wrap(truth.a+offset);ctx.beginPath();ctx.moveTo(X(truth.x),Y(truth.y));ctx.arc(X(truth.x),Y(truth.y),4.6*sx,a-Math.PI/5,a+Math.PI/5);ctx.closePath();ctx.fill();ctx.stroke();});
       tags.forEach((tag,i)=>{const seen=f.hits.some(h=>h.i===i);ctx.fillStyle=seen?"#62dfa6":"#fff";ctx.fillRect(X(tag.x)-9,Y(tag.y)-9,18,18);ctx.fillStyle="#071321";ctx.fillRect(X(tag.x)-6,Y(tag.y)-6,12,12);});
+      const sampleColors=["#62c3ff","#b57fff","#62dfa6"];
+      f.samples.forEach((sample,i)=>{ctx.fillStyle=sampleColors[i%sampleColors.length];ctx.beginPath();ctx.arc(X(sample.x),Y(sample.y),6,0,Math.PI*2);ctx.fill();});
+      if(f.fused){ctx.strokeStyle="#fff";ctx.lineWidth=3;ctx.beginPath();ctx.arc(X(f.fused.x),Y(f.fused.y),9,0,Math.PI*2);ctx.stroke();}
       ctx.save();ctx.translate(X(truth.x),Y(truth.y));ctx.rotate(truth.a);ctx.fillStyle="#62dfa6";ctx.fillRect(-14,-10,28,20);ctx.fillStyle="#071321";ctx.beginPath();ctx.moveTo(13,0);ctx.lineTo(4,-5);ctx.lineTo(4,5);ctx.closePath();ctx.fill();ctx.restore();
-      ctx.strokeStyle="#fff";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(cx-7,cy);ctx.lineTo(cx+7,cy);ctx.moveTo(cx,cy-7);ctx.lineTo(cx,cy+7);ctx.stroke();ctx.restore();ctx.strokeStyle="#8199ac";ctx.lineWidth=2;ctx.strokeRect(ox,oy,720,420);
+      ctx.strokeStyle="#fff";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(cx-7,cy);ctx.lineTo(cx+7,cy);ctx.moveTo(cx,cy-7);ctx.lineTo(cx,cy+7);ctx.moveTo(cx,cy);ctx.lineTo(cx+18*Math.cos(f.ea),cy+18*Math.sin(f.ea));ctx.stroke();ctx.restore();ctx.strokeStyle="#8199ac";ctx.lineWidth=2;ctx.strokeRect(ox,oy,720,420);
     }
     const drawAll=()=>{draw("single",[0]);draw("multi",[-.48,0,.48]);};
     function readout(){
-      ["single","multi"].forEach(name=>{const f=filters[name],rms=Math.sqrt(f.errors.reduce((sum,e)=>sum+e*e,0)/Math.max(1,f.errors.length));get(name+"-error").textContent=rms.toFixed(2)+" m average error";get(name+"-k").textContent="K "+f.k.toFixed(2);get(name+"-sigma").textContent="σ "+Math.sqrt(f.p).toFixed(2)+" m";});
+      ["single","multi"].forEach(name=>{const f=filters[name],rms=Math.sqrt(f.errors.reduce((sum,e)=>sum+e*e,0)/Math.max(1,f.errors.length)),cameraCount=f.samples.length;get(name+"-error").textContent=rms.toFixed(2)+" m average error";get(name+"-count").textContent=cameraCount+" camera"+(cameraCount===1?"":"s")+" contributing";get(name+"-measurement").textContent=f.measurementSigma===null?"measurement σ —":"measurement σ "+f.measurementSigma.toFixed(2)+" m";get(name+"-sigma").textContent="belief σ "+Math.sqrt(f.p).toFixed(2)+" m";});
     }
     ["noise","motion"].forEach(name=>get(name).addEventListener("input",()=>{get(name+"-out").textContent=(+get(name).value).toFixed(2)+(name==="noise"?" m":"");}));
     root.querySelectorAll("[data-drive]").forEach(button=>{const key=button.dataset.drive;button.addEventListener("pointerdown",e=>{e.preventDefault();button.setPointerCapture(e.pointerId);keys.add(key);button.classList.add("pressed");});["pointerup","pointercancel","lostpointercapture"].forEach(type=>button.addEventListener(type,()=>{keys.delete(key);button.classList.remove("pressed");}));button.addEventListener("click",e=>e.preventDefault());});
