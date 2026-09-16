@@ -1142,6 +1142,14 @@ body,
   font: inherit;
   font-weight: 800;
   cursor: pointer;
+  touch-action: none;
+  user-select: none;
+}
+
+.cart-buttons button.is-driving {
+  color: #07111f;
+  background: var(--accent);
+  box-shadow: 0 0 18px rgba(98, 195, 255, 0.55);
 }
 
 .world-panel,
@@ -1263,6 +1271,16 @@ body,
   color: var(--text-muted);
 }
 
+.physics-note {
+  position: absolute;
+  top: 34px;
+  left: 50%;
+  color: var(--text-muted);
+  font-size: 0.78em;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
 .belief-panel {
   height: 205px;
 }
@@ -1363,7 +1381,13 @@ body,
 .sim-footer strong { color: #ffffff; }
 
 .fusion-controls {
-  grid-template-columns: 1.25fr repeat(3, 1fr);
+  grid-template-columns: 1.25fr repeat(4, 1fr);
+}
+
+.fusion-controls label,
+.fusion-controls .cart-buttons {
+  padding-right: 0.4em;
+  padding-left: 0.4em;
 }
 
 .fusion-world .right-wall {
