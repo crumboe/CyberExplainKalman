@@ -1121,23 +1121,23 @@ where we now think it is—and how sure we are
 
 ```{=html}
 <div class="calibration-explainer">
-<p class="calibration-lead">Every camera measurement contains <strong>random noise</strong> and a <strong>shared calibration bias</strong>.</p>
-<div class="calibration-equation"><strong>z<sub>i</sub> = x + b + ε<sub>i</sub></strong><span>camera reading = truth + shared bias + independent noise</span></div>
+<p class="calibration-lead"><strong>More cameras reduce random scatter.</strong> They do <em>not</em> remove the calibration mistake that every camera shares.</p>
+<div class="calibration-equation"><strong>z<sub>i</sub> = x + b + ε<sub>i</sub></strong><span>measured position = truth + shared bias + one camera's random noise</span></div>
 <div class="calibration-logic">
-<div><h3>Adding cameras</h3><p>Independent noise averages down as the camera count grows.</p><strong>\(\sigma_{random}/\sqrt{N}\)</strong></div>
-<div><h3>The shared bias remains</h3><p>All cameras can agree while every estimate is displaced by the same calibration error.</p><strong>\(\sigma_{total}^2 = \sigma_{bias}^2 + \sigma_{random}^2/N\)</strong></div>
-<div><h3>Calibration lowers the floor</h3><p>Better lens, mounting, and robot-to-camera calibration reduces the error that averaging cannot remove.</p><strong>\(\lim_{N\to\infty}\sigma_{total}=\sigma_{bias}\)</strong></div>
+<div><h3>Average the random part</h3><p>Independent noise shrinks as more cameras contribute to the estimate.</p><strong>\(\sigma_{random}/\sqrt{N}\)</strong></div>
+<div><h3>The shared offset stays</h3><p>If every camera is misaligned the same way, averaging still preserves that common shift.</p><strong>\(\sigma_{total}^2 = \sigma_{bias}^2 + \sigma_{random}^2/N\)</strong></div>
+<div><h3>Calibration lowers the floor</h3><p>Recalibration attacks the error that sensor fusion alone can never average away.</p><strong>\(\lim_{N\to\infty}\sigma_{total}=\sigma_{bias}\)</strong></div>
 </div>
 <table class="calibration-table">
-<thead><tr><th>Setup</th><th>Independent noise after averaging</th><th>Shared bias</th><th>Effective σ</th></tr></thead>
+<thead><tr><th>Setup</th><th>Random part after averaging</th><th>Shared bias</th><th>Effective σ</th></tr></thead>
 <tbody>
-<tr><td>1 uncalibrated camera</td><td>0.89 m</td><td>0.45 m</td><td>1.00 m</td></tr>
-<tr><td>4 uncalibrated cameras</td><td>0.45 m</td><td>0.45 m</td><td>0.63 m</td></tr>
-<tr><td>Infinitely many uncalibrated cameras</td><td>approaches 0</td><td>0.45 m</td><td>approaches 0.45 m</td></tr>
-<tr class="calibrated-row"><td>4 well-calibrated cameras</td><td>0.45 m</td><td>0.05 m</td><td>0.45 m</td></tr>
+<tr><td>1 camera, uncalibrated</td><td>0.89 m</td><td>0.45 m</td><td>1.00 m</td></tr>
+<tr><td>4 cameras, same bad calibration</td><td>0.45 m</td><td>0.45 m</td><td>0.63 m</td></tr>
+<tr><td>Many cameras, same bad calibration</td><td>approaches 0</td><td>0.45 m</td><td>approaches 0.45 m</td></tr>
+<tr class="calibrated-row"><td>4 cameras, well calibrated</td><td>0.45 m</td><td>0.05 m</td><td>0.45 m</td></tr>
 </tbody>
 </table>
-<p class="calibration-takeaway"><strong>Calibration changes the limit.</strong> More cameras only move the system toward its existing limit.</p>
-<small>Illustrative values: the 1.00 m starting error contains 0.45 m of shared bias and 0.89 m of independent noise.</small>
+<p class="calibration-takeaway"><strong>Sensor fusion reduces noise; calibration removes shared bias.</strong></p>
+<small>Illustrative example: the 1.00 m starting spread is made from 0.89 m of random noise plus 0.45 m of shared bias.</small>
 </div>
 ```
