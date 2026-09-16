@@ -1631,7 +1631,7 @@ Motion fills the gaps; sensors keep the prediction connected to reality.
           demo.dataset.bound = "true";
 
           const get = (role) => demo.querySelector(`[data-role="${role}"]`);
-          const state = { truth: 6, estimate: 6, truthVelocity: 0, modelVelocity: 0, driveCommand: 0, posteriorVariance: 0.12, loops: 0 };
+          const state = { truth: 6, estimate: 6, truthVelocity: 0, modelVelocity: 0, driveCommand: 0, tractionBias: 0, posteriorVariance: 0.12, loops: 0 };
           const clamp = (value, low, high) => Math.min(high, Math.max(low, value));
           const approach = (value, target, maxChange) => value + clamp(target - value, -maxChange, maxChange);
           const gaussian = () => {
@@ -1645,35 +1645,39 @@ Motion fills the gaps; sensors keep the prediction connected to reality.
 
           const renderPosition = (role, value) => {
             get(role).style.left = position(value);
+            get(role).dataset.overflow = value < 0 ? "← beyond track" : value > 10 ? "beyond track →" : "";
           };
 
           const tick = () => {
             const gain = Number(get("gain").value);
             const motionSigma = Number(get("motion-noise").value);
             const sensorSigma = Number(get("sensor-noise").value);
-            const dt = 0.7;
+            const dt = 0.05;
             const acceleration = 0.8;
             const targetVelocity = state.driveCommand * 0.95;
             const modelVelocityBefore = state.modelVelocity;
             state.modelVelocity = approach(state.modelVelocity, targetVelocity, acceleration * dt);
             const accelerationDemand = Math.abs(state.modelVelocity - modelVelocityBefore) / (acceleration * dt || 1);
 
-            // The model assumes ideal traction. The real cart has acceleration error,
-            // rolling resistance, and speed-dependent slip controlled by motionSigma.
-            const realAccelerationLimit = acceleration * dt * clamp(1 + gaussian() * motionSigma * 0.28, 0.35, 1.65);
-            state.truthVelocity = approach(state.truthVelocity, targetVelocity, realAccelerationLimit);
-            const slip = gaussian() * motionSigma * (0.055 * Math.abs(state.truthVelocity) + 0.035 * accelerationDemand);
-            state.truthVelocity = clamp(state.truthVelocity + slip, -1.15, 1.15);
+            // The model assumes ideal traction. The real cart keeps a persistent
+            // traction bias while moving, so wheel slip accumulates into visible drift.
+            const moving = Math.abs(targetVelocity) > 0.01 || Math.abs(state.truthVelocity) > 0.01;
+            if (moving) {
+              state.tractionBias = clamp(state.tractionBias + gaussian() * 0.004, -0.65, 0.65);
+            }
+            const realTargetVelocity = targetVelocity * (1 - motionSigma * clamp(0.32 + state.tractionBias, 0.15, 0.55));
+            const realAccelerationLimit = acceleration * dt * clamp(1 - motionSigma * 0.25 + gaussian() * motionSigma * 0.05, 0.3, 1.7);
+            state.truthVelocity = approach(state.truthVelocity, realTargetVelocity, realAccelerationLimit);
             state.truth = clamp(state.truth + state.truthVelocity * dt, 0.55, 9.7);
             if (state.truth <= 0.55 || state.truth >= 9.7) state.truthVelocity = 0;
 
             // With no commanded motion and zero model velocity, the predicted mean
             // stays put. Drive uncertainty widens the belief instead of moving it.
-            const prior = clamp(state.estimate + state.modelVelocity * dt, 0.4, 9.8);
+            const prior = state.estimate + state.modelVelocity * dt;
             const measurement = clamp(state.truth + gaussian() * sensorSigma, 0.3, 9.9);
             const innovation = measurement - prior;
-            const posterior = clamp(prior + gain * innovation, 0.35, 9.85);
-            const motionVariance = 0.002 + motionSigma * motionSigma * (0.04 + 0.30 * accelerationDemand + 0.18 * Math.abs(state.modelVelocity));
+            const posterior = prior + gain * innovation;
+            const motionVariance = dt * (0.002 + motionSigma * motionSigma * (0.04 + 0.30 * accelerationDemand + 0.18 * Math.abs(state.modelVelocity)));
             const priorVariance = state.posteriorVariance + motionVariance;
             const sensorVariance = sensorSigma * sensorSigma;
             state.posteriorVariance = Math.max(0.0001, (1 - gain) * priorVariance);
@@ -1695,7 +1699,8 @@ Motion fills the gaps; sensors keep the prediction connected to reality.
             get("math-sensor").textContent = meters(measurement);
             get("innovation").textContent = `${innovation >= 0 ? "+" : ""}${meters(innovation)}`;
             get("equation").textContent = `${prior.toFixed(2)} + ${gain.toFixed(2)} × (${innovation.toFixed(2)}) = ${posterior.toFixed(2)} m`;
-            get("drive-status").textContent = state.driveCommand < 0 ? "LEFT" : state.driveCommand > 0 ? "RIGHT" : "STOP";
+            const direction = state.driveCommand < 0 ? "LEFT" : state.driveCommand > 0 ? "RIGHT" : "STOP";
+            get("drive-status").textContent = direction === "STOP" ? direction : `${direction} · traction ${Math.round((1 - motionSigma * clamp(0.32 + state.tractionBias, 0.15, 0.55)) * 100)}%`;
             get("footer-model-speed").textContent = speed(state.modelVelocity);
             get("prior-variance").textContent = `${priorVariance.toFixed(3)} m²`;
             get("sensor-variance").textContent = `${sensorVariance.toFixed(3)} m²`;
@@ -1708,6 +1713,7 @@ Motion fills the gaps; sensors keep the prediction connected to reality.
             state.truthVelocity = 0;
             state.modelVelocity = 0;
             state.driveCommand = 0;
+            state.tractionBias = 0;
             state.posteriorVariance = 0.12;
             state.loops = 0;
             demo.querySelectorAll("[data-drive]").forEach((button) => button.classList.remove("is-driving"));
@@ -1733,10 +1739,24 @@ Motion fills the gaps; sensors keep the prediction connected to reality.
               event.preventDefault();
               event.stopPropagation();
               button.setPointerCapture?.(event.pointerId);
+              if (state.driveCommand === 0) {
+                const motionSigma = Number(get("motion-noise").value);
+                state.tractionBias = clamp(gaussian() * 0.07, -0.15, 0.2);
+              }
               state.driveCommand = Number(button.dataset.drive);
               button.classList.add("is-driving");
             });
-            ["pointerup", "pointercancel", "lostpointercapture"].forEach((name) => button.addEventListener(name, stopDrive));
+            ["pointerup", "pointercancel", "lostpointercapture", "blur"].forEach((name) => button.addEventListener(name, stopDrive));
+            button.addEventListener("keydown", (event) => {
+              if (![" ", "Enter"].includes(event.key)) return;
+              event.preventDefault(); event.stopPropagation();
+              state.driveCommand = Number(button.dataset.drive);
+              button.classList.add("is-driving");
+            });
+            button.addEventListener("keyup", (event) => {
+              if ([" ", "Enter"].includes(event.key)) stopDrive(event);
+            });
+            button.addEventListener("click", (event) => { event.preventDefault(); event.stopPropagation(); });
           });
           get("gain").addEventListener("pointerdown", (event) => event.stopPropagation());
           demo.querySelector('[data-action="reset"]').addEventListener("click", (event) => {
@@ -1744,8 +1764,13 @@ Motion fills the gaps; sensors keep the prediction connected to reality.
             reset();
           });
 
+          window.addEventListener("blur", () => stopDrive());
+          document.addEventListener("visibilitychange", () => { if (document.hidden) stopDrive(); });
           reset();
-          window.setInterval(tick, 700);
+          window.setInterval(() => {
+            if (document.hidden || !demo.closest("section").classList.contains("present")) { stopDrive(); return; }
+            tick();
+          }, 50);
         });
 
         document.querySelectorAll("[data-kalman-fusion-demo]").forEach((demo) => {
@@ -1753,7 +1778,7 @@ Motion fills the gaps; sensors keep the prediction connected to reality.
           demo.dataset.bound = "true";
 
           const get = (role) => demo.querySelector(`[data-role="${role}"]`);
-          const state = { truth: 6, estimate: 6, truthVelocity: 0, modelVelocity: 0, driveCommand: 0, loops: 0 };
+          const state = { truth: 6, estimate: 6, truthVelocity: 0, modelVelocity: 0, driveCommand: 0, tractionBias: 0, loops: 0 };
           const clamp = (value, low, high) => Math.min(high, Math.max(low, value));
           const approach = (value, target, maxChange) => value + clamp(target - value, -maxChange, maxChange);
           const gaussian = () => {
@@ -1764,27 +1789,33 @@ Motion fills the gaps; sensors keep the prediction connected to reality.
           const meters = (value) => `${value.toFixed(2)} m`;
           const speed = (value) => `${(Math.abs(value) < 0.005 ? 0 : value).toFixed(2)} m/s`;
           const position = (value) => `${8 + clamp(value, 0, 10) * 8.7}%`;
-          const renderPosition = (role, value) => { get(role).style.left = position(value); };
+          const renderPosition = (role, value) => {
+            get(role).style.left = position(value);
+            get(role).dataset.overflow = value < 0 ? "← beyond track" : value > 10 ? "beyond track →" : "";
+          };
 
           const tick = () => {
             const gain = Number(get("gain").value);
             const motionSigma = Number(get("motion-noise").value);
             const frontSigma = Number(get("front-noise").value);
             const rearSigma = Number(get("rear-noise").value);
-            const dt = 0.7;
+            const dt = 0.05;
             const acceleration = 0.8;
             const targetVelocity = state.driveCommand * 0.95;
             const modelVelocityBefore = state.modelVelocity;
             state.modelVelocity = approach(state.modelVelocity, targetVelocity, acceleration * dt);
             const accelerationDemand = Math.abs(state.modelVelocity - modelVelocityBefore) / (acceleration * dt || 1);
-            const realAccelerationLimit = acceleration * dt * clamp(1 + gaussian() * motionSigma * 0.28, 0.35, 1.65);
-            state.truthVelocity = approach(state.truthVelocity, targetVelocity, realAccelerationLimit);
-            const slip = gaussian() * motionSigma * (0.055 * Math.abs(state.truthVelocity) + 0.035 * accelerationDemand);
-            state.truthVelocity = clamp(state.truthVelocity + slip, -1.15, 1.15);
+            const moving = Math.abs(targetVelocity) > 0.01 || Math.abs(state.truthVelocity) > 0.01;
+            if (moving) {
+              state.tractionBias = clamp(state.tractionBias + gaussian() * 0.004, -0.65, 0.65);
+            }
+            const realTargetVelocity = targetVelocity * (1 - motionSigma * clamp(0.32 + state.tractionBias, 0.15, 0.55));
+            const realAccelerationLimit = acceleration * dt * clamp(1 - motionSigma * 0.25 + gaussian() * motionSigma * 0.05, 0.3, 1.7);
+            state.truthVelocity = approach(state.truthVelocity, realTargetVelocity, realAccelerationLimit);
             state.truth = clamp(state.truth + state.truthVelocity * dt, 0.7, 9.3);
             if (state.truth <= 0.7 || state.truth >= 9.3) state.truthVelocity = 0;
 
-            const prior = clamp(state.estimate + state.modelVelocity * dt, 0.4, 9.6);
+            const prior = state.estimate + state.modelVelocity * dt;
             const trueFrontDistance = 10 - state.truth;
             const trueRearDistance = state.truth;
             const frontDistance = clamp(trueFrontDistance + gaussian() * frontSigma, 0.1, 9.9);
@@ -1800,7 +1831,7 @@ Motion fills the gaps; sensors keep the prediction connected to reality.
             const fusedReading = frontWeight * frontPosition + rearWeight * rearPosition;
             const fusedVariance = 1 / (frontPrecision + rearPrecision);
             const innovation = fusedReading - prior;
-            const posterior = clamp(prior + gain * innovation, 0.35, 9.65);
+            const posterior = prior + gain * innovation;
             state.estimate = posterior;
             state.loops += 1;
 
@@ -1823,7 +1854,8 @@ Motion fills the gaps; sensors keep the prediction connected to reality.
             get("rear-math-position").textContent = meters(rearPosition);
             get("fused-reading").textContent = meters(fusedReading);
             get("equation").textContent = `${prior.toFixed(2)} + ${gain.toFixed(2)} × (${innovation.toFixed(2)}) = ${posterior.toFixed(2)} m`;
-            get("drive-status").textContent = state.driveCommand < 0 ? "LEFT" : state.driveCommand > 0 ? "RIGHT" : "STOP";
+            const direction = state.driveCommand < 0 ? "LEFT" : state.driveCommand > 0 ? "RIGHT" : "STOP";
+            get("drive-status").textContent = direction === "STOP" ? direction : `${direction} · traction ${Math.round((1 - motionSigma * clamp(0.32 + state.tractionBias, 0.15, 0.55)) * 100)}%`;
             get("model-speed").textContent = speed(state.modelVelocity);
             get("front-weight").textContent = `${Math.round(frontWeight * 100)}%`;
             get("rear-weight").textContent = `${Math.round(rearWeight * 100)}%`;
@@ -1836,6 +1868,7 @@ Motion fills the gaps; sensors keep the prediction connected to reality.
             state.truthVelocity = 0;
             state.modelVelocity = 0;
             state.driveCommand = 0;
+            state.tractionBias = 0;
             state.loops = 0;
             demo.querySelectorAll("[data-drive]").forEach((button) => button.classList.remove("is-driving"));
             tick();
@@ -1861,18 +1894,37 @@ Motion fills the gaps; sensors keep the prediction connected to reality.
               event.preventDefault();
               event.stopPropagation();
               button.setPointerCapture?.(event.pointerId);
+              if (state.driveCommand === 0) {
+                const motionSigma = Number(get("motion-noise").value);
+                state.tractionBias = clamp(gaussian() * 0.07, -0.15, 0.2);
+              }
               state.driveCommand = Number(button.dataset.drive);
               button.classList.add("is-driving");
             });
-            ["pointerup", "pointercancel", "lostpointercapture"].forEach((name) => button.addEventListener(name, stopDrive));
+            ["pointerup", "pointercancel", "lostpointercapture", "blur"].forEach((name) => button.addEventListener(name, stopDrive));
+            button.addEventListener("keydown", (event) => {
+              if (![" ", "Enter"].includes(event.key)) return;
+              event.preventDefault(); event.stopPropagation();
+              state.driveCommand = Number(button.dataset.drive);
+              button.classList.add("is-driving");
+            });
+            button.addEventListener("keyup", (event) => {
+              if ([" ", "Enter"].includes(event.key)) stopDrive(event);
+            });
+            button.addEventListener("click", (event) => { event.preventDefault(); event.stopPropagation(); });
           });
           demo.querySelector('[data-action="reset"]').addEventListener("click", (event) => {
             event.stopPropagation();
             reset();
           });
 
+          window.addEventListener("blur", () => stopDrive());
+          document.addEventListener("visibilitychange", () => { if (document.hidden) stopDrive(); });
           reset();
-          window.setInterval(tick, 700);
+          window.setInterval(() => {
+            if (document.hidden || !demo.closest("section").classList.contains("present")) { stopDrive(); return; }
+            tick();
+          }, 50);
         });
       });
     </script>
