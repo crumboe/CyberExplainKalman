@@ -1,11 +1,12 @@
 /* Teaching simulation: differential drive + independent Gaussian pose updates.
    Camera pose readings stand in for AprilTag image processing and pose solving. */
 (() => {
-  const boot = () => document.querySelectorAll("[data-tank-demo], [data-tank-fusion-demo]").forEach(root => {
+  const boot = () => document.querySelectorAll("[data-tank-demo], [data-tank-fusion-demo], [data-tank-auto-demo]").forEach(root => {
     if (root.dataset.bound) return;
     root.dataset.bound = "true";
     const get = name => root.querySelector('[data-tank="' + name + '"]');
     const fusion = root.hasAttribute("data-tank-fusion-demo");
+    const autoGain = root.hasAttribute("data-tank-auto-demo");
     const canvas = get("field"), ctx = canvas.getContext("2d");
     const keys = new Set();
     const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
@@ -24,13 +25,14 @@
     function reset() {
       stop();
       s = {x:6,y:3.5,a:-Math.PI/2,ex:6,ey:3.5,ea:-Math.PI/2,
-        left:0,right:0,p:0.12,pa:0.003,t:0,biasL:0.12,biasR:0.24};
+        left:0,right:0,p:0.12,prior:0.12,pa:0.003,t:0,biasL:0.12,biasR:0.24,k:0,q:0,r:null};
       seen = []; seenRear = []; lastWeights = "No camera update";
       paused = false; get("pause").textContent = "Pause"; draw(); readout(false);
     }
     function update() {
       const m = +get("motion").value, noise = +get("sensor").value;
-      const noiseRear = fusion ? +get("sensor2").value : 0, k = +get("gain").value;
+      const noiseRear = fusion ? +get("sensor2").value : 0;
+      let k = autoGain ? 0 : +get("gain").value;
       const drive = (keys.has("up") ? 1 : 0) - (keys.has("down") ? 1 : 0);
       const turn = (keys.has("right") ? 1 : 0) - (keys.has("left") ? 1 : 0);
       s.left = approach(s.left, drive * 1.45 + turn * 0.62, 2 * dt);
@@ -50,12 +52,23 @@
       s.ex += ev*Math.cos(s.ea)*dt;
       s.ey += ev*Math.sin(s.ea)*dt;
       // Diffusion plus heading uncertainty grows when dead reckoning.
+      const q = dt * (0.005 + m*m*(0.07*moving + 0.025*Math.abs(ew)) + ev*ev*s.pa*0.15);
       s.pa += dt * (0.00015 + m*m*(0.015*moving + 0.01*Math.abs(ew)));
-      s.p += dt * (0.005 + m*m*(0.07*moving + 0.025*Math.abs(ew)) + ev*ev*s.pa*0.15);
+      s.p += q;
+      s.prior = s.p;
+      s.q = q;
       const visible = angle => tags.map((tag,i) => ({...tag,i,d:Math.hypot(tag.x-s.x,tag.y-s.y)}))
         .filter(tag => tag.d <= 4.6 && Math.abs(wrap(Math.atan2(tag.y-s.y,tag.x-s.x)-angle)) <= Math.PI/5);
       seen = visible(s.a);
       seenRear = fusion ? visible(wrap(s.a + Math.PI)) : [];
+      if (autoGain && seen.length) {
+        s.r = noise * noise / seen.length;
+        s.k = s.prior / (s.prior + s.r);
+        k = s.k;
+      } else if (autoGain) {
+        s.r = null;
+        s.k = 0;
+      }
       s.t++;
       const corrected = (seen.length > 0 || seenRear.length > 0) && s.t % 4 === 0;
       if (corrected) {
@@ -91,7 +104,14 @@
       get("error").textContent = Math.hypot(s.ex-s.x,s.ey-s.y).toFixed(2) + " m";
       get("sigma").textContent = Math.sqrt(s.p).toFixed(2) + " m";
       const anyCamera = seen.length || seenRear.length;
-      get("status").textContent = paused ? "Paused" : anyCamera && +get("gain").value > 0 ? (fusion ? "Wheel prediction + fused camera correction" : "Wheel prediction + camera correction") : "Predicting from wheels only";
+      const gainActive = autoGain ? s.k > 0 : +get("gain").value > 0;
+      get("status").textContent = paused ? "Paused" : anyCamera && gainActive ? (fusion ? "Wheel prediction + fused camera correction" : autoGain ? "Automatic camera correction" : "Wheel prediction + camera correction") : "Predicting from wheels only";
+      if (autoGain) {
+        get("gain-out").textContent = anyCamera ? s.k.toFixed(2) : "—";
+        get("prior").textContent = s.prior.toFixed(3) + " m²";
+        get("measurement").textContent = s.r === null ? "Waiting for a tag" : s.r.toFixed(3) + " m²";
+        get("auto-k").textContent = s.r === null ? "Waiting for a tag" : `${s.prior.toFixed(3)} ÷ (${s.prior.toFixed(3)} + ${s.r.toFixed(3)}) = ${s.k.toFixed(2)}`;
+      }
     }
     function draw() {
       const X = x => ox+x*scale, Y = y => oy+y*scale;
@@ -136,7 +156,7 @@
       ctx.font="18px sans-serif";ctx.fillStyle="#d5e5f2";ctx.textAlign="left";ctx.fillText(`12 m × 7 m field     ${fusion ? "Cameras" : "Camera"}: 72° / 4.6 m`,ox,23);
       if(s.ex<0||s.ex>12||s.ey<0||s.ey>7){ctx.fillStyle="#ffb957";ctx.fillText("Estimate outside field: ("+s.ex.toFixed(1)+", "+s.ey.toFixed(1)+") m",450,23);}
     }
-    [["gain","gain-out",""],["sensor","sensor-out"," m"],["motion","motion-out",""]].forEach(([name,out,unit]) => {
+    [["sensor","sensor-out"," m"],["motion","motion-out",""]].concat(autoGain ? [] : [["gain","gain-out",""]]).forEach(([name,out,unit]) => {
       get(name).addEventListener("input",()=>get(out).textContent=(+get(name).value).toFixed(2)+unit);
     });
     if (fusion) get("sensor2").addEventListener("input",()=>get("sensor2-out").textContent=(+get("sensor2").value).toFixed(2)+" m");

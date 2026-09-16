@@ -1145,6 +1145,10 @@ body,
 .auto-gain-explanation { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
 .auto-gain-explanation p { margin:0; padding:14px 18px; background:rgba(255,255,255,.045); border-radius:11px; }
 .auto-gain-takeaway { margin-top:16px; padding:14px 18px; text-align:center; background:rgba(255,185,87,.1); border:1px solid rgba(255,185,87,.5); border-radius:12px; }
+.tank-auto-controls { grid-template-columns:1.1fr 1fr 1fr auto auto; }
+.tank-auto-gain span { grid-column:1 / -1; color:#9eb4c8; font-size:.78em; }
+.tank-auto-gain output { font-size:1.15em; font-weight:800; color:#ffb957; }
+.tank-auto-demo [data-tank="auto-k"] { color:#ffb957; font-weight:800; }
 .kalman-sim {
   font-size: 0.72em;
 }
