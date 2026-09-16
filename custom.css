@@ -1114,6 +1114,37 @@ body,
 .tank-orange { color:#ffb957; }
 .tank-caption { margin-top:12px; color:#d4e4ef; }
 .tank-assumption { display:block; margin-top:8px; font-size:0.7em; color:#9eb4c8; }
+
+/* Automatic Kalman gain teaching demo */
+.auto-gain-demo { font-size: 0.76em; }
+.auto-gain-controls { display:grid; grid-template-columns:repeat(3,1fr) auto; gap:16px; align-items:stretch; }
+.auto-gain-controls label { display:grid; grid-template-columns:1fr auto; gap:8px; padding:13px 16px; background:var(--panel-bg); border:1px solid var(--panel-border); border-radius:12px; }
+.auto-gain-controls input { grid-column:1 / -1; width:100%; accent-color:#62c3ff; }
+.auto-gain-controls output { color:#62c3ff; font-variant-numeric:tabular-nums; }
+.auto-gain-controls button { padding:12px 20px; color:#fff; background:#203950; border:2px solid #547996; border-radius:10px; font:inherit; cursor:pointer; }
+.auto-gain-flow { display:grid; grid-template-columns:1fr 1fr; gap:28px; margin:24px 0 18px; }
+.auto-source { display:grid; grid-template-columns:170px 1fr; grid-template-rows:auto auto auto; align-items:center; min-height:190px; padding:18px 24px; background:rgba(5,15,28,.62); border:2px solid var(--panel-border); border-radius:16px; }
+.auto-source > span { grid-column:2; color:#62c3ff; font-weight:800; text-transform:uppercase; }
+.auto-source strong,.auto-source small { grid-column:2; display:block; }
+.auto-source small { color:var(--text-muted); }
+.auto-disk { --spread:70px; grid-row:1 / 4; width:var(--spread); height:var(--spread); place-self:center; border-radius:50%; transition:width .2s,height .2s; }
+.motion-disk { background:radial-gradient(circle,rgba(98,223,166,.82),rgba(98,223,166,.12) 55%,transparent 72%); }
+.camera-disk { background:radial-gradient(circle,rgba(98,195,255,.82),rgba(98,195,255,.12) 55%,transparent 72%); }
+.auto-equation { display:grid; grid-template-columns:1fr 1.25fr; gap:18px; text-align:center; }
+.auto-equation > span { color:var(--text-muted); font-size:.8em; text-transform:uppercase; }
+.auto-equation > strong { padding:14px; background:var(--panel-bg); border-radius:12px; font-size:1.05em; }
+.auto-equation .auto-k { color:#fff; border:2px solid rgba(255,185,87,.7); }
+.auto-equation b { color:#ffb957; }
+.trust-meter { position:relative; display:flex; height:62px; margin:20px 0; overflow:hidden; border:2px solid #71869a; border-radius:12px; }
+.trust-meter > div { display:grid; min-width:0; place-items:center; transition:width .2s; }
+.trust-meter span { position:absolute; top:0; z-index:2; display:flex; align-items:center; height:100%; white-space:nowrap; }
+.trust-motion span { left:16px; }
+.trust-camera span { right:16px; }
+.trust-motion { color:#071321; background:#62dfa6; }
+.trust-camera { color:#071321; background:#62c3ff; }
+.auto-gain-explanation { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+.auto-gain-explanation p { margin:0; padding:14px 18px; background:rgba(255,255,255,.045); border-radius:11px; }
+.auto-gain-takeaway { margin-top:16px; padding:14px 18px; text-align:center; background:rgba(255,185,87,.1); border:1px solid rgba(255,185,87,.5); border-radius:12px; }
 .kalman-sim {
   font-size: 0.72em;
 }

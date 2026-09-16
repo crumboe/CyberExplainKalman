@@ -1047,3 +1047,33 @@ where we now think it is—and how sure we are
 <small class="tank-assumption">Teaching model: the two simulated AprilTag pose estimates are conditionally independent. Real systems must also account for shared calibration errors and correlated measurements.</small>
 </div>
 ```
+
+---
+
+## The Filter Chooses Its Gain {#automatic-kalman-gain .compact-slide}
+
+```{=html}
+<div class="auto-gain-demo" data-auto-gain-demo>
+<div class="auto-gain-controls">
+<label>Wheel speed <output data-auto="speed-out">0.00 m/s</output><input data-auto="speed" type="range" min="0" max="3" step="0.05" value="0" aria-label="Wheel speed"></label>
+<label>Turn rate <output data-auto="turn-out">0°/s</output><input data-auto="turn" type="range" min="0" max="180" step="5" value="0" aria-label="Turn rate"></label>
+<label>Camera deviation σ <output data-auto="camera-out">1.50 m</output><input data-auto="camera" type="range" min="0.05" max="1.5" step="0.05" value="1.5" aria-label="Camera deviation"></label>
+<button type="button" data-auto="reset">Reset uncertainty</button>
+</div>
+
+<div class="auto-gain-flow">
+<div class="auto-source motion-source"><span>Wheel prediction</span><div class="auto-disk motion-disk" data-auto="motion-disk"></div><strong>Q = Q₀ + qᵥ|v| + qω|ω|</strong><small>Motion variance added this update: <b data-auto="q">0.002 m²</b></small></div>
+<div class="auto-source camera-source"><span>Camera measurement</span><div class="auto-disk camera-disk" data-auto="camera-disk"></div><strong>R = σcamera²</strong><small>Camera variance: <b data-auto="r">2.250 m²</b></small></div>
+</div>
+
+<div class="auto-equation">
+<span>Prediction uncertainty</span><strong>P⁻ = P + Q = <b data-auto="p-prior">0.082</b> m²</strong>
+<span>Automatic gain</span><strong class="auto-k">K = P⁻ / (P⁻ + R) = <b data-auto="k">0.04</b></strong>
+</div>
+
+<div class="trust-meter" aria-label="Relative trust assigned to motion and camera"><div class="trust-motion" data-auto="trust-motion"><span>Trust motion <b data-auto="motion-pct">96%</b></span></div><div class="trust-camera" data-auto="trust-camera"><span>Trust camera <b data-auto="camera-pct">4%</b></span></div></div>
+
+<div class="auto-gain-explanation"><p><strong>Stationary robot with a noisy camera:</strong> Q stays small, R stays large, and camera jitter barely moves the estimate.</p><p><strong>Faster motion or sharper turns:</strong> Q grows, prediction confidence falls, and the filter accepts more external correction.</p></div>
+<div class="auto-gain-takeaway"><strong>Velocity influences K through motion uncertainty.</strong> Setting K = k × velocity would prevent a stationary robot from correcting an existing position error.</div>
+</div>
+```

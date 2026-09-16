@@ -161,5 +161,12 @@
     reset();
     timer=window.setInterval(()=>{if(!active()){stop();return;}if(!paused)update();},50);
   });
-  if (Reveal.isReady()) boot(); else Reveal.on("ready",boot);
+  // The script is included after the slide markup, so bind immediately.  Also
+  // listen for Reveal lifecycle events: a direct hash load in Edge can occur
+  // after Reveal's one-time `ready` event has already fired.
+  boot();
+  if (window.Reveal?.on) {
+    Reveal.on("ready", boot);
+    Reveal.on("slidechanged", boot);
+  }
 })();
