@@ -698,12 +698,12 @@ P(\text{Event} \mid \text{Evidence})
 <div class="activity-grid">
 <div class="activity-card good-motor">
 <p><strong>Hypothesis A — motor is good</strong></p>
-<p>🟢 <strong>90% green</strong> · 🔴 <strong>10% red</strong></p>
+<p><strong>90% green</strong> · <strong>10% red</strong></p>
 <p>A red result is unusual when the motor is healthy.</p>
 </div>
 <div class="activity-card bad-motor">
 <p><strong>Hypothesis B — motor is broken</strong></p>
-<p>🟢 <strong>50% green</strong> · 🔴 <strong>50% red</strong></p>
+<p><strong>50% green</strong> · <strong>50% red</strong></p>
 <p>A red result is five times more likely when it is broken.</p>
 </div>
 </div>
@@ -767,7 +767,7 @@ P(\text{Broken}\mid\text{Red, Green})
 </section>
 <section id="activity-repeat" class="slide level2 compact-slide">
 <h2>Repeat — Each Test Refines the Estimate</h2>
-<h3 id="example-sequence-from-the-same-hidden-box">Example sequence from the same hidden box: 🔴 → 🟢 → 🔴 → 🟢</h3>
+<h3 id="example-sequence-from-the-same-hidden-box-red-green-red-green">Example sequence from the same hidden box: Red → Green → Red → Green</h3>
 <table class="caption-top">
 <colgroup>
 <col style="width: 18%">
@@ -795,28 +795,28 @@ P(\text{Broken}\mid\text{Red, Green})
 </tr>
 <tr class="even">
 <td style="text-align: left;">1</td>
-<td style="text-align: center;">🔴 Red</td>
+<td style="text-align: center;">Red</td>
 <td style="text-align: right;">50.0%</td>
 <td style="text-align: right;"><strong>83.3%</strong></td>
 <td style="text-align: left;">Strong evidence for broken</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">2</td>
-<td style="text-align: center;">🟢 Green</td>
+<td style="text-align: center;">Green</td>
 <td style="text-align: right;">83.3%</td>
 <td style="text-align: right;"><strong>73.5%</strong></td>
 <td style="text-align: left;">Evidence pulls back toward good</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">3</td>
-<td style="text-align: center;">🔴 Red</td>
+<td style="text-align: center;">Red</td>
 <td style="text-align: right;">73.5%</td>
 <td style="text-align: right;"><strong>93.3%</strong></td>
 <td style="text-align: left;">Repeated red makes broken very likely</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">4</td>
-<td style="text-align: center;">🟢 Green</td>
+<td style="text-align: center;">Green</td>
 <td style="text-align: right;">93.3%</td>
 <td style="text-align: right;"><strong>88.5%</strong></td>
 <td style="text-align: left;">Estimate adjusts, but remains confident</td>
@@ -967,23 +967,37 @@ Move toward the sensor by the appropriate amount, then repeat.
 <p><strong>Predict where it is going. Check what the sensor saw. Blend them according to trust.</strong></p>
 </div>
 </section>
-<section id="it-carries-three-things-forward" class="slide level2 tracking-slide">
-<h2>It Carries Three Things Forward</h2>
+<section id="motion-fills-the-gaps" class="slide level2 motion-gap-slide">
+<h2>Motion Fills the Gaps</h2>
+<p>Sensors give us <strong>snapshots</strong>. The object keeps moving between those snapshots.</p>
+<div class="motion-timeline" role="img" aria-label="At zero seconds the sensor sees the object at two meters. At one second there is no reading, so motion predicts three meters. At two seconds the sensor sees 4.2 meters and the estimate is corrected.">
+<div class="motion-step observed">
+<p><span class="time-label">0 seconds</span> <span class="timeline-dot"></span> <strong>Sensor sees 2.0 m</strong> <small>Start with an observed position</small></p>
+</div>
+<div class="timeline-connector">
+
+</div>
+<div class="motion-step predicted">
+<p><span class="time-label">1 second</span> <span class="timeline-dot"></span> <strong>No new reading</strong> <small>Motion predicts about 3.0 m</small></p>
+</div>
+<div class="timeline-connector">
+
+</div>
+<div class="motion-step corrected">
+<p><span class="time-label">2 seconds</span> <span class="timeline-dot"></span> <strong>Sensor sees 4.2 m</strong> <small>Use it to correct the prediction</small></p>
+</div>
+</div>
 <div class="columns">
 <div class="column" style="width:48%;">
-<h3 id="the-current-story">The current story</h3>
-<div class="tracking-list">
-<p><span class="tracking-icon">📍</span><span><strong>Where is it?</strong><br>Our best estimate of position.</span></p>
-<p><span class="tracking-icon">➡️</span><span><strong>How is it moving?</strong><br>Our best estimate of speed and direction.</span></p>
-</div>
+<h3 id="remember-only-position">Remember only position</h3>
+<p>“It was at 2.0 m.” The estimate becomes stale as soon as the object moves.</p>
 </div><div class="column" style="width:52%;">
-<h3 id="its-confidence">Its confidence</h3>
-<div class="confidence-card">
-<p><span class="tracking-icon">🎯</span></p>
-<p><strong>How sure are we?</strong></p>
-<p>A wide possible range means “not very sure.” A narrow range means “quite sure.” Time and unexpected motion widen the range; dependable measurements narrow it.</p>
-</div>
+<h3 id="remember-position-and-motion">Remember position and motion</h3>
+<p>“It was at 2.0 m and moving right.” Now we can make a useful prediction while the sensor is silent.</p>
 </div></div>
+<div class="takeaway-line">
+<p><strong>Motion carries the estimate forward. The next sensor reading pulls it back toward reality.</strong></p>
+</div>
 </section>
 <section id="one-update-on-a-number-line" class="slide level2 number-line-slide">
 <h2>One Update on a Number Line</h2>
