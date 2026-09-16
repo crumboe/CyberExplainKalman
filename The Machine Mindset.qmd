@@ -810,6 +810,7 @@ Sensors give us **snapshots**. The object keeps moving between those snapshots.
 <button type="button" data-drive="1" aria-label="Hold to drive cart right">Hold right →</button>
 <button type="button" data-action="reset">Reset</button>
 </div>
+<label>Commanded speed <output data-role="drive-speed-output">0.95 m/s</output><input data-role="drive-speed" type="range" min="0" max="3" step="0.05" value="0.95" aria-label="Commanded drive speed in meters per second"></label>
 <label>Kalman gain K <output data-role="gain-output">0.55</output><input data-role="gain" type="range" min="0" max="1" step="0.05" value="0.55"></label>
 <label>Drive uncertainty σ <output data-role="motion-output">0.20</output><input data-role="motion-noise" type="range" min="0" max="1.2" step="0.05" value="0.20"></label>
 <label>Sensor deviation σ <output data-role="sensor-output">0.35 m</output><input data-role="sensor-noise" type="range" min="0.05" max="1.5" step="0.05" value="0.35"></label>
@@ -860,6 +861,7 @@ Sensors give us **snapshots**. The object keeps moving between those snapshots.
 <button type="button" data-drive="1" aria-label="Hold to drive cart right">Hold right →</button>
 <button type="button" data-action="reset">Reset</button>
 </div>
+<label>Commanded speed <output data-role="drive-speed-output">0.95 m/s</output><input data-role="drive-speed" type="range" min="0" max="3" step="0.05" value="0.95" aria-label="Commanded drive speed in meters per second"></label>
 <label>Kalman gain K <output data-role="gain-output">0.55</output><input data-role="gain" type="range" min="0" max="1" step="0.05" value="0.55"></label>
 <label>Drive uncertainty σ <output data-role="motion-output">0.20</output><input data-role="motion-noise" type="range" min="0" max="1.2" step="0.05" value="0.20"></label>
 <label>Front sensor noise σ <output data-role="front-output">0.25 m</output><input data-role="front-noise" type="range" min="0.05" max="1.5" step="0.05" value="0.25"></label>

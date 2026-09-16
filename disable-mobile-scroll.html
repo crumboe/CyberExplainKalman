@@ -122,7 +122,7 @@
         const sensorSigma = Number(get("sensor-noise").value);
         const dt = 0.05;
         const acceleration = 0.8;
-        const targetVelocity = state.driveCommand * 0.95;
+        const targetVelocity = state.driveCommand * Number(get("drive-speed").value);
         const modelVelocityBefore = state.modelVelocity;
         state.modelVelocity = approach(state.modelVelocity, targetVelocity, acceleration * dt);
         const accelerationDemand = Math.abs(state.modelVelocity - modelVelocityBefore) / (acceleration * dt || 1);
@@ -189,8 +189,9 @@
         tick();
       };
 
-      ["gain", "motion-noise", "sensor-noise"].forEach((role) => {
+      ["drive-speed", "gain", "motion-noise", "sensor-noise"].forEach((role) => {
         get(role).addEventListener("input", () => {
+          get("drive-speed-output").textContent = `${Number(get("drive-speed").value).toFixed(2)} m/s`;
           get("gain-output").textContent = Number(get("gain").value).toFixed(2);
           get("motion-output").textContent = Number(get("motion-noise").value).toFixed(2);
           get("sensor-output").textContent = `${Number(get("sensor-noise").value).toFixed(2)} m`;
@@ -270,7 +271,7 @@
         const rearSigma = Number(get("rear-noise").value);
         const dt = 0.05;
         const acceleration = 0.8;
-        const targetVelocity = state.driveCommand * 0.95;
+        const targetVelocity = state.driveCommand * Number(get("drive-speed").value);
         const modelVelocityBefore = state.modelVelocity;
         state.modelVelocity = approach(state.modelVelocity, targetVelocity, acceleration * dt);
         const accelerationDemand = Math.abs(state.modelVelocity - modelVelocityBefore) / (acceleration * dt || 1);
@@ -343,8 +344,9 @@
         tick();
       };
 
-      ["gain", "motion-noise", "front-noise", "rear-noise"].forEach((role) => {
+      ["drive-speed", "gain", "motion-noise", "front-noise", "rear-noise"].forEach((role) => {
         get(role).addEventListener("input", () => {
+          get("drive-speed-output").textContent = `${Number(get("drive-speed").value).toFixed(2)} m/s`;
           get("gain-output").textContent = Number(get("gain").value).toFixed(2);
           get("motion-output").textContent = Number(get("motion-noise").value).toFixed(2);
           get("front-output").textContent = `${Number(get("front-noise").value).toFixed(2)} m`;

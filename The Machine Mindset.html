@@ -1071,7 +1071,11 @@ Hold right →
 Reset
 </button>
 </div>
-<label>Kalman gain K
+<label>Commanded speed
+<output data-role="drive-speed-output">
+0.95 m/s
+</output>
+<input data-role="drive-speed" type="range" min="0" max="3" step="0.05" value="0.95" aria-label="Commanded drive speed in meters per second"></label> <label>Kalman gain K
 <output data-role="gain-output">
 0.55
 </output>
@@ -1150,7 +1154,11 @@ Hold right →
 Reset
 </button>
 </div>
-<label>Kalman gain K
+<label>Commanded speed
+<output data-role="drive-speed-output">
+0.95 m/s
+</output>
+<input data-role="drive-speed" type="range" min="0" max="3" step="0.05" value="0.95" aria-label="Commanded drive speed in meters per second"></label> <label>Kalman gain K
 <output data-role="gain-output">
 0.55
 </output>
@@ -1654,7 +1662,7 @@ Motion fills the gaps; sensors keep the prediction connected to reality.
             const sensorSigma = Number(get("sensor-noise").value);
             const dt = 0.05;
             const acceleration = 0.8;
-            const targetVelocity = state.driveCommand * 0.95;
+            const targetVelocity = state.driveCommand * Number(get("drive-speed").value);
             const modelVelocityBefore = state.modelVelocity;
             state.modelVelocity = approach(state.modelVelocity, targetVelocity, acceleration * dt);
             const accelerationDemand = Math.abs(state.modelVelocity - modelVelocityBefore) / (acceleration * dt || 1);
@@ -1721,8 +1729,9 @@ Motion fills the gaps; sensors keep the prediction connected to reality.
             tick();
           };
 
-          ["gain", "motion-noise", "sensor-noise"].forEach((role) => {
+          ["drive-speed", "gain", "motion-noise", "sensor-noise"].forEach((role) => {
             get(role).addEventListener("input", () => {
+              get("drive-speed-output").textContent = `${Number(get("drive-speed").value).toFixed(2)} m/s`;
               get("gain-output").textContent = Number(get("gain").value).toFixed(2);
               get("motion-output").textContent = Number(get("motion-noise").value).toFixed(2);
               get("sensor-output").textContent = `${Number(get("sensor-noise").value).toFixed(2)} m`;
@@ -1802,7 +1811,7 @@ Motion fills the gaps; sensors keep the prediction connected to reality.
             const rearSigma = Number(get("rear-noise").value);
             const dt = 0.05;
             const acceleration = 0.8;
-            const targetVelocity = state.driveCommand * 0.95;
+            const targetVelocity = state.driveCommand * Number(get("drive-speed").value);
             const modelVelocityBefore = state.modelVelocity;
             state.modelVelocity = approach(state.modelVelocity, targetVelocity, acceleration * dt);
             const accelerationDemand = Math.abs(state.modelVelocity - modelVelocityBefore) / (acceleration * dt || 1);
@@ -1875,8 +1884,9 @@ Motion fills the gaps; sensors keep the prediction connected to reality.
             tick();
           };
 
-          ["gain", "motion-noise", "front-noise", "rear-noise"].forEach((role) => {
+          ["drive-speed", "gain", "motion-noise", "front-noise", "rear-noise"].forEach((role) => {
             get(role).addEventListener("input", () => {
+              get("drive-speed-output").textContent = `${Number(get("drive-speed").value).toFixed(2)} m/s`;
               get("gain-output").textContent = Number(get("gain").value).toFixed(2);
               get("motion-output").textContent = Number(get("motion-noise").value).toFixed(2);
               get("front-output").textContent = `${Number(get("front-noise").value).toFixed(2)} m`;

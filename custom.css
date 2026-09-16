@@ -1093,7 +1093,7 @@ body,
 
 .sim-controls {
   display: grid;
-  grid-template-columns: 1.25fr repeat(3, 1fr);
+  grid-template-columns: 1.25fr repeat(4, 1fr);
   gap: 0.55em;
   align-items: stretch;
   margin-bottom: 0.55em;
@@ -1398,7 +1398,7 @@ body,
 .kalman-sim .belief-panel { overflow: visible; }
 
 .fusion-controls {
-  grid-template-columns: 1.25fr repeat(4, 1fr);
+  grid-template-columns: 1.25fr repeat(5, 1fr);
 }
 
 .fusion-controls label,
