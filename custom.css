@@ -1173,7 +1173,7 @@ body,
 .gain-math-caption { margin-top:18px; padding:13px 18px; text-align:center; background:rgba(255,185,87,.1); border:1px solid rgba(255,185,87,.5); border-radius:11px; }
 
 .camera-compare-demo { font-size:.67em; }
-.camera-compare-controls { display:grid; grid-template-columns:1fr 1fr auto auto; gap:16px; margin-bottom:14px; }
+.camera-compare-controls { display:grid; grid-template-columns:1fr auto auto; gap:16px; margin-bottom:14px; }
 .camera-compare-controls label { display:grid; grid-template-columns:1fr auto; gap:7px; padding:11px 15px; background:var(--panel-bg); border-radius:10px; }
 .camera-compare-controls input { grid-column:1 / -1; width:100%; accent-color:#62c3ff; }
 .camera-compare-controls output { color:#62c3ff; }

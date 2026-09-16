@@ -20,7 +20,7 @@
 
     function makeState(){
       const a=Math.atan2(path[1].y-path[0].y,path[1].x-path[0].x);
-      return {x:path[0].x,y:path[0].y,a,left:0,right:0,biasL:.14,biasR:.25,t:0,waypoint:1,laps:0,ex:path[0].x,ey:path[0].y,ea:a,p:.12,pa:.003,k:0,hk:0,hits:[],samples:[],measurementSigma:null,errors:[]};
+      return {x:path[0].x,y:path[0].y,a,left:0,right:0,biasL:.14,biasR:.25,t:0,waypoint:1,laps:0,ex:path[0].x,ey:path[0].y,ea:a,p:.12,pa:.003,k:0,hk:0,hits:[],samples:[],measurementSigma:null,errorSumSq:0,errorCount:0};
     }
     function reset(){states={single:makeState(),multi:makeState()};paused=false;get("pause").textContent="Pause";drawAll();readout();}
 
@@ -34,12 +34,14 @@
       return{measurement:{x:observations.reduce((sum,o)=>sum+o.x/o.variance,0)/precision,y:observations.reduce((sum,o)=>sum+o.y/o.variance,0)/precision,a:Math.atan2(sin,cos)},variance:1/precision,headingVariance:1/headingPrecision,hits:allHits,samples:observations};
     }
 
-    function updateState(s,cameraSet,motion,noise){
+    function updateState(s,cameraSet,motion,noise,speedCommand){
       let target=path[s.waypoint],distance=Math.hypot(target.x-s.ex,target.y-s.ey);
       if(distance<.34){s.waypoint=(s.waypoint+1)%path.length;if(s.waypoint===0)s.laps++;target=path[s.waypoint];distance=Math.hypot(target.x-s.ex,target.y-s.ey);}
       const desired=Math.atan2(target.y-s.ey,target.x-s.ex),headingError=wrap(desired-s.ea);
-      const drive=clamp(distance*1.15,0,1.8)*clamp(1-Math.abs(headingError)/1.45,.18,1),turn=clamp(headingError*1.6,-1,1);
-      s.left=approach(s.left,drive+turn*.62,3.2*dt);s.right=approach(s.right,drive-turn*.62,3.2*dt);
+      const driveGain=.75+.35*speedCommand,turnGain=1.15+.25*speedCommand;
+      const drive=clamp(distance*driveGain,0,speedCommand)*clamp(1-Math.abs(headingError)/1.5,.2,1),turn=clamp(headingError*turnGain,-1.45,1.45);
+      const acceleration=(2.4+1.2*speedCommand)*dt;
+      s.left=approach(s.left,drive+turn*.62,acceleration);s.right=approach(s.right,drive-turn*.62,acceleration);
       const moving=Math.abs(s.left)+Math.abs(s.right);if(moving>.01){s.biasL=clamp(s.biasL+rand()*.002,.04,.4);s.biasR=clamp(s.biasR+rand()*.002,.04,.4);}
       const vl=s.left*(1-motion*s.biasL),vr=s.right*(1-motion*s.biasR),v=(vl+vr)/2,w=(vl-vr)/.6;
       s.a=wrap(s.a+w*dt);s.x=clamp(s.x+v*Math.cos(s.a)*dt,.28,11.72);s.y=clamp(s.y+v*Math.sin(s.a)*dt,.28,6.72);
@@ -47,9 +49,9 @@
       s.p+=dt*(.005+motion*motion*(.07*moving+.025*Math.abs(ew)));s.pa+=dt*(.00015+motion*motion*(.015*moving+.01*Math.abs(ew)));s.t++;
       const sensed=observe(s,cameraSet,noise);s.hits=sensed.hits;s.samples=sensed.samples;s.measurementSigma=sensed.variance===null?null:Math.sqrt(sensed.variance);
       if(sensed.measurement){s.k=s.p/(s.p+sensed.variance);s.hk=s.pa/(s.pa+sensed.headingVariance);if(s.t%4===0){s.ex+=s.k*(sensed.measurement.x-s.ex);s.ey+=s.k*(sensed.measurement.y-s.ey);s.ea=wrap(s.ea+s.hk*wrap(sensed.measurement.a-s.ea));s.p=(1-s.k)*s.p;s.pa=(1-s.hk)*s.pa;}}else{s.k=0;s.hk=0;}
-      s.errors.push(Math.hypot(s.ex-s.x,s.ey-s.y));if(s.errors.length>160)s.errors.shift();
+      const error=Math.hypot(s.ex-s.x,s.ey-s.y);s.errorSumSq+=error*error;s.errorCount++;
     }
-    function update(){const motion=+get("motion").value,noise=+get("noise").value;updateState(states.single,cameras.single,motion,noise);updateState(states.multi,cameras.multi,motion,noise);drawAll();readout();}
+    function update(){const speedCommand=+get("speed").value,motion=.45,noise=1;updateState(states.single,cameras.single,motion,noise,speedCommand);updateState(states.multi,cameras.multi,motion,noise,speedCommand);drawAll();readout();}
 
     function draw(name){
       const c=canvases[name],ctx=contexts[name],s=states[name],cameraSet=cameras[name],sx=60,ox=50,oy=35,X=x=>ox+x*sx,Y=y=>oy+y*sx;
@@ -65,10 +67,10 @@
     }
     const drawAll=()=>{draw("single");draw("multi");};
     function readout(){
-      ["single","multi"].forEach(name=>{const s=states[name],rms=Math.sqrt(s.errors.reduce((sum,e)=>sum+e*e,0)/Math.max(1,s.errors.length)),count=s.samples.length;get(name+"-error").textContent=rms.toFixed(2)+" m average error";get(name+"-count").textContent=count+" camera"+(count===1?"":"s")+" contributing";get(name+"-measurement").textContent=s.measurementSigma===null?"measurement σ —":"measurement σ "+s.measurementSigma.toFixed(2)+" m";get(name+"-sigma").textContent="belief σ "+Math.sqrt(s.p).toFixed(2)+" m";});
+      ["single","multi"].forEach(name=>{const s=states[name],rms=Math.sqrt(s.errorSumSq/Math.max(1,s.errorCount)),count=s.samples.length;get(name+"-error").textContent=rms.toFixed(2)+" m cumulative average";get(name+"-count").textContent=count+" camera"+(count===1?"":"s")+" contributing";get(name+"-measurement").textContent=s.measurementSigma===null?"measurement σ —":"measurement σ "+s.measurementSigma.toFixed(2)+" m";get(name+"-sigma").textContent="belief σ "+Math.sqrt(s.p).toFixed(2)+" m";});
       get("route-status").textContent=`Single target ${states.single.waypoint+1} · fused target ${states.multi.waypoint+1}`;
     }
-    ["noise","motion"].forEach(name=>get(name).addEventListener("input",()=>{get(name+"-out").textContent=(+get(name).value).toFixed(2)+(name==="noise"?" m":"");}));
+    get("speed").addEventListener("input",()=>{get("speed-out").textContent=(+get("speed").value).toFixed(2)+" m/s";});
     get("pause").addEventListener("click",()=>{paused=!paused;get("pause").textContent=paused?"Resume":"Pause";});get("reset").addEventListener("click",reset);
     reset();timer=window.setInterval(()=>{if(active()&&!paused)update();},50);
   });

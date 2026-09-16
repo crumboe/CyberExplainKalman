@@ -1418,16 +1418,15 @@ Motion fills the gaps; sensors keep the prediction connected to reality.
 <h2>One Noisy Camera or Several?</h2>
 <div class="camera-compare-demo" data-camera-compare-demo="">
 <div class="camera-compare-controls">
-<label>Camera noise σ <output data-compare="noise-out">1.00 m</output><input data-compare="noise" type="range" min="0.20" max="1.50" step="0.05" value="1.00" aria-label="Camera noise for all cameras"></label>
-<label>Motion deviation <output data-compare="motion-out">0.45</output><input data-compare="motion" type="range" min="0" max="1.2" step="0.05" value="0.45" aria-label="Motion deviation"></label>
+<label>Commanded speed <output data-compare="speed-out">2.00 m/s</output><input data-compare="speed" type="range" min="0.50" max="5.00" step="0.25" value="2.00" aria-label="Autonomous robot commanded speed"></label>
 <button type="button" data-compare="pause">Pause</button><button type="button" data-compare="reset">Reset</button>
 </div>
 <div class="camera-compare-panels">
-<div><h3>One wide noisy camera</h3><canvas data-compare="single" width="820" height="500" role="img" aria-label="Robot localization using one wide noisy camera"></canvas><p><strong data-compare="single-error">0.00 m average error</strong><span data-compare="single-count">0 cameras</span><span data-compare="single-measurement">measurement σ —</span><span data-compare="single-sigma">belief σ 0.35 m</span></p></div>
-<div><h3>Three partially overlapping cameras</h3><canvas data-compare="multi" width="820" height="500" role="img" aria-label="Robot localization using three noisy cameras with overlapping views"></canvas><p><strong data-compare="multi-error">0.00 m average error</strong><span data-compare="multi-count">0 cameras</span><span data-compare="multi-measurement">measurement σ —</span><span data-compare="multi-sigma">belief σ 0.35 m</span></p></div>
+<div><h3>One wide noisy camera</h3><canvas data-compare="single" width="820" height="500" role="img" aria-label="Robot localization using one wide noisy camera"></canvas><p><strong data-compare="single-error">0.00 m cumulative average</strong><span data-compare="single-count">0 cameras</span><span data-compare="single-measurement">measurement σ —</span><span data-compare="single-sigma">belief σ 0.35 m</span></p></div>
+<div><h3>Three partially overlapping cameras</h3><canvas data-compare="multi" width="820" height="500" role="img" aria-label="Robot localization using three noisy cameras with overlapping views"></canvas><p><strong data-compare="multi-error">0.00 m cumulative average</strong><span data-compare="multi-count">0 cameras</span><span data-compare="multi-measurement">measurement σ —</span><span data-compare="multi-sigma">belief σ 0.35 m</span></p></div>
 </div>
 <div class="camera-compare-route"><strong>Each robot steers from its believed pose</strong><span data-compare="route-status">Single target 2 · fused target 2</span><span>The dashed figure eight is the commanded route.</span></div>
-<div class="camera-compare-caption"><strong>Both systems have the same total field of view.</strong> Independent overlapping cameras reduce σ by √N. Shared calibration errors reduce this benefit.</div>
+<div class="camera-compare-caption"><strong>Both systems have the same total field of view.</strong> Camera σ stays at 1.00 m and motion deviation stays at 0.45. Independent overlapping cameras reduce σ by √N.</div>
 </div>
 
 </section>
@@ -2050,7 +2049,7 @@ Motion fills the gaps; sensors keep the prediction connected to reality.
       });
     </script>
     <script src="assets/tank-demo.js?v=42"></script>
-    <script src="assets/camera-compare-demo.js?v=45"></script>
+    <script src="assets/camera-compare-demo.js?v=46"></script>
     <script id="quarto-html-after-body" type="application/javascript">
       window.document.addEventListener("DOMContentLoaded", function (event) {
         const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
