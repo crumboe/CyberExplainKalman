@@ -2,14 +2,19 @@
 (() => {
   const boot=()=>document.querySelectorAll("[data-camera-compare-demo]").forEach(root=>{
     if(root.dataset.bound)return;root.dataset.bound="true";
-    const get=n=>root.querySelector('[data-compare="'+n+'"]'),canvases={single:get("single"),multi:get("multi")},contexts={single:canvases.single.getContext("2d"),multi:canvases.multi.getContext("2d")};
+    const names=["single","multi","opposed","surround"],get=n=>root.querySelector('[data-compare="'+n+'"]'),canvases=Object.fromEntries(names.map(n=>[n,get(n)])),contexts=Object.fromEntries(names.map(n=>[n,canvases[n].getContext("2d")]));
     const tags=[{x:1,y:.35},{x:6,y:.35},{x:11,y:.35},{x:11.65,y:3.5},{x:11,y:6.65},{x:6,y:6.65},{x:1,y:6.65},{x:.35,y:3.5}],dt=.05,trialCount=12,halfFov=Math.PI/5;
-    const primary={offset:0,half:halfFov+.48},extras=[{offset:-.48,half:halfFov},{offset:.48,half:halfFov}];
+    const primary={offset:0,half:halfFov+.48},configurations={
+      single:{cameras:[primary]},
+      multi:{cameras:[primary,{offset:-.48,half:halfFov},{offset:.48,half:halfFov}]},
+      opposed:{cameras:[primary,{offset:Math.PI,half:halfFov+.48}]},
+      surround:{cameras:[primary,{offset:Math.PI/2,half:halfFov+.18},{offset:Math.PI,half:halfFov+.18},{offset:-Math.PI/2,half:halfFov+.18}]}
+    };
     const path=Array.from({length:40},(_,i)=>{const t=2*Math.PI*i/40;return{x:6+3.7*Math.sin(t),y:3.5+2.4*Math.sin(t)*Math.cos(t)}});
     const clamp=(x,a,b)=>Math.max(a,Math.min(b,x)),wrap=x=>Math.atan2(Math.sin(x),Math.cos(x)),rand=()=>Math.sqrt(-2*Math.log(Math.max(1e-12,Math.random())))*Math.cos(2*Math.PI*Math.random()),approach=(v,t,s)=>v+clamp(t-v,-s,s),active=()=>root.closest("section").classList.contains("present")&&!document.hidden;
     let trials,paused=false;
     const makeFilter=(x,y,a)=>({ex:x,ey:y,ea:a,p:.12,pa:.003,k:0,hk:0,hits:[],samples:[],measurementSigma:null,totalError:0,updateCount:0});
-    function makeTrial(){const a=Math.atan2(path[1].y-path[0].y,path[1].x-path[0].x),truth={x:path[0].x,y:path[0].y,a,left:0,right:0,biasL:.14,biasR:.25,t:0,waypoint:1,laps:0};return{truth,single:makeFilter(truth.x,truth.y,a),multi:makeFilter(truth.x,truth.y,a)}}
+    function makeTrial(){const a=Math.atan2(path[1].y-path[0].y,path[1].x-path[0].x),truth={x:path[0].x,y:path[0].y,a,left:0,right:0,biasL:.14,biasR:.25,t:0,waypoint:1,laps:0},trial={truth};names.forEach(n=>trial[n]=makeFilter(truth.x,truth.y,a));return trial}
     function reset(){trials=Array.from({length:trialCount},makeTrial);paused=false;get("pause").textContent="Pause";drawAll();readout()}
     const visible=(s,c)=>tags.map((tag,i)=>({...tag,i,d:Math.hypot(tag.x-s.x,tag.y-s.y)})).filter(tag=>tag.d<=4.6&&Math.abs(wrap(Math.atan2(tag.y-s.y,tag.x-s.x)-wrap(s.a+c.offset)))<=c.half);
     function cameraObservation(s,c,noise){const hits=visible(s,c);if(!hits.length)return null;const sigma=noise/Math.sqrt(hits.length),headingSigma=sigma*.14;return{x:s.x+rand()*sigma,y:s.y+rand()*sigma,a:wrap(s.a+rand()*headingSigma),variance:sigma*sigma,headingVariance:headingSigma*headingSigma,hits}}
@@ -21,21 +26,21 @@
       const desired=Math.atan2(target.y-s.y,target.x-s.x),headingError=wrap(desired-s.a),drive=clamp(distance*(.75+.35*speed),0,speed)*clamp(1-Math.abs(headingError)/1.5,.2,1),turn=clamp(headingError*(1.15+.25*speed),-1.45,1.45),acceleration=(2.4+1.2*speed)*dt;
       s.left=approach(s.left,drive+turn*.62,acceleration);s.right=approach(s.right,drive-turn*.62,acceleration);const moving=Math.abs(s.left)+Math.abs(s.right);if(moving>.01){s.biasL=clamp(s.biasL+rand()*.002,.04,.4);s.biasR=clamp(s.biasR+rand()*.002,.04,.4)}
       const vl=s.left*(1-motion*s.biasL),vr=s.right*(1-motion*s.biasR),v=(vl+vr)/2,w=(vl-vr)/.6;s.a=wrap(s.a+w*dt);s.x=clamp(s.x+v*Math.cos(s.a)*dt,.28,11.72);s.y=clamp(s.y+v*Math.sin(s.a)*dt,.28,6.72);s.t++;
-      predict(trial.single,s.left,s.right,motion);predict(trial.multi,s.left,s.right,motion);
-      const sharedPrimary=cameraObservation(s,primary,noise),singleSense=combine([sharedPrimary]),multiSense=combine([sharedPrimary,...extras.map(c=>cameraObservation(s,c,noise))]),apply=s.t%4===0;
-      correct(trial.single,singleSense,apply);correct(trial.multi,multiSense,apply);[trial.single,trial.multi].forEach(f=>{f.totalError+=Math.hypot(f.ex-s.x,f.ey-s.y);f.updateCount++})
+      names.forEach(n=>predict(trial[n],s.left,s.right,motion));
+      const sharedPrimary=cameraObservation(s,primary,noise),apply=s.t%4===0;
+      names.forEach(name=>{const extras=configurations[name].cameras.slice(1).map(c=>cameraObservation(s,c,noise)),sensed=combine([sharedPrimary,...extras]),f=trial[name];correct(f,sensed,apply);f.totalError+=Math.hypot(f.ex-s.x,f.ey-s.y);f.updateCount++})
     }
     function update(){const speed=+get("speed").value;trials.forEach(t=>updateTrial(t,.45,1,speed));drawAll();readout()}
     function draw(name){
-      const c=canvases[name],ctx=contexts[name],trial=trials[0],s=trial.truth,f=trial[name],cameraSet=name==="single"?[primary]:[primary,...extras],sx=60,ox=50,oy=35,X=x=>ox+x*sx,Y=y=>oy+y*sx;
+      const c=canvases[name],ctx=contexts[name],trial=trials[0],s=trial.truth,f=trial[name],cameraSet=configurations[name].cameras,sx=60,ox=50,oy=35,X=x=>ox+x*sx,Y=y=>oy+y*sx;
       ctx.clearRect(0,0,c.width,c.height);ctx.fillStyle="#071321";ctx.fillRect(0,0,c.width,c.height);ctx.save();ctx.beginPath();ctx.rect(ox,oy,720,420);ctx.clip();ctx.strokeStyle="#21354a";ctx.lineWidth=1;for(let x=0;x<=12;x++){ctx.beginPath();ctx.moveTo(X(x),oy);ctx.lineTo(X(x),Y(7));ctx.stroke()}for(let y=0;y<=7;y++){ctx.beginPath();ctx.moveTo(ox,Y(y));ctx.lineTo(X(12),Y(y));ctx.stroke()}
       ctx.strokeStyle="rgba(255,255,255,.42)";ctx.lineWidth=2;ctx.setLineDash([7,6]);ctx.beginPath();path.forEach((p,i)=>i?ctx.lineTo(X(p.x),Y(p.y)):ctx.moveTo(X(p.x),Y(p.y)));ctx.closePath();ctx.stroke();ctx.setLineDash([]);path.forEach((p,i)=>{ctx.fillStyle=i===s.waypoint?"#ffb957":"rgba(255,255,255,.52)";ctx.beginPath();ctx.arc(X(p.x),Y(p.y),i===s.waypoint?4:2,0,Math.PI*2);ctx.fill()});
       const sigma=Math.sqrt(f.p)*sx,cx=X(f.ex),cy=Y(f.ey),r=Math.max(2,3*sigma),g=ctx.createRadialGradient(cx,cy,0,cx,cy,r);g.addColorStop(0,"rgba(255,166,55,.68)");g.addColorStop(.45,"rgba(255,166,55,.20)");g.addColorStop(1,"rgba(255,166,55,0)");ctx.fillStyle=g;ctx.fillRect(ox,oy,720,420);
       cameraSet.forEach((camera,i)=>{ctx.fillStyle=i===0?"rgba(98,195,255,.09)":"rgba(181,127,255,.07)";ctx.strokeStyle=i===0?"#529fc3":"#9c73d6";const a=wrap(s.a+camera.offset);ctx.beginPath();ctx.moveTo(X(s.x),Y(s.y));ctx.arc(X(s.x),Y(s.y),4.6*sx,a-camera.half,a+camera.half);ctx.closePath();ctx.fill();ctx.stroke()});
       tags.forEach((tag,i)=>{const seen=f.hits.some(h=>h.i===i);ctx.fillStyle=seen?"#62dfa6":"#fff";ctx.fillRect(X(tag.x)-9,Y(tag.y)-9,18,18);ctx.fillStyle="#071321";ctx.fillRect(X(tag.x)-6,Y(tag.y)-6,12,12)});ctx.save();ctx.translate(X(s.x),Y(s.y));ctx.rotate(s.a);ctx.fillStyle="#62dfa6";ctx.fillRect(-14,-10,28,20);ctx.fillStyle="#071321";ctx.beginPath();ctx.moveTo(13,0);ctx.lineTo(4,-5);ctx.lineTo(4,5);ctx.closePath();ctx.fill();ctx.restore();ctx.strokeStyle="#fff";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(cx-7,cy);ctx.lineTo(cx+7,cy);ctx.moveTo(cx,cy-7);ctx.lineTo(cx,cy+7);ctx.moveTo(cx,cy);ctx.lineTo(cx+18*Math.cos(f.ea),cy+18*Math.sin(f.ea));ctx.stroke();ctx.restore();ctx.strokeStyle="#8199ac";ctx.lineWidth=2;ctx.strokeRect(ox,oy,720,420)
     }
-    const drawAll=()=>{draw("single");draw("multi")};
-    function readout(){["single","multi"].forEach(name=>{const filters=trials.map(t=>t[name]),errorSum=filters.reduce((n,f)=>n+f.totalError,0),updates=filters.reduce((n,f)=>n+f.updateCount,0),mean=errorSum/Math.max(1,updates),shown=filters[0],count=shown.samples.length;get(name+"-error").textContent=mean.toFixed(2)+" m cumulative mean error";get(name+"-count").textContent=count+" reading"+(count===1?"":"s")+" this update";get(name+"-measurement").textContent=shown.measurementSigma===null?"effective measurement σ —":"effective measurement σ "+shown.measurementSigma.toFixed(2)+" m";get(name+"-sigma").textContent="belief σ "+Math.sqrt(shown.p).toFixed(2)+" m"});const s=trials[0].truth;get("route-status").textContent=`Trial 1 target ${s.waypoint+1} · lap ${s.laps+1}`}
+    const drawAll=()=>names.forEach(draw);
+    function readout(){names.forEach(name=>{const filters=trials.map(t=>t[name]),errorSum=filters.reduce((n,f)=>n+f.totalError,0),updates=filters.reduce((n,f)=>n+f.updateCount,0),mean=errorSum/Math.max(1,updates),shown=filters[0],count=shown.samples.length;get(name+"-error").textContent=mean.toFixed(2)+" m cumulative mean error";get(name+"-count").textContent=count+" reading"+(count===1?"":"s")+" this update";get(name+"-measurement").textContent=shown.measurementSigma===null?"effective measurement σ —":"effective measurement σ "+shown.measurementSigma.toFixed(2)+" m";get(name+"-sigma").textContent="belief σ "+Math.sqrt(shown.p).toFixed(2)+" m"});const s=trials[0].truth;get("route-status").textContent=`Trial 1 target ${s.waypoint+1} · lap ${s.laps+1}`}
     get("speed").addEventListener("input",()=>{get("speed-out").textContent=(+get("speed").value).toFixed(2)+" m/s"});get("pause").addEventListener("click",()=>{paused=!paused;get("pause").textContent=paused?"Resume":"Pause"});get("reset").addEventListener("click",reset);
     reset();window.setInterval(()=>{if(active()&&!paused)update()},50)
   });

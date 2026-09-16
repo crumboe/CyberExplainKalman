@@ -1424,9 +1424,11 @@ Motion fills the gaps; sensors keep the prediction connected to reality.
 <div class="camera-compare-panels">
 <div><h3>One wide noisy camera</h3><canvas data-compare="single" width="820" height="500" role="img" aria-label="Robot localization using one wide noisy camera"></canvas><p><strong data-compare="single-error">0.00 m cumulative average</strong><span data-compare="single-count">0 cameras</span><span data-compare="single-measurement">measurement σ —</span><span data-compare="single-sigma">belief σ 0.35 m</span></p></div>
 <div><h3>Three partially overlapping cameras</h3><canvas data-compare="multi" width="820" height="500" role="img" aria-label="Robot localization using three noisy cameras with overlapping views"></canvas><p><strong data-compare="multi-error">0.00 m cumulative average</strong><span data-compare="multi-count">0 cameras</span><span data-compare="multi-measurement">measurement σ —</span><span data-compare="multi-sigma">belief σ 0.35 m</span></p></div>
+<div><h3>Two opposing cameras</h3><canvas data-compare="opposed" width="820" height="500" role="img" aria-label="Robot localization using front and rear noisy cameras"></canvas><p><strong data-compare="opposed-error">0.00 m cumulative average</strong><span data-compare="opposed-count">0 cameras</span><span data-compare="opposed-measurement">measurement σ —</span><span data-compare="opposed-sigma">belief σ 0.35 m</span></p></div>
+<div><h3>Four cameras around the robot</h3><canvas data-compare="surround" width="820" height="500" role="img" aria-label="Robot localization using four noisy cameras around the robot"></canvas><p><strong data-compare="surround-error">0.00 m cumulative average</strong><span data-compare="surround-count">0 cameras</span><span data-compare="surround-measurement">measurement σ —</span><span data-compare="surround-sigma">belief σ 0.35 m</span></p></div>
 </div>
 <div class="camera-compare-route"><strong>12 matched trials share the same real motion</strong><span data-compare="route-status">Trial 1 target 2 · lap 1</span><span>The controller follows truth, so neither filter changes the route.</span></div>
-<div class="camera-compare-caption"><strong>Both filters receive the same wheel motion and primary-camera reading.</strong> Only the multicamera filter receives two additional independent readings. Camera σ stays at 1.00 m and motion deviation stays at 0.45.</div>
+<div class="camera-compare-caption"><strong>Every filter receives the same wheel motion and front-camera reading.</strong> Added cameras provide independent readings from overlapping or wider directions. Camera σ stays at 1.00 m and motion deviation stays at 0.45.</div>
 </div>
 
 </section>
@@ -2049,7 +2051,7 @@ Motion fills the gaps; sensors keep the prediction connected to reality.
       });
     </script>
     <script src="assets/tank-demo.js?v=42"></script>
-    <script src="assets/camera-compare-demo.js?v=48"></script>
+    <script src="assets/camera-compare-demo.js?v=49"></script>
     <script id="quarto-html-after-body" type="application/javascript">
       window.document.addEventListener("DOMContentLoaded", function (event) {
         const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
