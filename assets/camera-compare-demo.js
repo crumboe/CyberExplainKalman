@@ -48,10 +48,10 @@
       let target=path[truth.waypoint],distance=Math.hypot(target.x-truth.x,target.y-truth.y);
       if(distance<.34){truth.waypoint=(truth.waypoint+1)%path.length;if(truth.waypoint===0)truth.laps++;target=path[truth.waypoint];distance=Math.hypot(target.x-truth.x,target.y-truth.y);}
       const desired=Math.atan2(target.y-truth.y,target.x-truth.x),headingError=wrap(desired-truth.a);
-      const drive=clamp(distance*.9,0,1.25)*clamp(1-Math.abs(headingError)/1.35,.12,1);
-      const turn=clamp(headingError*1.45,-1,1);
-      truth.left=approach(truth.left,drive+turn*.62,2*dt);
-      truth.right=approach(truth.right,drive-turn*.62,2*dt);
+      const drive=clamp(distance*1.15,0,1.8)*clamp(1-Math.abs(headingError)/1.45,.18,1);
+      const turn=clamp(headingError*1.6,-1,1);
+      truth.left=approach(truth.left,drive+turn*.62,3.2*dt);
+      truth.right=approach(truth.right,drive-turn*.62,3.2*dt);
       const moving=Math.abs(truth.left)+Math.abs(truth.right);
       if(moving>.01){truth.biasL=clamp(truth.biasL+rand()*.002,.04,.4);truth.biasR=clamp(truth.biasR+rand()*.002,.04,.4);}
       const vl=truth.left*(1-motion*truth.biasL),vr=truth.right*(1-motion*truth.biasR);
