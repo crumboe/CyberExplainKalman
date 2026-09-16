@@ -1187,6 +1187,9 @@ body,
 .camera-compare-drive { display:flex; align-items:center; justify-content:center; gap:10px; margin-top:10px; }
 .camera-compare-drive span { margin-right:8px; color:#b9cad7; }
 .camera-compare-drive button.pressed { background:#62c3ff; color:#071321; }
+.camera-compare-route { display:flex; align-items:center; justify-content:center; gap:28px; margin-top:10px; color:#b9cad7; }
+.camera-compare-route strong { color:#62c3ff; }
+.camera-compare-route [data-compare="route-status"] { color:#ffb957; font-weight:800; }
 .camera-compare-caption { margin-top:9px; text-align:center; color:#d4e4ef; }
 .kalman-sim {
   font-size: 0.72em;

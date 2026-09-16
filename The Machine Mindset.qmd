@@ -1111,7 +1111,7 @@ where we now think it is—and how sure we are
 <div><h3>One noisy camera</h3><canvas data-compare="single" width="820" height="500" role="img" aria-label="Robot localization using one noisy camera"></canvas><p><strong data-compare="single-error">0.00 m average error</strong><span data-compare="single-count">0 cameras</span><span data-compare="single-measurement">measurement σ —</span><span data-compare="single-sigma">belief σ 0.35 m</span></p></div>
 <div><h3>Three partially overlapping cameras</h3><canvas data-compare="multi" width="820" height="500" role="img" aria-label="Robot localization using three noisy cameras with overlapping views"></canvas><p><strong data-compare="multi-error">0.00 m average error</strong><span data-compare="multi-count">0 cameras</span><span data-compare="multi-measurement">measurement σ —</span><span data-compare="multi-sigma">belief σ 0.35 m</span></p></div>
 </div>
-<div class="camera-compare-drive"><span>Hold to drive both simulations</span><button data-drive="left" aria-label="Turn left">←</button><button data-drive="forward" aria-label="Drive forward">↑</button><button data-drive="right" aria-label="Turn right">→</button></div>
-<div class="camera-compare-caption"><strong>Colored dots are individual camera readings. The white ring is their fused measurement.</strong> Independent cameras reduce σ by √N in overlap regions. Shared calibration errors reduce this benefit.</div>
+<div class="camera-compare-route"><strong>Autonomous waypoint follower</strong><span data-compare="route-status">Target waypoint 1 of 40</span><span>The dashed figure eight is the commanded route.</span></div>
+<div class="camera-compare-caption"><strong>Watch the orange belief and the effective measurement σ.</strong> Independent cameras reduce σ by √N in overlap regions. Shared calibration errors reduce this benefit.</div>
 </div>
 ```

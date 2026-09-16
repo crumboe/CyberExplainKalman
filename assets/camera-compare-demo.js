@@ -8,22 +8,22 @@
     const canvases = {single:get("single"), multi:get("multi")};
     const contexts = {single:canvases.single.getContext("2d"), multi:canvases.multi.getContext("2d")};
     const tags = [{x:1,y:.35},{x:6,y:.35},{x:11,y:.35},{x:11.65,y:3.5},{x:11,y:6.65},{x:6,y:6.65},{x:1,y:6.65},{x:.35,y:3.5}];
-    const keys = new Set(), dt=.05;
+    const dt=.05;
     const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
     const wrap=x=>Math.atan2(Math.sin(x),Math.cos(x));
     const rand=()=>Math.sqrt(-2*Math.log(Math.max(1e-12,Math.random())))*Math.cos(2*Math.PI*Math.random());
     const approach=(v,t,s)=>v+clamp(t-v,-s,s);
     const active=()=>root.closest("section").classList.contains("present")&&!document.hidden;
+    const path=Array.from({length:40},(_,i)=>{const t=2*Math.PI*i/40;return{x:6+3.7*Math.sin(t),y:3.5+2.4*Math.sin(t)*Math.cos(t)};});
     let truth, filters, paused=false, timer=null;
 
     const visible = (angle, x, y) => tags.map((tag,i)=>({...tag,i,d:Math.hypot(tag.x-x,tag.y-y)}))
       .filter(tag=>tag.d<=4.6&&Math.abs(wrap(Math.atan2(tag.y-y,tag.x-x)-angle))<=Math.PI/5);
 
     function reset(){
-      keys.clear();
-      root.querySelectorAll("[data-drive]").forEach(b=>b.classList.remove("pressed"));
-      truth={x:6,y:3.5,a:-Math.PI/2,left:0,right:0,biasL:.14,biasR:.25,t:0};
-      filters={single:{ex:6,ey:3.5,ea:-Math.PI/2,p:.12,pa:.003,k:0,hk:0,hits:[],samples:[],fused:null,measurementSigma:null,errors:[]},multi:{ex:6,ey:3.5,ea:-Math.PI/2,p:.12,pa:.003,k:0,hk:0,hits:[],samples:[],fused:null,measurementSigma:null,errors:[]}};
+      const startAngle=Math.atan2(path[1].y-path[0].y,path[1].x-path[0].x);
+      truth={x:path[0].x,y:path[0].y,a:startAngle,left:0,right:0,biasL:.14,biasR:.25,t:0,waypoint:1,laps:0};
+      filters={single:{ex:truth.x,ey:truth.y,ea:truth.a,p:.12,pa:.003,k:0,hk:0,hits:[],samples:[],fused:null,measurementSigma:null,errors:[]},multi:{ex:truth.x,ey:truth.y,ea:truth.a,p:.12,pa:.003,k:0,hk:0,hits:[],samples:[],fused:null,measurementSigma:null,errors:[]}};
       paused=false;get("pause").textContent="Pause";drawAll();readout();
     }
 
@@ -45,10 +45,13 @@
 
     function update(){
       const motion=+get("motion").value, noise=+get("noise").value;
-      const drive=keys.has("forward")?1:0;
-      const turn=(keys.has("right")?1:0)-(keys.has("left")?1:0);
-      truth.left=approach(truth.left,drive*1.45+turn*.62,2*dt);
-      truth.right=approach(truth.right,drive*1.45-turn*.62,2*dt);
+      let target=path[truth.waypoint],distance=Math.hypot(target.x-truth.x,target.y-truth.y);
+      if(distance<.34){truth.waypoint=(truth.waypoint+1)%path.length;if(truth.waypoint===0)truth.laps++;target=path[truth.waypoint];distance=Math.hypot(target.x-truth.x,target.y-truth.y);}
+      const desired=Math.atan2(target.y-truth.y,target.x-truth.x),headingError=wrap(desired-truth.a);
+      const drive=clamp(distance*.9,0,1.25)*clamp(1-Math.abs(headingError)/1.35,.12,1);
+      const turn=clamp(headingError*1.45,-1,1);
+      truth.left=approach(truth.left,drive+turn*.62,2*dt);
+      truth.right=approach(truth.right,drive-turn*.62,2*dt);
       const moving=Math.abs(truth.left)+Math.abs(truth.right);
       if(moving>.01){truth.biasL=clamp(truth.biasL+rand()*.002,.04,.4);truth.biasR=clamp(truth.biasR+rand()*.002,.04,.4);}
       const vl=truth.left*(1-motion*truth.biasL),vr=truth.right*(1-motion*truth.biasR);
@@ -75,27 +78,24 @@
       ctx.save();ctx.beginPath();ctx.rect(ox,oy,720,420);ctx.clip();ctx.strokeStyle="#21354a";ctx.lineWidth=1;
       for(let x=0;x<=12;x++){ctx.beginPath();ctx.moveTo(X(x),oy);ctx.lineTo(X(x),Y(7));ctx.stroke();}
       for(let y=0;y<=7;y++){ctx.beginPath();ctx.moveTo(ox,Y(y));ctx.lineTo(X(12),Y(y));ctx.stroke();}
+      ctx.strokeStyle="rgba(255,255,255,.42)";ctx.lineWidth=2;ctx.setLineDash([7,6]);ctx.beginPath();path.forEach((point,i)=>{if(i===0)ctx.moveTo(X(point.x),Y(point.y));else ctx.lineTo(X(point.x),Y(point.y));});ctx.closePath();ctx.stroke();ctx.setLineDash([]);
+      path.forEach((point,i)=>{ctx.fillStyle=i===truth.waypoint?"#ffb957":"rgba(255,255,255,.52)";ctx.beginPath();ctx.arc(X(point.x),Y(point.y),i===truth.waypoint?4:2,0,Math.PI*2);ctx.fill();});
       const sigma=Math.sqrt(f.p)*sx,cx=X(f.ex),cy=Y(f.ey),r=Math.max(2,3*sigma),g=ctx.createRadialGradient(cx,cy,0,cx,cy,r);
       g.addColorStop(0,"rgba(255,166,55,.68)");g.addColorStop(.45,"rgba(255,166,55,.20)");g.addColorStop(1,"rgba(255,166,55,0)");ctx.fillStyle=g;ctx.fillRect(ox,oy,720,420);
       angles.forEach((offset,i)=>{ctx.fillStyle=i===0?"rgba(98,195,255,.09)":"rgba(181,127,255,.07)";ctx.strokeStyle=i===0?"#529fc3":"#9c73d6";const a=wrap(truth.a+offset);ctx.beginPath();ctx.moveTo(X(truth.x),Y(truth.y));ctx.arc(X(truth.x),Y(truth.y),4.6*sx,a-Math.PI/5,a+Math.PI/5);ctx.closePath();ctx.fill();ctx.stroke();});
       tags.forEach((tag,i)=>{const seen=f.hits.some(h=>h.i===i);ctx.fillStyle=seen?"#62dfa6":"#fff";ctx.fillRect(X(tag.x)-9,Y(tag.y)-9,18,18);ctx.fillStyle="#071321";ctx.fillRect(X(tag.x)-6,Y(tag.y)-6,12,12);});
-      const sampleColors=["#62c3ff","#b57fff","#62dfa6"];
-      f.samples.forEach((sample,i)=>{ctx.fillStyle=sampleColors[i%sampleColors.length];ctx.beginPath();ctx.arc(X(sample.x),Y(sample.y),6,0,Math.PI*2);ctx.fill();});
-      if(f.fused){ctx.strokeStyle="#fff";ctx.lineWidth=3;ctx.beginPath();ctx.arc(X(f.fused.x),Y(f.fused.y),9,0,Math.PI*2);ctx.stroke();}
       ctx.save();ctx.translate(X(truth.x),Y(truth.y));ctx.rotate(truth.a);ctx.fillStyle="#62dfa6";ctx.fillRect(-14,-10,28,20);ctx.fillStyle="#071321";ctx.beginPath();ctx.moveTo(13,0);ctx.lineTo(4,-5);ctx.lineTo(4,5);ctx.closePath();ctx.fill();ctx.restore();
       ctx.strokeStyle="#fff";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(cx-7,cy);ctx.lineTo(cx+7,cy);ctx.moveTo(cx,cy-7);ctx.lineTo(cx,cy+7);ctx.moveTo(cx,cy);ctx.lineTo(cx+18*Math.cos(f.ea),cy+18*Math.sin(f.ea));ctx.stroke();ctx.restore();ctx.strokeStyle="#8199ac";ctx.lineWidth=2;ctx.strokeRect(ox,oy,720,420);
     }
     const drawAll=()=>{draw("single",[0]);draw("multi",[-.48,0,.48]);};
     function readout(){
       ["single","multi"].forEach(name=>{const f=filters[name],rms=Math.sqrt(f.errors.reduce((sum,e)=>sum+e*e,0)/Math.max(1,f.errors.length)),cameraCount=f.samples.length;get(name+"-error").textContent=rms.toFixed(2)+" m average error";get(name+"-count").textContent=cameraCount+" camera"+(cameraCount===1?"":"s")+" contributing";get(name+"-measurement").textContent=f.measurementSigma===null?"measurement σ —":"measurement σ "+f.measurementSigma.toFixed(2)+" m";get(name+"-sigma").textContent="belief σ "+Math.sqrt(f.p).toFixed(2)+" m";});
+      get("route-status").textContent=`Target waypoint ${truth.waypoint+1} of ${path.length}${truth.laps?` · lap ${truth.laps+1}`:""}`;
     }
     ["noise","motion"].forEach(name=>get(name).addEventListener("input",()=>{get(name+"-out").textContent=(+get(name).value).toFixed(2)+(name==="noise"?" m":"");}));
-    root.querySelectorAll("[data-drive]").forEach(button=>{const key=button.dataset.drive;button.addEventListener("pointerdown",e=>{e.preventDefault();button.setPointerCapture(e.pointerId);keys.add(key);button.classList.add("pressed");});["pointerup","pointercancel","lostpointercapture"].forEach(type=>button.addEventListener(type,()=>{keys.delete(key);button.classList.remove("pressed");}));button.addEventListener("click",e=>e.preventDefault());});
-    const mapping={ArrowUp:"forward",w:"forward",ArrowLeft:"left",a:"left",ArrowRight:"right",d:"right"};
-    ["keydown","keyup"].forEach(type=>window.addEventListener(type,e=>{if(!active()||/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))return;const key=mapping[e.key];if(!key)return;e.preventDefault();e.stopImmediatePropagation();if(type==="keydown")keys.add(key);else keys.delete(key);root.querySelectorAll("[data-drive]").forEach(b=>b.classList.toggle("pressed",keys.has(b.dataset.drive)));},true));
-    get("pause").addEventListener("click",()=>{paused=!paused;keys.clear();get("pause").textContent=paused?"Resume":"Pause";});
-    get("reset").addEventListener("click",reset);window.addEventListener("blur",()=>keys.clear());document.addEventListener("visibilitychange",()=>keys.clear());
-    reset();timer=window.setInterval(()=>{if(!active()){keys.clear();return;}if(!paused)update();},50);
+    get("pause").addEventListener("click",()=>{paused=!paused;get("pause").textContent=paused?"Resume":"Pause";});
+    get("reset").addEventListener("click",reset);
+    reset();timer=window.setInterval(()=>{if(!active())return;if(!paused)update();},50);
   });
   boot();if(window.Reveal?.on){Reveal.on("ready",boot);Reveal.on("slidechanged",boot);}
 })();
