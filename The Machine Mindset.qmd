@@ -568,6 +568,60 @@ $$
 Green is evidence for a good motor, so confidence in “broken” falls—but one green result does not erase the earlier red result.
 :::
 
+## Try It — Diagnose a Hidden Motor {#interactive-bayes .compact-slide}
+
+<div class="interactive-bayes" data-bayes-demo>
+<div class="demo-toolbar">
+<button type="button" class="demo-button reset-button" data-action="reset">Reset and choose a hidden box</button>
+<button type="button" class="demo-button draw-button" data-action="draw">Draw a ball</button>
+<button type="button" class="demo-button reveal-button" data-action="reveal">Reveal the box</button>
+<span class="hidden-box-status" data-role="box-status">A hidden box is ready.</span>
+</div>
+
+<div class="demo-summary">
+<div class="draw-result" data-role="draw-result">
+<span class="result-ball neutral"></span>
+<span><strong>No draws yet</strong><small>Press “Draw a ball” to collect evidence.</small></span>
+</div>
+<div class="draw-history-wrap">
+<strong>Evidence so far</strong>
+<div class="draw-history" data-role="history"><span class="empty-history">None yet</span></div>
+</div>
+</div>
+
+<div class="live-math" aria-live="polite">
+<div class="math-stage">
+<span class="stage-label">1. Prior</span>
+<strong>Broken <span data-role="prior-b">50.0%</span></strong>
+<small>Good <span data-role="prior-a">50.0%</span></small>
+</div>
+<div class="math-operator">×</div>
+<div class="math-stage">
+<span class="stage-label">2. Likelihood</span>
+<strong>P(<span data-role="color-one">result</span> | Broken) = <span data-role="like-b">—</span></strong>
+<small>P(<span data-role="color-two">result</span> | Good) = <span data-role="like-a">—</span></small>
+</div>
+<div class="math-operator">→</div>
+<div class="math-stage">
+<span class="stage-label">3. Weighted evidence</span>
+<strong>Broken: <span data-role="weight-b">—</span></strong>
+<small>Good: <span data-role="weight-a">—</span></small>
+</div>
+<div class="math-operator">→</div>
+<div class="math-stage result-stage">
+<span class="stage-label">4. New posterior</span>
+<strong>Broken <span data-role="posterior-b">50.0%</span></strong>
+<small>Becomes the next prior</small>
+</div>
+</div>
+
+<div class="belief-bar interactive-belief" role="img" data-role="belief-bar" aria-label="Current belief: good motor 50 percent, broken motor 50 percent.">
+<span class="belief-good" data-role="bar-a" style="width: 50%;">Good 50.0%</span><span class="belief-bad" data-role="bar-b" style="width: 50%;">Broken 50.0%</span>
+</div>
+
+<div class="demo-explanation" data-role="explanation">Every draw uses the current posterior as the next prior. Draw repeatedly and watch the estimate respond.</div>
+</div>
+
 ## Repeat — Each Test Refines the Estimate {#activity-repeat .compact-slide}
 
 ### Example sequence from the same hidden box: Red → Green → Red → Green

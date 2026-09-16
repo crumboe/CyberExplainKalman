@@ -4,5 +4,94 @@
     if (Reveal.isScrollView()) {
       Reveal.toggleScrollView(false);
     }
+
+    document.querySelectorAll("[data-bayes-demo]").forEach((demo) => {
+      if (demo.dataset.bound === "true") return;
+      demo.dataset.bound = "true";
+
+      const get = (role) => demo.querySelector(`[data-role="${role}"]`);
+      const state = { box: "A", priorB: 0.5, draws: [] };
+      const pct = (value) => `${(value * 100).toFixed(1)}%`;
+      const decimal = (value) => value.toFixed(3);
+
+      const renderReset = () => {
+        get("box-status").textContent = "A hidden box is ready.";
+        get("draw-result").innerHTML = '<span class="result-ball neutral"></span><span><strong>No draws yet</strong><small>Press “Draw a ball” to collect evidence.</small></span>';
+        get("history").innerHTML = '<span class="empty-history">None yet</span>';
+        get("prior-b").textContent = "50.0%";
+        get("prior-a").textContent = "50.0%";
+        ["color-one", "color-two"].forEach((role) => get(role).textContent = "result");
+        ["like-b", "like-a", "weight-b", "weight-a"].forEach((role) => get(role).textContent = "—");
+        get("posterior-b").textContent = "50.0%";
+        get("bar-a").style.width = "50%";
+        get("bar-b").style.width = "50%";
+        get("bar-a").textContent = "Good 50.0%";
+        get("bar-b").textContent = "Broken 50.0%";
+        get("belief-bar").setAttribute("aria-label", "Current belief: good motor 50 percent, broken motor 50 percent.");
+        get("explanation").textContent = "Every draw uses the current posterior as the next prior. Draw repeatedly and watch the estimate respond.";
+      };
+
+      const reset = () => {
+        state.box = Math.random() < 0.5 ? "A" : "B";
+        state.priorB = 0.5;
+        state.draws = [];
+        renderReset();
+      };
+
+      const draw = () => {
+        const priorB = state.priorB;
+        const priorA = 1 - priorB;
+        const redChance = state.box === "B" ? 0.5 : 0.1;
+        const color = Math.random() < redChance ? "Red" : "Green";
+        const likeB = color === "Red" ? 0.5 : 0.5;
+        const likeA = color === "Red" ? 0.1 : 0.9;
+        const weightB = priorB * likeB;
+        const weightA = priorA * likeA;
+        const posteriorB = weightB / (weightB + weightA);
+        const posteriorA = 1 - posteriorB;
+
+        state.draws.push(color);
+        state.priorB = posteriorB;
+
+        get("draw-result").innerHTML = `<span class="result-ball ${color.toLowerCase()}"></span><span><strong>${color} ball drawn</strong><small>Draw ${state.draws.length} from the same hidden box</small></span>`;
+        get("history").innerHTML = "";
+        state.draws.forEach((item, index) => {
+          const ball = document.createElement("span");
+          ball.className = `history-ball ${item.toLowerCase()}`;
+          ball.title = `Draw ${index + 1}: ${item}`;
+          get("history").appendChild(ball);
+        });
+        get("prior-b").textContent = pct(priorB);
+        get("prior-a").textContent = pct(priorA);
+        get("color-one").textContent = color;
+        get("color-two").textContent = color;
+        get("like-b").textContent = likeB.toFixed(2);
+        get("like-a").textContent = likeA.toFixed(2);
+        get("weight-b").textContent = `${decimal(priorB)} × ${likeB.toFixed(2)} = ${decimal(weightB)}`;
+        get("weight-a").textContent = `${decimal(priorA)} × ${likeA.toFixed(2)} = ${decimal(weightA)}`;
+        get("posterior-b").textContent = pct(posteriorB);
+        get("bar-a").style.width = pct(posteriorA);
+        get("bar-b").style.width = pct(posteriorB);
+        get("bar-a").textContent = `Good ${pct(posteriorA)}`;
+        get("bar-b").textContent = `Broken ${pct(posteriorB)}`;
+        get("belief-bar").setAttribute("aria-label", `Current belief: good motor ${pct(posteriorA)}, broken motor ${pct(posteriorB)}.`);
+        get("explanation").textContent = color === "Red"
+          ? `Red is more consistent with a broken motor, so belief in “broken” moves from ${pct(priorB)} to ${pct(posteriorB)}.`
+          : `Green is more consistent with a good motor, so belief in “broken” moves from ${pct(priorB)} to ${pct(posteriorB)}.`;
+      };
+
+      demo.querySelectorAll("button").forEach((button) => {
+        button.addEventListener("click", (event) => {
+          event.stopPropagation();
+          if (button.dataset.action === "reset") reset();
+          if (button.dataset.action === "draw") draw();
+          if (button.dataset.action === "reveal") {
+            get("box-status").textContent = state.box === "A" ? "Chosen box: A — good motor" : "Chosen box: B — broken motor";
+          }
+        });
+      });
+
+      reset();
+    });
   });
 </script>
