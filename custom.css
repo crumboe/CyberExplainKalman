@@ -1086,6 +1086,282 @@ body,
   width: auto !important;
 }
 
+/* Live cart / ultrasonic Kalman simulation */
+.kalman-sim {
+  font-size: 0.72em;
+}
+
+.sim-controls {
+  display: grid;
+  grid-template-columns: 1.25fr repeat(3, 1fr);
+  gap: 0.55em;
+  align-items: stretch;
+  margin-bottom: 0.55em;
+}
+
+.sim-controls label,
+.cart-buttons {
+  box-sizing: border-box;
+  padding: 0.45em 0.55em;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+}
+
+.sim-controls label {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 0.12em 0.4em;
+  font-weight: 750;
+}
+
+.sim-controls output {
+  color: var(--accent);
+}
+
+.sim-controls input[type="range"] {
+  grid-column: 1 / -1;
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+.cart-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35em;
+}
+
+.cart-buttons button {
+  padding: 0.45em 0.55em;
+  color: #ffffff;
+  background: rgba(36, 168, 255, 0.14);
+  border: 1px solid rgba(98, 195, 255, 0.5);
+  border-radius: 9px;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.world-panel,
+.belief-panel {
+  position: relative;
+  box-sizing: border-box;
+  height: 185px;
+  margin-bottom: 0.42em;
+  overflow: hidden;
+  background: rgba(4, 12, 23, 0.48);
+  border: 1px solid var(--panel-border);
+  border-radius: 14px;
+}
+
+.panel-title {
+  position: absolute;
+  top: 10px;
+  left: 18px;
+  z-index: 5;
+  color: var(--accent);
+  font-weight: 800;
+}
+
+.sim-wall {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 4.5%;
+  width: 34px;
+  background: repeating-linear-gradient(0deg, #68788c 0 13px, #425266 13px 17px);
+  border-right: 5px solid #9aabba;
+}
+
+.sim-wall span {
+  position: absolute;
+  top: 70px;
+  left: -8px;
+  color: #ffffff;
+  font-size: 0.7em;
+  font-weight: 800;
+  transform: rotate(-90deg);
+}
+
+.sim-track,
+.belief-track {
+  position: absolute;
+  right: 5%;
+  bottom: 34px;
+  left: 8%;
+  height: 5px;
+  background: linear-gradient(90deg, #50657c, #93a8bd);
+  border-radius: 99px;
+}
+
+.real-cart {
+  position: absolute;
+  bottom: 38px;
+  left: 58%;
+  z-index: 3;
+  width: 110px;
+  height: 60px;
+  transition: left 260ms ease;
+  transform: translateX(-50%);
+}
+
+.cart-body {
+  display: grid;
+  height: 44px;
+  place-items: center;
+  color: #07111f;
+  background: var(--success);
+  border-radius: 8px 12px 5px 5px;
+  font-size: 0.72em;
+  font-weight: 900;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+}
+
+.cart-body::before,
+.cart-body::after {
+  position: absolute;
+  bottom: 0;
+  width: 20px;
+  height: 20px;
+  content: "";
+  background: #233246;
+  border: 4px solid #8ea0b2;
+  border-radius: 50%;
+}
+
+.cart-body::before { left: 13px; }
+.cart-body::after { right: 13px; }
+
+.sensor-face {
+  position: absolute;
+  top: 9px;
+  left: -10px;
+  width: 14px;
+  height: 26px;
+  background: var(--accent);
+  border-radius: 5px 0 0 5px;
+}
+
+.ultrasonic-beam {
+  position: absolute;
+  bottom: 70px;
+  left: 8%;
+  width: 50%;
+  height: 20px;
+  opacity: 0.55;
+  background: linear-gradient(90deg, rgba(98, 195, 255, 0.1), rgba(98, 195, 255, 0.65));
+  clip-path: polygon(0 50%, 100% 0, 100% 100%);
+  transition: width 260ms ease;
+}
+
+.truth-readout {
+  position: absolute;
+  right: 18px;
+  top: 12px;
+  color: var(--text-muted);
+}
+
+.belief-panel {
+  height: 205px;
+}
+
+.belief-panel .belief-track {
+  bottom: 32px;
+}
+
+.belief-marker {
+  --belief-color: #ffffff;
+  position: absolute;
+  bottom: 48px;
+  left: 58%;
+  z-index: 2;
+  width: 180px;
+  color: var(--belief-color);
+  text-align: center;
+  transition: left 260ms ease;
+  transform: translateX(-50%);
+}
+
+.belief-marker > span {
+  display: block;
+  width: 18px;
+  height: 18px;
+  margin: 0 auto 4px;
+  background: var(--belief-color);
+  border: 4px solid #07111f;
+  border-radius: 50%;
+  box-shadow: 0 0 16px var(--belief-color);
+}
+
+.belief-marker strong,
+.belief-marker small {
+  display: block;
+  line-height: 1.12;
+}
+
+.belief-marker small { color: var(--text-muted); }
+.prior-marker {
+  --belief-color: #62dfa6;
+  bottom: 132px;
+}
+.measurement-marker {
+  --belief-color: #62c3ff;
+  bottom: 4px;
+}
+.estimate-marker {
+  --belief-color: #ffffff;
+  bottom: 68px;
+  z-index: 4;
+}
+
+.kalman-live-math {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.45em;
+  margin-bottom: 0.42em;
+}
+
+.kalman-live-math > div {
+  min-width: 0;
+  padding: 0.48em 0.55em;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 11px;
+  text-align: center;
+}
+
+.kalman-live-math span,
+.kalman-live-math strong,
+.kalman-live-math small {
+  display: block;
+}
+
+.kalman-live-math span {
+  color: var(--accent);
+  font-size: 0.7em;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.kalman-live-math small {
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.sim-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.45em;
+  padding: 0.45em 0.65em;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.045);
+  border-radius: 10px;
+}
+
+.sim-footer strong { color: #ffffff; }
+
 @media (max-width: 900px), (max-height: 650px) {
   .reveal .slides section {
     padding: 28px 36px;

@@ -1056,39 +1056,84 @@ Move toward the sensor by the appropriate amount, then repeat.
 <p><strong>Motion carries the estimate forward. The next sensor reading pulls it back toward reality.</strong></p>
 </div>
 </section>
-<section id="one-update-on-a-number-line" class="slide level2 number-line-slide">
-<h2>One Update on a Number Line</h2>
-<div class="position-track" role="img" aria-label="Motion predicts 10 meters, the sensor reports 11.2 meters, and the updated best guess is 10.96 meters.">
-<div class="track-line">
+<section id="kalman-cart-demo" class="slide level2 kalman-demo-slide compact-slide">
+<h2>Live Kalman Filter — Cart Near a Wall</h2>
+<div class="kalman-sim" data-kalman-demo="">
+<div class="sim-controls">
+<div class="cart-buttons" aria-label="Move the real cart">
+<button type="button" data-action="left" aria-label="Move cart left">
+← Move left
+</button>
+<button type="button" data-action="right" aria-label="Move cart right">
+Move right →
+</button>
+<button type="button" data-action="reset">
+Reset
+</button>
+</div>
+<label>Kalman gain K
+<output data-role="gain-output">
+0.55
+</output>
+<input data-role="gain" type="range" min="0" max="1" step="0.05" value="0.55"></label> <label>Motion deviation σ
+<output data-role="motion-output">
+0.20 m
+</output>
+<input data-role="motion-noise" type="range" min="0" max="1.2" step="0.05" value="0.20"></label> <label>Sensor deviation σ
+<output data-role="sensor-output">
+0.35 m
+</output>
+<p><input data-role="sensor-noise" type="range" min="0.05" max="1.5" step="0.05" value="0.35"></p>
+</label></div>
+<div class="world-panel">
+<span class="panel-title">Real world — hidden truth</span>
+<div class="sim-wall">
+<span>Wall</span>
+</div>
+<div class="sim-track">
 
 </div>
-<div class="track-tick" style="left: 12%;">
-<span>9 m</span>
+<div class="real-cart" data-role="real-cart">
+<span class="sensor-face"></span><span class="cart-body">CART</span>
 </div>
-<div class="track-tick" style="left: 45%;">
-<span>10 m</span>
+<div class="ultrasonic-beam" data-role="beam">
+
 </div>
-<div class="track-tick" style="left: 78%;">
-<span>11 m</span>
+<p><span class="truth-readout">True distance: <strong data-role="truth">6.00 m</strong></span></p>
 </div>
-<div class="position-marker prediction-marker" style="left: 45%;">
-<p><span class="marker-dot"></span> <strong>Motion says</strong> <small>about 10.0 m</small></p>
+<div class="belief-panel">
+<span class="panel-title">Machine understanding — three competing locations</span>
+<div class="belief-track">
+
 </div>
-<div class="position-marker sensor-marker" style="left: 84%;">
-<p><span class="marker-dot"></span> <strong>Sensor says</strong> <small>about 11.2 m</small></p>
+<div class="belief-marker prior-marker" data-role="prior-marker">
+<span></span><strong>Motion prior</strong><small data-role="prior-value">6.00 m</small>
 </div>
-<div class="position-marker fused-marker" style="left: 76%;">
-<p><span class="marker-dot"></span> <strong>Best combined guess</strong> <small>about 10.96 m</small></p>
+<div class="belief-marker measurement-marker" data-role="sensor-marker">
+<span></span><strong>Sensor</strong><small data-role="measurement-value">6.00 m</small>
+</div>
+<div class="belief-marker estimate-marker" data-role="estimate-marker">
+<span></span><strong>Posterior</strong><small data-role="estimate-value">6.00 m</small>
 </div>
 </div>
-<div class="columns">
-<div class="column" style="width:50%;">
-<h3 id="why-not-just-average-them">Why not just average them?</h3>
-<p>The sensor is more dependable in this example, so the answer should land closer to <strong>11.2 m</strong> than to <strong>10.0 m</strong>.</p>
-</div><div class="column" style="width:50%;">
-<h3 id="what-did-we-gain">What did we gain?</h3>
-<p>We get a location that respects both motion and evidence—and more confidence than we had from the prediction alone.</p>
-</div></div>
+<div class="kalman-live-math" aria-live="polite">
+<div>
+<span>Bayes prior</span><strong>P(position)</strong><small>Motion predicts <b data-role="math-prior">6.00 m</b></small>
+</div>
+<div>
+<span>Sensor likelihood</span><strong>P(reading | position)</strong><small>Ultrasonic reads <b data-role="math-sensor">6.00 m</b></small>
+</div>
+<div>
+<span>New evidence</span><strong>reading − prior</strong><small>Innovation = <b data-role="innovation">0.00 m</b></small>
+</div>
+<div>
+<span>Bayes posterior</span><strong>prior + K × innovation</strong><small><b data-role="equation">6.00 + 0.55 × 0.00 = 6.00 m</b></small>
+</div>
+</div>
+<div class="sim-footer">
+<p><span>Loop <strong data-role="loop-count">0</strong></span> <span>Prior uncertainty P⁻ ≈ <strong data-role="prior-variance">0.040 m²</strong></span> <span>Sensor variance R = <strong data-role="sensor-variance">0.123 m²</strong></span> <span>Posterior uncertainty P ≈ <strong data-role="posterior-variance">0.018 m²</strong></span></p>
+</div>
+</div>
 </section>
 <section id="the-trust-dial-controls-the-move" class="slide level2">
 <h2>The “Trust Dial” Controls the Move</h2>
@@ -1487,6 +1532,93 @@ Motion fills the gaps; sensors keep the prediction connected to reality.
           });
 
           reset();
+        });
+
+        document.querySelectorAll("[data-kalman-demo]").forEach((demo) => {
+          if (demo.dataset.bound === "true") return;
+          demo.dataset.bound = "true";
+
+          const get = (role) => demo.querySelector(`[data-role="${role}"]`);
+          const state = { truth: 6, estimate: 6, pendingMove: 0, posteriorVariance: 0.12, loops: 0 };
+          const clamp = (value, low, high) => Math.min(high, Math.max(low, value));
+          const gaussian = () => {
+            const u = Math.max(Number.EPSILON, Math.random());
+            const v = Math.max(Number.EPSILON, Math.random());
+            return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+          };
+          const meters = (value) => `${value.toFixed(2)} m`;
+          const position = (value) => `${8 + clamp(value, 0, 10) * 8.7}%`;
+
+          const renderPosition = (role, value) => {
+            get(role).style.left = position(value);
+          };
+
+          const tick = () => {
+            const gain = Number(get("gain").value);
+            const motionSigma = Number(get("motion-noise").value);
+            const sensorSigma = Number(get("sensor-noise").value);
+            const commandedMove = state.pendingMove;
+            state.pendingMove = 0;
+            state.truth = clamp(state.truth + commandedMove, 0.55, 9.7);
+
+            const prior = clamp(state.estimate + commandedMove + gaussian() * motionSigma, 0.4, 9.8);
+            const measurement = clamp(state.truth + gaussian() * sensorSigma, 0.3, 9.9);
+            const innovation = measurement - prior;
+            const posterior = clamp(prior + gain * innovation, 0.35, 9.85);
+            const priorVariance = state.posteriorVariance + motionSigma * motionSigma;
+            const sensorVariance = sensorSigma * sensorSigma;
+            state.posteriorVariance = Math.max(0.0001, (1 - gain) * priorVariance);
+            state.estimate = posterior;
+            state.loops += 1;
+
+            renderPosition("real-cart", state.truth);
+            renderPosition("prior-marker", prior);
+            renderPosition("sensor-marker", measurement);
+            renderPosition("estimate-marker", posterior);
+            get("beam").style.width = `${Math.max(2, state.truth * 8.7)}%`;
+            get("truth").textContent = meters(state.truth);
+            get("prior-value").textContent = meters(prior);
+            get("measurement-value").textContent = meters(measurement);
+            get("estimate-value").textContent = meters(posterior);
+            get("math-prior").textContent = meters(prior);
+            get("math-sensor").textContent = meters(measurement);
+            get("innovation").textContent = `${innovation >= 0 ? "+" : ""}${meters(innovation)}`;
+            get("equation").textContent = `${prior.toFixed(2)} + ${gain.toFixed(2)} × (${innovation.toFixed(2)}) = ${posterior.toFixed(2)} m`;
+            get("loop-count").textContent = String(state.loops);
+            get("prior-variance").textContent = `${priorVariance.toFixed(3)} m²`;
+            get("sensor-variance").textContent = `${sensorVariance.toFixed(3)} m²`;
+            get("posterior-variance").textContent = `${state.posteriorVariance.toFixed(3)} m²`;
+          };
+
+          const reset = () => {
+            state.truth = 6;
+            state.estimate = 6;
+            state.pendingMove = 0;
+            state.posteriorVariance = 0.12;
+            state.loops = 0;
+            tick();
+          };
+
+          ["gain", "motion-noise", "sensor-noise"].forEach((role) => {
+            get(role).addEventListener("input", () => {
+              get("gain-output").textContent = Number(get("gain").value).toFixed(2);
+              get("motion-output").textContent = `${Number(get("motion-noise").value).toFixed(2)} m`;
+              get("sensor-output").textContent = `${Number(get("sensor-noise").value).toFixed(2)} m`;
+            });
+          });
+
+          demo.querySelectorAll("button").forEach((button) => {
+            button.addEventListener("click", (event) => {
+              event.stopPropagation();
+              if (button.dataset.action === "left") state.pendingMove -= 0.5;
+              if (button.dataset.action === "right") state.pendingMove += 0.5;
+              if (button.dataset.action === "reset") return reset();
+              tick();
+            });
+          });
+
+          reset();
+          window.setInterval(tick, 700);
         });
       });
     </script>

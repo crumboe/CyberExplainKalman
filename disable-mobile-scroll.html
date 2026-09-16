@@ -93,5 +93,92 @@
 
       reset();
     });
+
+    document.querySelectorAll("[data-kalman-demo]").forEach((demo) => {
+      if (demo.dataset.bound === "true") return;
+      demo.dataset.bound = "true";
+
+      const get = (role) => demo.querySelector(`[data-role="${role}"]`);
+      const state = { truth: 6, estimate: 6, pendingMove: 0, posteriorVariance: 0.12, loops: 0 };
+      const clamp = (value, low, high) => Math.min(high, Math.max(low, value));
+      const gaussian = () => {
+        const u = Math.max(Number.EPSILON, Math.random());
+        const v = Math.max(Number.EPSILON, Math.random());
+        return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+      };
+      const meters = (value) => `${value.toFixed(2)} m`;
+      const position = (value) => `${8 + clamp(value, 0, 10) * 8.7}%`;
+
+      const renderPosition = (role, value) => {
+        get(role).style.left = position(value);
+      };
+
+      const tick = () => {
+        const gain = Number(get("gain").value);
+        const motionSigma = Number(get("motion-noise").value);
+        const sensorSigma = Number(get("sensor-noise").value);
+        const commandedMove = state.pendingMove;
+        state.pendingMove = 0;
+        state.truth = clamp(state.truth + commandedMove, 0.55, 9.7);
+
+        const prior = clamp(state.estimate + commandedMove + gaussian() * motionSigma, 0.4, 9.8);
+        const measurement = clamp(state.truth + gaussian() * sensorSigma, 0.3, 9.9);
+        const innovation = measurement - prior;
+        const posterior = clamp(prior + gain * innovation, 0.35, 9.85);
+        const priorVariance = state.posteriorVariance + motionSigma * motionSigma;
+        const sensorVariance = sensorSigma * sensorSigma;
+        state.posteriorVariance = Math.max(0.0001, (1 - gain) * priorVariance);
+        state.estimate = posterior;
+        state.loops += 1;
+
+        renderPosition("real-cart", state.truth);
+        renderPosition("prior-marker", prior);
+        renderPosition("sensor-marker", measurement);
+        renderPosition("estimate-marker", posterior);
+        get("beam").style.width = `${Math.max(2, state.truth * 8.7)}%`;
+        get("truth").textContent = meters(state.truth);
+        get("prior-value").textContent = meters(prior);
+        get("measurement-value").textContent = meters(measurement);
+        get("estimate-value").textContent = meters(posterior);
+        get("math-prior").textContent = meters(prior);
+        get("math-sensor").textContent = meters(measurement);
+        get("innovation").textContent = `${innovation >= 0 ? "+" : ""}${meters(innovation)}`;
+        get("equation").textContent = `${prior.toFixed(2)} + ${gain.toFixed(2)} × (${innovation.toFixed(2)}) = ${posterior.toFixed(2)} m`;
+        get("loop-count").textContent = String(state.loops);
+        get("prior-variance").textContent = `${priorVariance.toFixed(3)} m²`;
+        get("sensor-variance").textContent = `${sensorVariance.toFixed(3)} m²`;
+        get("posterior-variance").textContent = `${state.posteriorVariance.toFixed(3)} m²`;
+      };
+
+      const reset = () => {
+        state.truth = 6;
+        state.estimate = 6;
+        state.pendingMove = 0;
+        state.posteriorVariance = 0.12;
+        state.loops = 0;
+        tick();
+      };
+
+      ["gain", "motion-noise", "sensor-noise"].forEach((role) => {
+        get(role).addEventListener("input", () => {
+          get("gain-output").textContent = Number(get("gain").value).toFixed(2);
+          get("motion-output").textContent = `${Number(get("motion-noise").value).toFixed(2)} m`;
+          get("sensor-output").textContent = `${Number(get("sensor-noise").value).toFixed(2)} m`;
+        });
+      });
+
+      demo.querySelectorAll("button").forEach((button) => {
+        button.addEventListener("click", (event) => {
+          event.stopPropagation();
+          if (button.dataset.action === "left") state.pendingMove -= 0.5;
+          if (button.dataset.action === "right") state.pendingMove += 0.5;
+          if (button.dataset.action === "reset") return reset();
+          tick();
+        });
+      });
+
+      reset();
+      window.setInterval(tick, 700);
+    });
   });
 </script>

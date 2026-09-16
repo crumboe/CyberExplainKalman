@@ -801,45 +801,51 @@ Sensors give us **snapshots**. The object keeps moving between those snapshots.
 
 ---
 
-## One Update on a Number Line {.number-line-slide}
+## Live Kalman Filter — Cart Near a Wall {#kalman-cart-demo .kalman-demo-slide .compact-slide}
 
-<div class="position-track" role="img" aria-label="Motion predicts 10 meters, the sensor reports 11.2 meters, and the updated best guess is 10.96 meters.">
-<div class="track-line"></div>
-<div class="track-tick" style="left: 12%;"><span>9 m</span></div>
-<div class="track-tick" style="left: 45%;"><span>10 m</span></div>
-<div class="track-tick" style="left: 78%;"><span>11 m</span></div>
-<div class="position-marker prediction-marker" style="left: 45%;">
-<span class="marker-dot"></span>
-<strong>Motion says</strong>
-<small>about 10.0 m</small>
+<div class="kalman-sim" data-kalman-demo>
+<div class="sim-controls">
+<div class="cart-buttons" aria-label="Move the real cart">
+<button type="button" data-action="left" aria-label="Move cart left">← Move left</button>
+<button type="button" data-action="right" aria-label="Move cart right">Move right →</button>
+<button type="button" data-action="reset">Reset</button>
 </div>
-<div class="position-marker sensor-marker" style="left: 84%;">
-<span class="marker-dot"></span>
-<strong>Sensor says</strong>
-<small>about 11.2 m</small>
-</div>
-<div class="position-marker fused-marker" style="left: 76%;">
-<span class="marker-dot"></span>
-<strong>Best combined guess</strong>
-<small>about 10.96 m</small>
-</div>
+<label>Kalman gain K <output data-role="gain-output">0.55</output><input data-role="gain" type="range" min="0" max="1" step="0.05" value="0.55"></label>
+<label>Motion deviation σ <output data-role="motion-output">0.20 m</output><input data-role="motion-noise" type="range" min="0" max="1.2" step="0.05" value="0.20"></label>
+<label>Sensor deviation σ <output data-role="sensor-output">0.35 m</output><input data-role="sensor-noise" type="range" min="0.05" max="1.5" step="0.05" value="0.35"></label>
 </div>
 
-::: {.columns}
+<div class="world-panel">
+<span class="panel-title">Real world — hidden truth</span>
+<div class="sim-wall"><span>Wall</span></div>
+<div class="sim-track"></div>
+<div class="real-cart" data-role="real-cart"><span class="sensor-face"></span><span class="cart-body">CART</span></div>
+<div class="ultrasonic-beam" data-role="beam"></div>
+<span class="truth-readout">True distance: <strong data-role="truth">6.00 m</strong></span>
+</div>
 
-::: {.column width="50%"}
-### Why not just average them?
+<div class="belief-panel">
+<span class="panel-title">Machine understanding — three competing locations</span>
+<div class="belief-track"></div>
+<div class="belief-marker prior-marker" data-role="prior-marker"><span></span><strong>Motion prior</strong><small data-role="prior-value">6.00 m</small></div>
+<div class="belief-marker measurement-marker" data-role="sensor-marker"><span></span><strong>Sensor</strong><small data-role="measurement-value">6.00 m</small></div>
+<div class="belief-marker estimate-marker" data-role="estimate-marker"><span></span><strong>Posterior</strong><small data-role="estimate-value">6.00 m</small></div>
+</div>
 
-The sensor is more dependable in this example, so the answer should land closer to **11.2 m** than to **10.0 m**.
-:::
+<div class="kalman-live-math" aria-live="polite">
+<div><span>Bayes prior</span><strong>P(position)</strong><small>Motion predicts <b data-role="math-prior">6.00 m</b></small></div>
+<div><span>Sensor likelihood</span><strong>P(reading | position)</strong><small>Ultrasonic reads <b data-role="math-sensor">6.00 m</b></small></div>
+<div><span>New evidence</span><strong>reading − prior</strong><small>Innovation = <b data-role="innovation">0.00 m</b></small></div>
+<div><span>Bayes posterior</span><strong>prior + K × innovation</strong><small><b data-role="equation">6.00 + 0.55 × 0.00 = 6.00 m</b></small></div>
+</div>
 
-::: {.column width="50%"}
-### What did we gain?
-
-We get a location that respects both motion and evidence—and more confidence than we had from the prediction alone.
-:::
-
-:::
+<div class="sim-footer">
+<span>Loop <strong data-role="loop-count">0</strong></span>
+<span>Prior uncertainty P⁻ ≈ <strong data-role="prior-variance">0.040 m²</strong></span>
+<span>Sensor variance R = <strong data-role="sensor-variance">0.123 m²</strong></span>
+<span>Posterior uncertainty P ≈ <strong data-role="posterior-variance">0.018 m²</strong></span>
+</div>
+</div>
 
 ---
 
