@@ -1374,6 +1374,18 @@ Motion fills the gaps; sensors keep the prediction connected to reality.
 <small class="tank-assumption">Teaching model: the two simulated AprilTag pose estimates are conditionally independent. Real systems must also account for shared calibration errors and correlated measurements.</small>
 </div>
 </section>
+<section id="kalman-gain-math" class="slide level2 compact-slide">
+<h2>How the Filter Calculates Gain</h2>
+<div class="gain-math-slide">
+<div class="gain-main-equation"><span>Kalman gain</span><strong>K = P⁻ ÷ (P⁻ + R)</strong><small>The filter compares uncertainty in its prediction with uncertainty in the camera measurement.</small></div>
+<div class="gain-definition-row"><div><strong>P⁻</strong><span>Prediction variance</span><small>Wheel drift and motion raise this value.</small></div><div><strong>R = σ²</strong><span>Camera variance</span><small>Noisy or poor-quality images raise this value.</small></div><div><strong>K</strong><span>Camera influence</span><small>0 ignores the camera. 1 follows it fully.</small></div></div>
+<div class="gain-examples">
+<div class="gain-example reliable"><h3>Reliable camera</h3><p>P⁻ = 0.10 m²</p><p>σ = 0.10 m, so R = 0.01 m²</p><strong>K = 0.10 ÷ (0.10 + 0.01) = 0.91</strong><div class="gain-trust"><span style="width:9%">9%</span><b style="width:91%">Camera 91%</b></div></div>
+<div class="gain-example noisy"><h3>Noisy camera</h3><p>P⁻ = 0.10 m²</p><p>σ = 1.50 m, so R = 2.25 m²</p><strong>K = 0.10 ÷ (0.10 + 2.25) = 0.04</strong><div class="gain-trust"><span style="width:96%">Prediction 96%</span><b style="width:4%">4%</b></div></div>
+</div>
+<div class="gain-math-caption">A noisy camera still contributes. Its influence grows later if wheel uncertainty accumulates and P⁻ becomes larger.</div>
+</div>
+</section>
 <section id="automatic-kalman-gain" class="slide level2 compact-slide">
 <h2>The Filter Chooses Its Gain</h2>
 <div class="tank-demo tank-auto-demo" data-tank-auto-demo="">
@@ -1400,6 +1412,22 @@ Motion fills the gaps; sensors keep the prediction connected to reality.
 </div>
 <div class="tank-caption"><strong>The filter recalculates K whenever a tag is visible.</strong> Wheel drift raises P⁻ and makes the camera more useful. Camera noise raises R and makes the filter trust its wheel prediction.</div>
 <small class="tank-assumption">Teaching model: K = P⁻ ÷ (P⁻ + R). Velocity affects K by changing motion uncertainty, so a stationary robot can still correct an existing position error.</small>
+</div>
+</section>
+<section id="camera-overlap-comparison" class="slide level2 compact-slide">
+<h2>One Noisy Camera or Several?</h2>
+<div class="camera-compare-demo" data-camera-compare-demo="">
+<div class="camera-compare-controls">
+<label>Camera noise σ <output data-compare="noise-out">1.00 m</output><input data-compare="noise" type="range" min="0.20" max="1.50" step="0.05" value="1.00" aria-label="Camera noise for all cameras"></label>
+<label>Motion deviation <output data-compare="motion-out">0.45</output><input data-compare="motion" type="range" min="0" max="1.2" step="0.05" value="0.45" aria-label="Motion deviation"></label>
+<button type="button" data-compare="pause">Pause</button><button type="button" data-compare="reset">Reset</button>
+</div>
+<div class="camera-compare-panels">
+<div><h3>One noisy camera</h3><canvas data-compare="single" width="820" height="500" role="img" aria-label="Robot localization using one noisy camera"></canvas><p><strong data-compare="single-error">0.00 m error</strong><span data-compare="single-k">K 0.00</span><span data-compare="single-sigma">σ 0.35 m</span></p></div>
+<div><h3>Three partially overlapping cameras</h3><canvas data-compare="multi" width="820" height="500" role="img" aria-label="Robot localization using three noisy cameras with overlapping views"></canvas><p><strong data-compare="multi-error">0.00 m error</strong><span data-compare="multi-k">K 0.00</span><span data-compare="multi-sigma">σ 0.35 m</span></p></div>
+</div>
+<div class="camera-compare-drive"><span>Hold to drive both simulations</span><button data-drive="left" aria-label="Turn left">←</button><button data-drive="forward" aria-label="Drive forward">↑</button><button data-drive="right" aria-label="Turn right">→</button></div>
+<div class="camera-compare-caption"><strong>Independent measurements add precision.</strong> In an overlap region, three equally noisy cameras reduce measurement variance from R to about R ÷ 3. Shared calibration errors would reduce this benefit.</div>
 </div>
 
 </section>
@@ -2021,7 +2049,8 @@ Motion fills the gaps; sensors keep the prediction connected to reality.
         });
       });
     </script>
-    <script src="assets/tank-demo.js?v=39"></script>
+    <script src="assets/tank-demo.js?v=40"></script>
+    <script src="assets/camera-compare-demo.js?v=40"></script>
     <script id="quarto-html-after-body" type="application/javascript">
       window.document.addEventListener("DOMContentLoaded", function (event) {
         const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
