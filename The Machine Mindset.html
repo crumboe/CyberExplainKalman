@@ -1075,7 +1075,7 @@ Reset
 <output data-role="gain-output">
 0.55
 </output>
-<input data-role="gain" type="range" min="0" max="1" step="0.05" value="0.55"></label> <label>Motion deviation σ
+<input data-role="gain" type="range" min="0" max="1" step="0.05" value="0.55"></label> <label>Motion uncertainty growth σ
 <output data-role="motion-output">
 0.20 m
 </output>
@@ -1132,6 +1132,94 @@ Reset
 </div>
 <div class="sim-footer">
 <p><span>Loop <strong data-role="loop-count">0</strong></span> <span>Prior uncertainty P⁻ ≈ <strong data-role="prior-variance">0.040 m²</strong></span> <span>Sensor variance R = <strong data-role="sensor-variance">0.123 m²</strong></span> <span>Posterior uncertainty P ≈ <strong data-role="posterior-variance">0.018 m²</strong></span></p>
+</div>
+</div>
+</section>
+<section id="kalman-sensor-fusion" class="slide level2 kalman-demo-slide compact-slide">
+<h2>Sensor Fusion — Two Views of the Same Cart</h2>
+<div class="kalman-sim fusion-sim" data-kalman-fusion-demo="">
+<div class="sim-controls fusion-controls">
+<div class="cart-buttons" aria-label="Move the real cart">
+<button type="button" data-action="left" aria-label="Move cart left">
+← Move left
+</button>
+<button type="button" data-action="right" aria-label="Move cart right">
+Move right →
+</button>
+<button type="button" data-action="reset">
+Reset
+</button>
+</div>
+<label>Kalman gain K
+<output data-role="gain-output">
+0.55
+</output>
+<input data-role="gain" type="range" min="0" max="1" step="0.05" value="0.55"></label> <label>Front sensor deviation σ
+<output data-role="front-output">
+0.25 m
+</output>
+<input data-role="front-noise" type="range" min="0.05" max="1.5" step="0.05" value="0.25"></label> <label>Rear sensor deviation σ
+<output data-role="rear-output">
+0.65 m
+</output>
+<p><input data-role="rear-noise" type="range" min="0.05" max="1.5" step="0.05" value="0.65"></p>
+</label></div>
+<div class="world-panel fusion-world">
+<span class="panel-title">Real world — two sensors, one hidden position</span>
+<div class="sim-wall left-wall">
+<span>Rear wall</span>
+</div>
+<div class="sim-wall right-wall">
+<span>Front wall</span>
+</div>
+<div class="sim-track">
+
+</div>
+<div class="real-cart fusion-cart" data-role="real-cart">
+<span class="sensor-face rear-sensor-face"></span><span class="sensor-face front-sensor-face"></span><span class="cart-body">CART</span>
+</div>
+<div class="ultrasonic-beam rear-beam" data-role="rear-beam">
+
+</div>
+<div class="ultrasonic-beam front-beam" data-role="front-beam">
+
+</div>
+<p><span class="truth-readout">True position: <strong data-role="truth">6.00 m</strong></span></p>
+</div>
+<div class="belief-panel fusion-belief-panel">
+<span class="panel-title">Machine understanding — convert both distances into position</span>
+<div class="belief-track">
+
+</div>
+<div class="belief-marker prior-marker" data-role="prior-marker">
+<span></span><strong>Motion prior</strong><small data-role="prior-value">6.00 m</small>
+</div>
+<div class="belief-marker front-marker" data-role="front-marker">
+<span></span><strong>Front sensor</strong><small data-role="front-position">6.00 m</small>
+</div>
+<div class="belief-marker rear-marker" data-role="rear-marker">
+<span></span><strong>Rear sensor</strong><small data-role="rear-position">6.00 m</small>
+</div>
+<div class="belief-marker estimate-marker" data-role="estimate-marker">
+<span></span><strong>Fused posterior</strong><small data-role="estimate-value">6.00 m</small>
+</div>
+</div>
+<div class="kalman-live-math fusion-live-math" aria-live="polite">
+<div>
+<span>Front reading</span><strong data-role="front-distance">4.00 m to wall</strong><small>Position = 10 m − distance = <b data-role="front-math-position">6.00 m</b></small>
+</div>
+<div>
+<span>Rear reading</span><strong data-role="rear-distance">6.00 m to wall</strong><small>Position = distance = <b data-role="rear-math-position">6.00 m</b></small>
+</div>
+<div>
+<span>Sensor fusion</span><strong>more weight to lower variance</strong><small>Combined reading = <b data-role="fused-reading">6.00 m</b></small>
+</div>
+<div>
+<span>Bayes posterior</span><strong>prior + K × gap</strong><small><b data-role="equation">6.00 + 0.55 × 0.00 = 6.00 m</b></small>
+</div>
+</div>
+<div class="sim-footer">
+<p><span>Loop <strong data-role="loop-count">0</strong></span> <span>Front weight <strong data-role="front-weight">87%</strong></span> <span>Rear weight <strong data-role="rear-weight">13%</strong></span> <span>Fused sensor variance <strong data-role="fused-variance">0.055 m²</strong></span></p>
 </div>
 </div>
 </section>
@@ -1561,7 +1649,9 @@ Motion fills the gaps; sensors keep the prediction connected to reality.
             state.pendingMove = 0;
             state.truth = clamp(state.truth + commandedMove, 0.55, 9.7);
 
-            const prior = clamp(state.estimate + commandedMove + gaussian() * motionSigma, 0.4, 9.8);
+            // With no commanded motion, the predicted mean stays put. Process noise
+            // increases uncertainty; it does not randomly push the mean around.
+            const prior = clamp(state.estimate + commandedMove, 0.4, 9.8);
             const measurement = clamp(state.truth + gaussian() * sensorSigma, 0.3, 9.9);
             const innovation = measurement - prior;
             const posterior = clamp(prior + gain * innovation, 0.35, 9.85);
@@ -1604,6 +1694,104 @@ Motion fills the gaps; sensors keep the prediction connected to reality.
               get("gain-output").textContent = Number(get("gain").value).toFixed(2);
               get("motion-output").textContent = `${Number(get("motion-noise").value).toFixed(2)} m`;
               get("sensor-output").textContent = `${Number(get("sensor-noise").value).toFixed(2)} m`;
+            });
+          });
+
+          demo.querySelectorAll("button").forEach((button) => {
+            button.addEventListener("click", (event) => {
+              event.stopPropagation();
+              if (button.dataset.action === "left") state.pendingMove -= 0.5;
+              if (button.dataset.action === "right") state.pendingMove += 0.5;
+              if (button.dataset.action === "reset") return reset();
+              tick();
+            });
+          });
+
+          reset();
+          window.setInterval(tick, 700);
+        });
+
+        document.querySelectorAll("[data-kalman-fusion-demo]").forEach((demo) => {
+          if (demo.dataset.bound === "true") return;
+          demo.dataset.bound = "true";
+
+          const get = (role) => demo.querySelector(`[data-role="${role}"]`);
+          const state = { truth: 6, estimate: 6, pendingMove: 0, loops: 0 };
+          const clamp = (value, low, high) => Math.min(high, Math.max(low, value));
+          const gaussian = () => {
+            const u = Math.max(Number.EPSILON, Math.random());
+            const v = Math.max(Number.EPSILON, Math.random());
+            return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+          };
+          const meters = (value) => `${value.toFixed(2)} m`;
+          const position = (value) => `${8 + clamp(value, 0, 10) * 8.7}%`;
+          const renderPosition = (role, value) => { get(role).style.left = position(value); };
+
+          const tick = () => {
+            const gain = Number(get("gain").value);
+            const frontSigma = Number(get("front-noise").value);
+            const rearSigma = Number(get("rear-noise").value);
+            const commandedMove = state.pendingMove;
+            state.pendingMove = 0;
+            state.truth = clamp(state.truth + commandedMove, 0.7, 9.3);
+
+            const prior = clamp(state.estimate + commandedMove, 0.4, 9.6);
+            const trueFrontDistance = 10 - state.truth;
+            const trueRearDistance = state.truth;
+            const frontDistance = clamp(trueFrontDistance + gaussian() * frontSigma, 0.1, 9.9);
+            const rearDistance = clamp(trueRearDistance + gaussian() * rearSigma, 0.1, 9.9);
+            const frontPosition = 10 - frontDistance;
+            const rearPosition = rearDistance;
+            const frontVariance = frontSigma * frontSigma;
+            const rearVariance = rearSigma * rearSigma;
+            const frontPrecision = 1 / frontVariance;
+            const rearPrecision = 1 / rearVariance;
+            const frontWeight = frontPrecision / (frontPrecision + rearPrecision);
+            const rearWeight = 1 - frontWeight;
+            const fusedReading = frontWeight * frontPosition + rearWeight * rearPosition;
+            const fusedVariance = 1 / (frontPrecision + rearPrecision);
+            const innovation = fusedReading - prior;
+            const posterior = clamp(prior + gain * innovation, 0.35, 9.65);
+            state.estimate = posterior;
+            state.loops += 1;
+
+            renderPosition("real-cart", state.truth);
+            renderPosition("prior-marker", prior);
+            renderPosition("front-marker", frontPosition);
+            renderPosition("rear-marker", rearPosition);
+            renderPosition("estimate-marker", posterior);
+            get("rear-beam").style.width = `${Math.max(2, state.truth * 8.7)}%`;
+            get("front-beam").style.width = `${Math.max(2, (10 - state.truth) * 8.7)}%`;
+            get("truth").textContent = meters(state.truth);
+            get("prior-value").textContent = meters(prior);
+            get("front-position").textContent = meters(frontPosition);
+            get("rear-position").textContent = meters(rearPosition);
+            get("estimate-value").textContent = meters(posterior);
+            get("front-distance").textContent = `${meters(frontDistance)} to wall`;
+            get("rear-distance").textContent = `${meters(rearDistance)} to wall`;
+            get("front-math-position").textContent = meters(frontPosition);
+            get("rear-math-position").textContent = meters(rearPosition);
+            get("fused-reading").textContent = meters(fusedReading);
+            get("equation").textContent = `${prior.toFixed(2)} + ${gain.toFixed(2)} × (${innovation.toFixed(2)}) = ${posterior.toFixed(2)} m`;
+            get("loop-count").textContent = String(state.loops);
+            get("front-weight").textContent = `${Math.round(frontWeight * 100)}%`;
+            get("rear-weight").textContent = `${Math.round(rearWeight * 100)}%`;
+            get("fused-variance").textContent = `${fusedVariance.toFixed(3)} m²`;
+          };
+
+          const reset = () => {
+            state.truth = 6;
+            state.estimate = 6;
+            state.pendingMove = 0;
+            state.loops = 0;
+            tick();
+          };
+
+          ["gain", "front-noise", "rear-noise"].forEach((role) => {
+            get(role).addEventListener("input", () => {
+              get("gain-output").textContent = Number(get("gain").value).toFixed(2);
+              get("front-output").textContent = `${Number(get("front-noise").value).toFixed(2)} m`;
+              get("rear-output").textContent = `${Number(get("rear-noise").value).toFixed(2)} m`;
             });
           });
 

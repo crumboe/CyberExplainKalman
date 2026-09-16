@@ -1362,6 +1362,63 @@ body,
 
 .sim-footer strong { color: #ffffff; }
 
+.fusion-controls {
+  grid-template-columns: 1.25fr repeat(3, 1fr);
+}
+
+.fusion-world .right-wall {
+  right: 4.5%;
+  left: auto;
+  border-right: 0;
+  border-left: 5px solid #9aabba;
+}
+
+.fusion-world .right-wall span {
+  right: -12px;
+  left: auto;
+}
+
+.fusion-cart .rear-sensor-face {
+  left: -10px;
+}
+
+.fusion-cart .front-sensor-face {
+  right: -10px;
+  left: auto;
+  border-radius: 0 5px 5px 0;
+}
+
+.fusion-world .rear-beam {
+  left: 8%;
+  background: linear-gradient(90deg, rgba(98, 195, 255, 0.1), rgba(98, 195, 255, 0.65));
+}
+
+.fusion-world .front-beam {
+  right: 8%;
+  left: auto;
+  background: linear-gradient(270deg, rgba(255, 187, 92, 0.1), rgba(255, 187, 92, 0.7));
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+}
+
+.fusion-belief-panel {
+  height: 250px;
+}
+
+.fusion-belief-panel .prior-marker { bottom: 180px; }
+.fusion-belief-panel .front-marker {
+  --belief-color: #ffbb5c;
+  bottom: 80px;
+}
+.fusion-belief-panel .rear-marker {
+  --belief-color: #62c3ff;
+  bottom: 30px;
+}
+.fusion-belief-panel .estimate-marker { bottom: 130px; }
+
+.fusion-live-math small {
+  white-space: normal;
+}
+
 @media (max-width: 900px), (max-height: 650px) {
   .reveal .slides section {
     padding: 28px 36px;

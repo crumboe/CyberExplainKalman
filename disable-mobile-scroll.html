@@ -121,7 +121,9 @@
         state.pendingMove = 0;
         state.truth = clamp(state.truth + commandedMove, 0.55, 9.7);
 
-        const prior = clamp(state.estimate + commandedMove + gaussian() * motionSigma, 0.4, 9.8);
+        // With no commanded motion, the predicted mean stays put. Process noise
+        // increases uncertainty; it does not randomly push the mean around.
+        const prior = clamp(state.estimate + commandedMove, 0.4, 9.8);
         const measurement = clamp(state.truth + gaussian() * sensorSigma, 0.3, 9.9);
         const innovation = measurement - prior;
         const posterior = clamp(prior + gain * innovation, 0.35, 9.85);
@@ -164,6 +166,104 @@
           get("gain-output").textContent = Number(get("gain").value).toFixed(2);
           get("motion-output").textContent = `${Number(get("motion-noise").value).toFixed(2)} m`;
           get("sensor-output").textContent = `${Number(get("sensor-noise").value).toFixed(2)} m`;
+        });
+      });
+
+      demo.querySelectorAll("button").forEach((button) => {
+        button.addEventListener("click", (event) => {
+          event.stopPropagation();
+          if (button.dataset.action === "left") state.pendingMove -= 0.5;
+          if (button.dataset.action === "right") state.pendingMove += 0.5;
+          if (button.dataset.action === "reset") return reset();
+          tick();
+        });
+      });
+
+      reset();
+      window.setInterval(tick, 700);
+    });
+
+    document.querySelectorAll("[data-kalman-fusion-demo]").forEach((demo) => {
+      if (demo.dataset.bound === "true") return;
+      demo.dataset.bound = "true";
+
+      const get = (role) => demo.querySelector(`[data-role="${role}"]`);
+      const state = { truth: 6, estimate: 6, pendingMove: 0, loops: 0 };
+      const clamp = (value, low, high) => Math.min(high, Math.max(low, value));
+      const gaussian = () => {
+        const u = Math.max(Number.EPSILON, Math.random());
+        const v = Math.max(Number.EPSILON, Math.random());
+        return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+      };
+      const meters = (value) => `${value.toFixed(2)} m`;
+      const position = (value) => `${8 + clamp(value, 0, 10) * 8.7}%`;
+      const renderPosition = (role, value) => { get(role).style.left = position(value); };
+
+      const tick = () => {
+        const gain = Number(get("gain").value);
+        const frontSigma = Number(get("front-noise").value);
+        const rearSigma = Number(get("rear-noise").value);
+        const commandedMove = state.pendingMove;
+        state.pendingMove = 0;
+        state.truth = clamp(state.truth + commandedMove, 0.7, 9.3);
+
+        const prior = clamp(state.estimate + commandedMove, 0.4, 9.6);
+        const trueFrontDistance = 10 - state.truth;
+        const trueRearDistance = state.truth;
+        const frontDistance = clamp(trueFrontDistance + gaussian() * frontSigma, 0.1, 9.9);
+        const rearDistance = clamp(trueRearDistance + gaussian() * rearSigma, 0.1, 9.9);
+        const frontPosition = 10 - frontDistance;
+        const rearPosition = rearDistance;
+        const frontVariance = frontSigma * frontSigma;
+        const rearVariance = rearSigma * rearSigma;
+        const frontPrecision = 1 / frontVariance;
+        const rearPrecision = 1 / rearVariance;
+        const frontWeight = frontPrecision / (frontPrecision + rearPrecision);
+        const rearWeight = 1 - frontWeight;
+        const fusedReading = frontWeight * frontPosition + rearWeight * rearPosition;
+        const fusedVariance = 1 / (frontPrecision + rearPrecision);
+        const innovation = fusedReading - prior;
+        const posterior = clamp(prior + gain * innovation, 0.35, 9.65);
+        state.estimate = posterior;
+        state.loops += 1;
+
+        renderPosition("real-cart", state.truth);
+        renderPosition("prior-marker", prior);
+        renderPosition("front-marker", frontPosition);
+        renderPosition("rear-marker", rearPosition);
+        renderPosition("estimate-marker", posterior);
+        get("rear-beam").style.width = `${Math.max(2, state.truth * 8.7)}%`;
+        get("front-beam").style.width = `${Math.max(2, (10 - state.truth) * 8.7)}%`;
+        get("truth").textContent = meters(state.truth);
+        get("prior-value").textContent = meters(prior);
+        get("front-position").textContent = meters(frontPosition);
+        get("rear-position").textContent = meters(rearPosition);
+        get("estimate-value").textContent = meters(posterior);
+        get("front-distance").textContent = `${meters(frontDistance)} to wall`;
+        get("rear-distance").textContent = `${meters(rearDistance)} to wall`;
+        get("front-math-position").textContent = meters(frontPosition);
+        get("rear-math-position").textContent = meters(rearPosition);
+        get("fused-reading").textContent = meters(fusedReading);
+        get("equation").textContent = `${prior.toFixed(2)} + ${gain.toFixed(2)} × (${innovation.toFixed(2)}) = ${posterior.toFixed(2)} m`;
+        get("loop-count").textContent = String(state.loops);
+        get("front-weight").textContent = `${Math.round(frontWeight * 100)}%`;
+        get("rear-weight").textContent = `${Math.round(rearWeight * 100)}%`;
+        get("fused-variance").textContent = `${fusedVariance.toFixed(3)} m²`;
+      };
+
+      const reset = () => {
+        state.truth = 6;
+        state.estimate = 6;
+        state.pendingMove = 0;
+        state.loops = 0;
+        tick();
+      };
+
+      ["gain", "front-noise", "rear-noise"].forEach((role) => {
+        get(role).addEventListener("input", () => {
+          get("gain-output").textContent = Number(get("gain").value).toFixed(2);
+          get("front-output").textContent = `${Number(get("front-noise").value).toFixed(2)} m`;
+          get("rear-output").textContent = `${Number(get("rear-noise").value).toFixed(2)} m`;
         });
       });
 
