@@ -1018,8 +1018,6 @@ where we now think it is—and how sure we are
 </div>
 ```
 
----
-
 ## Two Cameras, One Better Estimate {#tank-sensor-fusion .compact-slide}
 
 ```{=html}
@@ -1114,5 +1112,32 @@ where we now think it is—and how sure we are
 </div>
 <div class="camera-compare-route"><strong>12 matched trials share the same real motion</strong><span data-compare="route-status">Trial 1 target 2 · lap 1</span><span>The controller follows truth, so neither filter changes the route.</span></div>
 <div class="camera-compare-caption"><strong>Every filter receives the same wheel motion and front-camera reading.</strong> Added cameras provide independent readings from overlapping or wider directions. Camera σ stays at 1.00 m and motion deviation stays at 0.45.</div>
+</div>
+```
+
+---
+
+## Calibration Sets the Error Floor {#calibration-error-floor .compact-slide}
+
+```{=html}
+<div class="calibration-explainer">
+<p class="calibration-lead">Every camera measurement contains <strong>random noise</strong> and a <strong>shared calibration bias</strong>.</p>
+<div class="calibration-equation"><strong>z<sub>i</sub> = x + b + ε<sub>i</sub></strong><span>camera reading = truth + shared bias + independent noise</span></div>
+<div class="calibration-logic">
+<div><h3>Adding cameras</h3><p>Independent noise averages down as the camera count grows.</p><strong>\(\sigma_{random}/\sqrt{N}\)</strong></div>
+<div><h3>The shared bias remains</h3><p>All cameras can agree while every estimate is displaced by the same calibration error.</p><strong>\(\sigma_{total}^2 = \sigma_{bias}^2 + \sigma_{random}^2/N\)</strong></div>
+<div><h3>Calibration lowers the floor</h3><p>Better lens, mounting, and robot-to-camera calibration reduces the error that averaging cannot remove.</p><strong>\(\lim_{N\to\infty}\sigma_{total}=\sigma_{bias}\)</strong></div>
+</div>
+<table class="calibration-table">
+<thead><tr><th>Setup</th><th>Independent noise after averaging</th><th>Shared bias</th><th>Effective σ</th></tr></thead>
+<tbody>
+<tr><td>1 uncalibrated camera</td><td>0.89 m</td><td>0.45 m</td><td>1.00 m</td></tr>
+<tr><td>4 uncalibrated cameras</td><td>0.45 m</td><td>0.45 m</td><td>0.63 m</td></tr>
+<tr><td>Infinitely many uncalibrated cameras</td><td>approaches 0</td><td>0.45 m</td><td>approaches 0.45 m</td></tr>
+<tr class="calibrated-row"><td>4 well-calibrated cameras</td><td>0.45 m</td><td>0.05 m</td><td>0.45 m</td></tr>
+</tbody>
+</table>
+<p class="calibration-takeaway"><strong>Calibration changes the limit.</strong> More cameras only move the system toward its existing limit.</p>
+<small>Illustrative values: the 1.00 m starting error contains 0.45 m of shared bias and 0.89 m of independent noise.</small>
 </div>
 ```

@@ -1191,6 +1191,24 @@ body,
 .camera-compare-route strong { color:#62c3ff; }
 .camera-compare-route [data-compare="route-status"] { color:#ffb957; font-weight:800; }
 .camera-compare-caption { margin-top:6px; text-align:center; color:#d4e4ef; }
+.calibration-explainer { font-size:.78em; }
+.calibration-lead { margin:.15em 0 .55em; color:#d4e4ef; }
+.calibration-equation { display:flex; align-items:center; justify-content:space-between; gap:1em; padding:.55em .75em; border-left:6px solid #62c3ff; background:rgba(98,195,255,.08); font-size:1.45em; font-weight:800; }
+.calibration-equation span { color:#b9cad7; font-size:.58em; font-weight:400; }
+.calibration-logic { display:grid; grid-template-columns:.85fr 1.3fr 1fr; gap:1.1em; margin:1em 0; }
+.calibration-logic > div { padding:.75em .9em; border-top:3px solid #547996; background:rgba(255,255,255,.035); }
+.calibration-logic h3 { margin:0 0 .3em; color:#62c3ff; }
+.calibration-logic p { min-height:3.4em; margin:0 0 .45em; color:#d4e4ef; }
+.calibration-logic strong { color:#ffb957; }
+.reveal .calibration-table { width:100%; margin:.4em 0; border-collapse:collapse; font-size:.92em; }
+.calibration-table th { color:#62c3ff; background:rgba(98,195,255,.08); }
+.calibration-table th,.calibration-table td { padding:.42em .65em; border-bottom:1px solid #355069; text-align:left; }
+.calibration-table td:last-child { color:#ffb957; font-weight:800; }
+.calibration-table .calibrated-row { background:rgba(98,223,166,.10); }
+.calibration-table .calibrated-row td:first-child,.calibration-table .calibrated-row td:last-child { color:#62dfa6; font-weight:800; }
+.calibration-takeaway { margin:.75em 0 .25em; text-align:center; font-size:1.2em; }
+.calibration-takeaway strong { color:#62dfa6; }
+.calibration-explainer small { display:block; text-align:center; color:#9fb2c1; }
 .kalman-sim {
   font-size: 0.72em;
 }
