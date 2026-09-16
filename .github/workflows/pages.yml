@@ -1,0 +1,56 @@
+name: Deploy presentation to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Quarto
+        uses: quarto-dev/quarto-actions/setup@v2
+
+      - name: Render presentation from source
+        shell: bash
+        run: quarto render "The Machine Mindset.qmd"
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Prepare static presentation
+        shell: bash
+        run: |
+          mkdir -p _site
+          cp index.html _site/index.html
+          cp "The Machine Mindset.html" _site/"The Machine Mindset.html"
+          cp custom.css _site/custom.css
+          cp -R "The Machine Mindset_files" _site/"The Machine Mindset_files"
+          if [ -d assets ]; then cp -R assets _site/assets; fi
+          touch _site/.nojekyll
+
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -2,6 +2,7 @@
 title: "Probability, Bayes, and Kalman Filter"
 subtitle: "Finding Truth in a Noisy World"
 author: "Christopher Reckner"
+lang: en
 format:
   revealjs: 
     auto-animate: true
@@ -15,15 +16,17 @@ format:
     controls: true
     progress: true
     history: true
-    center: true
+    center: false
     hash: true
     width: 1920
     height: 1080
     margin: 0.1
-    
+    # Keep the slide canvas active even on phones. Reveal treats 0 as its
+    # default activation width, while a negative value disables auto-scroll.
+    scroll-activation-width: -1
+    scrollable: true
     css: custom.css
-
-engine: jupyter
+    include-after-body: disable-mobile-scroll.html
 ---
 
 <!-- Slide 1: Agenda -->
@@ -77,15 +80,13 @@ Since by definition we cannot measure the error of any particular measurment, We
 
 
 
-## Boolean vs. Probabilistic Logic
+## Boolean vs. Probabilistic Logic {.compact-slide}
 :::{.columns}
 :::{.column width="50%"}
 :::{.fragment}
 ### Boolean Logic
 
-```{python}
-#| echo: true
-#| eval: false
+```python
 # Boolean logic example
 # if (Shooter_will_make_the_shot == True):
 #     shoot
@@ -96,9 +97,7 @@ Since by definition we cannot measure the error of any particular measurment, We
 :::{.fragment}
 ### Probabilistic Logic
 
-```{python}
-#| echo: true
-#| eval: false
+```python
 # Probability logic example
 # if (Probability_we_make_the_shot >= 80%)
 #     shoot
@@ -154,7 +153,7 @@ For Example: We have ball shooter, and a scout finds that during competition we 
 
 
 :::{.clearfragment}
-::: {style="position: absolute; width: 1500px; height: 880px; margin: auto;"}
+::: {.legacy-diagram}
 
 <div data-id="box" style="position: absolute; left: 100px; top: 100px; width: 1500px; height: 880px; border: 3px solid #42affa; border-radius: 10px;"></div>
 
@@ -168,12 +167,12 @@ For Example: We have ball shooter, and a scout finds that during competition we 
 :::
 
 <!-- Slide 4: Understanding Set Space (Part 2) -->
-## Understanding Set Space {auto-animate=true data-autoslide="0"}
+## Understanding Set Space {.dense-diagram auto-animate=true data-autoslide="0"}
 
 - The scout also notices that our shooter was broken for some part of the competition, and also collects that data. Suprisingly, we still made a few shots despite the mechanical failure. 
 - Our set representation below uses area to show how often each event occured for all the shots we fired during
 
-::: {style="position: relative; width: 1500px; height: 880px; margin: auto;"}
+::: {.legacy-diagram}
 
 <div data-id="box" style="position: absolute; left: 100px; top: 100px; width: 1500px; height: 880px; border: 3px solid #42affa; border-radius: 10px;"></div>
 
@@ -194,7 +193,7 @@ For Example: We have ball shooter, and a scout finds that during competition we 
 :::{.fragment}
 ### Target Hit AND Shooter Was Broken
 :::
-::: {style="position: relative; width: 1500px; height: 880px; margin: auto;"}
+::: {.legacy-diagram}
 
 <div data-id="box" style="position: absolute; left: 100px; top: 100px; width: 1500px; height: 880px; border: 3px solid #42affa; border-radius: 10px;"></div>
 
@@ -224,7 +223,7 @@ For Example: We have ball shooter, and a scout finds that during competition we 
 ### Target Hit OR Shooter Was Broken
 :::
 
-::: {style="position: relative; width: 1500px; height: 880px; margin: auto;"}
+::: {.legacy-diagram}
 
 <div data-id="box" style="position: absolute; left: 100px; top: 100px; width: 1500px; height: 880px; border: 3px solid #42affa; border-radius: 10px;"></div>
 
@@ -254,7 +253,7 @@ For Example: We have ball shooter, and a scout finds that during competition we 
 ### Neither Target Hit NOR Shooter Was Broken
 :::
 
-::: {style="position: relative; width: 1500px; height: 880px; margin: auto;"}
+::: {.legacy-diagram}
 
 <div data-id="box" style="position: absolute; left: 100px; top: 100px; width: 1500px; height: 880px; border: 3px solid #42affa; border-radius: 10px;"></div>
 
@@ -288,7 +287,7 @@ For Example: We have ball shooter, and a scout finds that during competition we 
 :::
 We need to change our frame of reference
 
-::: {style="position: relative; width: 1500px; height: 880px; margin: auto;"}
+::: {.legacy-diagram}
 
 <div data-id="box" style="position: absolute; left: 100px; top: 100px; width: 1500px; height: 880px; border: 3px solid #42affa; border-radius: 10px;"></div>
 
@@ -311,7 +310,7 @@ We need to change our frame of reference
 ### Probability of Hitting The shot GIVEN the evidence the Shooter is broken
 By setting our Evidence to true, we shrink the universe of posibility to the subset of P(Shooter Was Broken). 
 
-::: {style="position: relative; width: 1500px; height: 880px; margin: auto;"}
+::: {.legacy-diagram}
 
 <div data-id="circle2" style="position: absolute; left: 100px; top: 100px; width: 1500px; height: 880px; border: 3px solid #42affa; border-radius: 10px;"></div>
 
@@ -336,7 +335,7 @@ By setting our Evidence to true, we shrink the universe of posibility to the sub
 ### Probability of Hitting The shot GIVEN the evidence the Shooter is broken
 Lets define ratios in terms of prior Set "All Possible States: Balls Shot"
 
-::: {style="position: relative; width: 1500px; height: 880px; margin: auto;"}
+::: {.legacy-diagram}
 
 <div data-id="circle2" style="position: absolute; left: 100px; top: 100px; width: 1500px; height: 880px; border: 3px solid #42affa; border-radius: 10px;"></div>
 
@@ -365,7 +364,7 @@ Lets define ratios in terms of prior Set "All Possible States: Balls Shot"
 ### Probability of Hitting The shot GIVEN the evidence the Shooter is broken
 So what is P(Target Hit | Shooter was broken)?
 
-::: {style="position: relative; width: 1500px; height: 880px; margin: auto;"}
+::: {.legacy-diagram}
 
 <div data-id="circle2" style="position: absolute; left: 100px; top: 100px; width: 1500px; height: 880px; border: 3px solid #42affa; border-radius: 10px;"></div>
 
@@ -393,7 +392,7 @@ $$P(\text{Target Hit} \mid \text{Shooter Broken}) = \frac{P(\text{Target Hit} \c
 ## Understanding Set Space {auto-animate=true data-autoslide="0"}
 ### Bayes Theorem
 
-::: {style="position: relative; width: 1500px; height: 880px; margin: auto;"}
+::: {.legacy-diagram}
 
 
 <div data-id="eq" style="position: absolute;left: 50px; top: 200px; color: white; font-size: 30px; text-align: center; width: 95%;">
@@ -411,7 +410,7 @@ $$P(\text{Target Hit} \cap \text{Shooter Broken}) = P(\text{Shooter Broken}) \ti
 ## Understanding Set Space {auto-animate=true data-autoslide="0"}
 ### Bayes Theorem -- Generally
 
-::: {style="position: relative; width: 1500px; height: 880px; margin: auto;"}
+::: {.legacy-diagram}
 
 
 <div data-id="eq" style="position: absolute;left: 50px; top: 200px; color: white; font-size: 30px; text-align: center; width: 95%;">
@@ -426,11 +425,11 @@ $$P(\text{Event} \cap \text{Evidence}) = P(\text{Evidence}) \times P(\text{Event
 
 :::
 <!-- Slide 5: Understanding Set Space (Part 3 - AND) -->
-## Understanding Set Space {auto-animate=true data-autoslide="0"}
+## Understanding Set Space {.dense-diagram auto-animate=true data-autoslide="0"}
 ### Bayes Theorem -- Generally
 For events that are dependent, finding The intersection (AND) can be difficult. So Bayes tells us =>
 
-::: {style="position: relative; width: 1500px; height: 880px; margin: auto;"}
+::: {.legacy-diagram}
 
 
 
@@ -449,32 +448,43 @@ $$P(\text{Event} \mid \text{Evidence}) = \frac{P(\text{Event}) \times P(\text{Ev
 :::
 
 <!-- Slide 5: Understanding Set Space (Part 3 - AND) -->
-## Understanding Set Space {auto-animate=true data-autoslide="0"}
-### Bayes Theorem -- Generally
-For events that are dependent, finding The intersection (AND) can be difficult. So Bayes tells us =>
+## Understanding Set Space {.compact-slide auto-animate=true data-autoslide="0"}
+### Bayes Theorem — Evidence Accumulates
 
-::: {style="position: relative; width: 1500px; height: 880px; margin: auto;"}
+For dependent events, Bayes gives us a practical way to update a belief with new evidence:
 
+$$
+P(\text{Event} \mid \text{Evidence})
+=
+\frac{P(\text{Event})\,P(\text{Evidence} \mid \text{Event})}{P(\text{Evidence})}
+$$
 
-<div data-id="eq4" style="position: absolute;left: 50px; top: 10px; color: white; font-size: 30px; text-align: center; width: 95%;">
-$$P(\text{Event} \mid \text{Evidence}) = \frac{P(\text{Event}) \times \text{Likelihood of this evidence given the event happening}}{P(\text{Evidence})}$$
-</div>
+::: {.evidence-flow}
 
-<div data-id="explanation" style="position: absolute;left: 50px; top: 200px; color: #42affa; font-size: 48px; width: 95%; line-height: 1.4;">
-**How Evidence Accumulation Works:**
-<br><br>
-• **Start with Prior Belief**: P(Event) - our initial confidence before new evidence 
-<br><br>
-• **Update with Evidence**: Each new observation becomes "Evidence," and we set up a way of determining if this evidence is likely
-<br><br>
-• **Calculate New Confidence**: The posterior P(Event|Evidence) becomes our new prior for the next update
-<br><br>
-• **Iterative Process**: Previous posterior → new prior → collect evidence → update → repeat
-<br><br>
-This creates a **feedback loop** where reliable evidence strengthens our confidence, while contradictory evidence appropriately weakens it, leading to increasingly accurate beliefs over time.
-</div>
+::: {.evidence-card}
+#### 1. Start with a prior
+Our confidence before the new observation.
+:::
 
+::: {.evidence-card}
+#### 2. Evaluate the evidence
+Ask how likely this observation is under the event.
+:::
 
+::: {.evidence-card}
+#### 3. Calculate the posterior
+The updated confidence after incorporating the evidence.
+:::
+
+::: {.evidence-card}
+#### 4. Repeat
+Use the posterior as the prior for the next observation.
+:::
+
+:::
+
+::: {.highlight-box}
+Reliable evidence strengthens confidence; contradictory evidence weakens it. Repeating the loop produces increasingly informed beliefs.
 :::
 
 ## Activity: Bayes and the Broken Motor
@@ -511,273 +521,297 @@ $$
 
 
 ## Example Draw Sequences
-```{python}
-#| echo: false
-#| eval: true
-import pandas as pd
-from IPython.display import display, Markdown
 
-# Likelihoods
-pRGB = 0.5  # P(Red | Box B)
-pRGA = 0.1  # P(Red | Box A)
-pGGB = 0.5  # P(Green | Box B)
-pGGA = 0.9  # P(Green | Box A)
+| Step | Sequence 1 | Sequence 2 | Sequence 3 |
+|:--|:--|:--|:--|
+| Initial | 50.0% | 50.0% | 50.0% |
+| Draw 1 | Red → **83.3%** | Green → **35.7%** | Red → **83.3%** |
+| Draw 2 | Green → **73.5%** | Green → **23.6%** | Red → **96.2%** |
+| Draw 3 | Red → **93.3%** | Red → **60.7%** | Green → **93.3%** |
+| Draw 4 | Green → **88.5%** | Green → **46.2%** | Red → **98.6%** |
+| Draw 5 | — | Red → **81.1%** | Green → **97.5%** |
 
-# Initial priors
-pB_init = 0.5
-pA_init = 0.5
-
-sequence1 = ["r", "g", "r", "g"]
-sequence2 = ["g", "g", "r", "g", "r"]
-sequence3 = ["r", "r", "g", "r", "g"]
-
-sequences = [
-    ("Sequence 1", sequence1),
-    ("Sequence 2", sequence2),
-    ("Sequence 3", sequence3)
-]
-
-# Process all sequences and store results
-all_results = []
-
-for seq_name, sequence in sequences:
-    pB = pB_init
-    pA = pA_init
-    
-    results = [("Initial", "-", round(pB * 100, 1))]
-    
-    for i, color in enumerate(sequence, 1):
-        if color == "r":
-            # Red bead drawn
-            likelihood_A = pRGA
-            likelihood_B = pRGB
-        else:
-            # Green bead drawn
-            likelihood_A = pGGA
-            likelihood_B = pGGB
-        
-        # Calculate total probability of observing this color
-        p_color = likelihood_A * pA + likelihood_B * pB
-        
-        # Update posteriors using Bayes' theorem
-        pA = (likelihood_A * pA) / p_color
-        pB = (likelihood_B * pB) / p_color
-        
-        results.append((f"Draw {i}", color.upper(), round(pB * 100, 1)))
-    
-    # Create DataFrame for this sequence
-    df = pd.DataFrame(results, columns=['Step', 'Bead Color', f'P(Box B) % - {seq_name}'])
-    all_results.append(df)
-
-# Display in 3 columns using HTML
-from IPython.display import HTML
-
-# Convert DataFrames to HTML
-html_tables = []
-for df in all_results:
-    html_table = df.to_html(index=False, table_id="bayesian-table", 
-                           classes="table table-striped",
-                           escape=False)
-    html_tables.append(html_table)
-
-# Create 3-column layout
-html_output = f"""
-<div style="display: flex; justify-content: space-between; gap: 20px;">
-    <div style="flex: 1;">{html_tables[0]}</div>
-    <div style="flex: 1;">{html_tables[1]}</div>
-    <div style="flex: 1;">{html_tables[2]}</div>
-</div>
-"""
-
-display(HTML(html_output))
-```
-
-**Notice:** Red beads increase P(Box B), green beads decrease it!
+::: {.highlight-box}
+**Notice:** A red bead supports the “bad motor” hypothesis, while a green bead supports the “good motor” hypothesis. Every posterior becomes the prior for the next draw.
+:::
 
 ---
-## Let's Take a Break
-```{python}
-#| echo: false
-#| output: asis
-import numpy as np
-from scipy.stats import norm
 
-def generate_gaussian_svg(mu_px, sigma_px, data_id="bellcurve", 
-                         svg_width=1500, svg_height=880,
-                         color="#4296ff", fill_opacity=0.3):
-    """
-    Generate SVG element for a Gaussian/normal distribution curve.
-    WITHOUT section wrapper for embedding in slides.
-    """
-    
-    # Define x range
-    x_min = 0
-    x_max = svg_width
-    baseline = svg_height - 50
-    
-    # FIXED number of points for consistent structure
-    num_points = 100
-    x_values = np.linspace(x_min, x_max, num_points)
-    
-    # Calculate y values using Gaussian formula
-    peak_height = (40/sigma_px) * svg_height
-    
-    y_values = []
-    for x in x_values:
-        exponent = -((x - mu_px) ** 2) / (2 * sigma_px ** 2)
-        y = np.exp(exponent)
-        y_pixel = baseline - (y * peak_height)
-        y_values.append(y_pixel)
-    
-    # Create points string for polyline
-    points = " ".join([f"{x:.2f},{y:.2f}" for x, y in zip(x_values, y_values)])
-    
-    # Create points for filled polygon (add baseline corners)
-    fill_points = points + f" {x_values[-1]:.2f},{baseline} {x_values[0]:.2f},{baseline}"
-    
-    # Generate SVG with RGB color conversion
-    rgb = tuple(int(color.lstrip('#')[i:i+2], 16) for i in (0, 2, 4))
-    fill_color = f"rgba({rgb[0]}, {rgb[1]}, {rgb[2]}, {fill_opacity})"
-    
-    # Return ONLY the SVG element, no section wrapper
-    svg = f'''<svg data-id="{data_id}" style="position: absolute; left: 100px; top: 100px; width: {svg_width}px; height: {svg_height}px;">
-  <polygon points="{fill_points}" 
-           fill="{fill_color}" 
-           stroke="{color}" 
-           stroke-width="4"
-           stroke-linejoin="round"/>
-</svg>'''
-    
-    return svg
+## Let's Take a Break {.center}
 
-_generate_gaussian_svg = generate_gaussian_svg
-```
+### When we return
 
-```{python}
-#| echo: false
-#| output: false
+We will turn the same **prior → evidence → posterior** loop into a better estimate of position.
 
-# Generate all SVG strings upfront
-svg1_slide1 = _generate_gaussian_svg(mu_px=650, sigma_px=150, svg_height=830, data_id="bellcurveog1", color="#55a709ff",fill_opacity=0.1)
-svg2_slide1 = _generate_gaussian_svg(mu_px=1000, sigma_px=50, svg_height=830, svg_width=1500, data_id="bellcurveog2", color="#5178f8ff",fill_opacity=0.1)
+---
 
-svg1_slide2 = _generate_gaussian_svg(mu_px=900, sigma_px=37, svg_height=830, data_id="bellcurve", color="#55a709ff")
-svg2_slide2 = _generate_gaussian_svg(mu_px=900, sigma_px=37, svg_height=830, svg_width=1500, data_id="bellcurve2", color="#5178f8ff")
+## Two Imperfect Beliefs {.gaussian-slide auto-animate=true auto-animate-easing="ease-in-out"}
 
-```
+<div class="gaussian-canvas" role="img" aria-label="A broad model prediction and a narrower sensor measurement shown as probability distributions.">
+  <div class="probability-baseline"></div>
+  <div data-id="model-curve" class="distribution model-distribution" style="left: 120px; width: 760px; height: 380px;"></div>
+  <div data-id="sensor-curve" class="distribution sensor-distribution" style="left: 900px; width: 420px; height: 520px; opacity: 1;"></div>
+  <div data-id="model-mean" class="mean-line model-mean" style="left: 500px; height: 390px;"></div>
+  <div data-id="sensor-mean" class="mean-line sensor-mean" style="left: 1110px; height: 530px;"></div>
+  <div data-id="model-label" class="curve-label" style="left: 300px;">Prior: model prediction</div>
+  <div data-id="sensor-label" class="curve-label" style="left: 990px;">Evidence: sensor reading</div>
+</div>
 
-```{python}
-#| echo: false
-#| output: false
+<div class="gaussian-legend">
+  <span><i class="legend-swatch model-swatch"></i> Wider curve = less confidence</span>
+  <span><i class="legend-swatch sensor-swatch"></i> Narrower curve = more confidence</span>
+</div>
 
-def generate_morph_slides(start_params, end_params, num_steps=10):
-    """
-    Generate intermediate slides for smooth morphing animation.
-    
-    start_params: dict with 'mu_px' and 'sigma_px' for starting positions
-    end_params: dict with 'mu_px' and 'sigma_px' for ending positions
-    num_steps: number of intermediate frames
-    """
-    slides = []
-    
-    for i in range(num_steps + 1):
-        # Linear interpolation factor (0 to 1)
-        t = i / num_steps
-        
-        # Interpolate parameters for both curves
-        mu1 = start_params['curve1']['mu_px'] + t * (end_params['curve1']['mu_px'] - start_params['curve1']['mu_px'])
-        sigma1 = start_params['curve1']['sigma_px'] + t * (end_params['curve1']['sigma_px'] - start_params['curve1']['sigma_px'])
-        
-        mu2 = start_params['curve2']['mu_px'] + t * (end_params['curve2']['mu_px'] - start_params['curve2']['mu_px'])
-        sigma2 = start_params['curve2']['sigma_px'] + t * (end_params['curve2']['sigma_px'] - start_params['curve2']['sigma_px'])
-        
-        # Generate SVGs for this frame
-        svg1 = _generate_gaussian_svg(mu_px=mu1, sigma_px=sigma1, svg_height=830, 
-                                      data_id="bellcurve3", color="#55a709ff")
-        svg2 = _generate_gaussian_svg(mu_px=mu2, sigma_px=sigma2, svg_height=830, 
-                                      svg_width=1500, data_id="bellcurve4", color="#5178f8ff")
-        
-        slides.append((svg1, svg2))
-    
-    return slides
+---
 
-# Define start and end states
-start_state = {
-    'curve1': {'mu_px': 650, 'sigma_px': 150},
-    'curve2': {'mu_px': 1000, 'sigma_px': 50}
-}
+## Bayes Updates the Belief {.gaussian-slide auto-animate=true auto-animate-easing="ease-in-out"}
 
-end_state = {
-    'curve1': {'mu_px': 900, 'sigma_px': 37},
-    'curve2': {'mu_px': 900, 'sigma_px': 37}
-}
+<div class="gaussian-canvas" role="img" aria-label="The model prediction moves toward the more precise sensor measurement and becomes a narrower posterior distribution.">
+  <div class="probability-baseline"></div>
+  <div data-id="model-curve" class="distribution posterior-distribution" style="left: 710px; width: 500px; height: 570px;"></div>
+  <div data-id="sensor-curve" class="distribution sensor-distribution" style="left: 900px; width: 420px; height: 520px; opacity: 0.22;"></div>
+  <div data-id="model-mean" class="mean-line posterior-mean" style="left: 960px; height: 580px;"></div>
+  <div data-id="sensor-mean" class="mean-line sensor-mean" style="left: 1110px; height: 530px; opacity: 0.22;"></div>
+  <div data-id="model-label" class="curve-label posterior-label" style="left: 790px;">Posterior: fused estimate</div>
+  <div data-id="sensor-label" class="curve-label muted-label" style="left: 1020px; opacity: 0.35;">Sensor evidence</div>
+</div>
 
-# Generate 15 intermediate frames for smooth animation
-morph_slides = generate_morph_slides(start_state, end_state, num_steps=15)
-```
+::: {.highlight-box}
+The posterior moves toward the more trustworthy input and is more precise than the original prediction. This is the idea a Kalman filter repeats over time.
+:::
 
+---
 
-## The Gaussian Bell Curve {auto-animate=true data-autoslide="0" auto-animate-easing="ease-in-out" data-autoslide="0"}
+## From Bayes to a Kalman Filter
 
-::: {style="position: relative; width: 1500px; height: 880px; margin: auto;"}
+::: {.columns}
 
-<div data-id="box" style="position: absolute; left: 100px; top: 100px; width: 1500px; height: 880px; border: 3px solid #42affa; border-radius: 10px;"></div>
+::: {.column width="48%"}
 
-<div data-id="xaxis" style="position: absolute; left: 100px; top: 880px; width: 1500px; height: 0px; background: rgba(255, 100, 100, 0.3); border: 1px solid #ff6464; border-radius: 1px;"></div>
-<div data-id="yaxis" style="position: absolute; left: 850px; top: 100px; width: 0px; height: 880px; background: rgba(255, 100, 100, 0.3); border: 1px solid #ff6464; border-radius: 1px;"></div>
-```{python}
-#| echo: false
-#| output: asis
-# First slide (index 0)
-svg1, svg2 =(svg1_slide1,svg2_slide1)
-print(svg1)
-print(svg2)
-```
+### Bayes asks
+
+> Given what I believed before and what I just observed, what should I believe now?
+
+$$
+P(\text{state}\mid\text{measurement})
+\propto
+P(\text{measurement}\mid\text{state})P(\text{state})
+$$
 
 :::
-::: {.section data-autoslide="200"}
-```{python}
-#| echo: false
-#| output: asis
-# Generate all intermediate slides
-for i in range(1, len(morph_slides)):
-    svg1, svg2 = morph_slides[i]
-    
-    # Determine title based on progress
-    if i < len(morph_slides) - 1:
-        title = f"The Gaussian Bell Curve -> morphing"
-        auto_slide = "data-autoslide=\"200\""  # Auto-advance after 100ms
-    else:
-        title = f"The Gaussian Bell Curve -> combined"
-        auto_slide = "data-autoslide=\"0\""  # Stop auto-advancing on final slide
-    
-    print(f'''
-## {title} {{auto-animate=true auto-animate-easing="ease-in-out" {auto_slide}}}
 
-::: {{style="position: relative; width: 1500px; height: 880px; margin: auto;"}}
+::: {.column width="52%"}
 
-<div data-id="box" style="position: absolute; left: 100px; top: 100px; width: 1500px; height: 880px; border: 3px solid #42affa; border-radius: 10px;"></div>
+### A Kalman filter applies that question to motion
 
-<div data-id="xaxis" style="position: absolute; left: 100px; top: 880px; width: 1500px; height: 0px; background: rgba(255, 100, 100, 0.3); border: 1px solid #ff6464; border-radius: 1px;"></div>
-<div data-id="yaxis" style="position: absolute; left: 850px; top: 100px; width: 0px; height: 880px; background: rgba(255, 100, 100, 0.3); border: 1px solid #ff6464; border-radius: 1px;"></div>
+- The **state** is usually position and velocity.
+- The **prior** comes from the motion model.
+- The **evidence** comes from sensors.
+- The **posterior** is the corrected state estimate.
+- That posterior becomes the next prediction's starting point.
 
-{svg2}
-{svg1}
-''')
-    print(f'{svg2_slide1}')
-    print(f'{svg1_slide1}')
-    print(f':::')
+:::
 
-    if i == len(morph_slides) -1:
-        print('''
-<button onclick="Reveal.slide(Reveal.getIndices().h + 1); Reveal.configure({autoSlide: 200});" 
-        style="padding: 10px 20px; font-size: 18px; cursor: pointer;">
-   Play Animation
-</button>
+:::
 
-::: {style="position: relative; width: 1500px; height: 880px; margin: auto;"}
-...
-    
-    ''')
-```
+---
+
+## One Loop, Every Time Step
+
+<div class="kalman-flow" aria-label="Kalman filter cycle: predict, measure, weight, correct, then repeat.">
+<div class="flow-card fragment fade-up">
+<span class="flow-number">1</span>
+<h3>Predict</h3>
+<p>Advance position and velocity with the motion model.</p>
+</div>
+<div class="flow-arrow" aria-hidden="true">→</div>
+<div class="flow-card fragment fade-up">
+<span class="flow-number">2</span>
+<h3>Measure</h3>
+<p>Read the new sensor value and its expected noise.</p>
+</div>
+<div class="flow-arrow" aria-hidden="true">→</div>
+<div class="flow-card fragment fade-up">
+<span class="flow-number">3</span>
+<h3>Weight</h3>
+<p>Use uncertainty to decide how much to trust each source.</p>
+</div>
+<div class="flow-arrow" aria-hidden="true">→</div>
+<div class="flow-card fragment fade-up">
+<span class="flow-number">4</span>
+<h3>Correct</h3>
+<p>Move the prediction toward the measurement, then repeat.</p>
+</div>
+</div>
+
+::: {.takeaway-line}
+**Predict with physics. Correct with evidence. Carry the improved belief forward.**
+:::
+
+---
+
+## What the Filter Is Tracking
+
+::: {.columns}
+
+::: {.column width="48%"}
+
+### The hidden state
+
+For motion in one dimension, the state can be:
+
+$$
+\mathbf{x}_k =
+\begin{bmatrix}
+\text{position} \\
+\text{velocity}
+\end{bmatrix}
+$$
+
+The state is our best estimate of what is actually happening.
+
+:::
+
+::: {.column width="52%"}
+
+### The uncertainty
+
+The filter also carries an uncertainty matrix, $\mathbf{P}_k$.
+
+- Larger uncertainty means “I am less sure.”
+- Motion and disturbances increase uncertainty.
+- Good measurements reduce uncertainty.
+- Position and velocity uncertainty can be related.
+
+The estimate and its uncertainty always travel together.
+
+:::
+
+:::
+
+---
+
+## A Spatial Prediction Example
+
+<div class="position-track" role="img" aria-label="A predicted position at 10 meters, a sensor measurement at 11.2 meters, and a fused estimate at 10.96 meters.">
+<div class="track-line"></div>
+<div class="track-tick" style="left: 12%;"><span>9 m</span></div>
+<div class="track-tick" style="left: 45%;"><span>10 m</span></div>
+<div class="track-tick" style="left: 78%;"><span>11 m</span></div>
+<div class="position-marker prediction-marker" style="left: 45%;">
+<span class="marker-dot"></span>
+<strong>Prediction</strong>
+<small>10.0 m ± 1.0 m</small>
+</div>
+<div class="position-marker sensor-marker" style="left: 84%;">
+<span class="marker-dot"></span>
+<strong>Sensor</strong>
+<small>11.2 m ± 0.5 m</small>
+</div>
+<div class="position-marker fused-marker" style="left: 76%;">
+<span class="marker-dot"></span>
+<strong>Fused estimate</strong>
+<small>10.96 m ± 0.45 m</small>
+</div>
+</div>
+
+::: {.columns}
+
+::: {.column width="50%"}
+### Before the update
+
+The model predicts **10.0 m**, but it is relatively uncertain.
+:::
+
+::: {.column width="50%"}
+### After the update
+
+The accurate sensor pulls the estimate toward **11.2 m** and reduces uncertainty.
+:::
+
+:::
+
+---
+
+## The Kalman Gain Is the Trust Dial
+
+<div class="gain-grid">
+<div class="gain-card">
+<span class="gain-value">K ≈ 0</span>
+<h3>Trust the model</h3>
+<p>The sensor is noisy, so the estimate barely moves.</p>
+</div>
+<div class="gain-card active-gain">
+<span class="gain-value">0 &lt; K &lt; 1</span>
+<h3>Blend both</h3>
+<p>Most real updates land here: a weighted correction.</p>
+</div>
+<div class="gain-card">
+<span class="gain-value">K ≈ 1</span>
+<h3>Trust the sensor</h3>
+<p>The measurement is precise, so the estimate moves close to it.</p>
+</div>
+</div>
+
+$$
+\text{new estimate}
+=
+\text{prediction}
++
+K(\text{measurement}-\text{prediction})
+$$
+
+The difference in parentheses is the **innovation**: the new information the sensor contributed.
+
+---
+
+## Why Spatial Predictions Improve
+
+<div class="comparison-grid">
+<div class="comparison-card">
+<span class="comparison-icon">Model only</span>
+<h3>Drift grows</h3>
+<p>Small errors in velocity and timing accumulate into position error.</p>
+</div>
+<div class="comparison-card">
+<span class="comparison-icon">Sensor only</span>
+<h3>Noise jumps</h3>
+<p>Each reading can bounce around the true position.</p>
+</div>
+<div class="comparison-card comparison-best">
+<span class="comparison-icon">Kalman fusion</span>
+<h3>Smoother and predictive</h3>
+<p>The model fills gaps; measurements pull the estimate back toward reality.</p>
+</div>
+</div>
+
+::: {.highlight-box}
+A Kalman filter does not magically remove uncertainty. It **tracks uncertainty explicitly** and uses it to make the best correction available at each step.
+:::
+
+---
+
+## The Big Picture {.center}
+
+<div class="big-picture">
+
+**Prior**
+where the object should be
+
+<span aria-hidden="true">+</span>
+
+**Evidence**
+where the sensor says it is
+
+<span aria-hidden="true">→</span>
+
+**Posterior**
+a better estimate, with updated confidence
+
+</div>
+
+### Then repeat at the next time step.
+
+::: {.takeaway-line}
+Bayes provides the logic. The motion model provides the prediction. The Kalman filter turns both into a continuously improving estimate of position and velocity.
 :::
