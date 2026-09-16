@@ -1680,7 +1680,8 @@ Motion fills the gaps; sensors keep the prediction connected to reality.
             const motionVariance = dt * (0.002 + motionSigma * motionSigma * (0.04 + 0.30 * accelerationDemand + 0.18 * Math.abs(state.modelVelocity)));
             const priorVariance = state.posteriorVariance + motionVariance;
             const sensorVariance = sensorSigma * sensorSigma;
-            state.posteriorVariance = Math.max(0.0001, (1 - gain) * priorVariance);
+            // General covariance update for a manually selected gain.
+            state.posteriorVariance = (1 - gain) ** 2 * priorVariance + gain ** 2 * sensorVariance;
             state.estimate = posterior;
             state.loops += 1;
 
