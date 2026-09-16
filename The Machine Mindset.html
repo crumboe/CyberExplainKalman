@@ -1319,6 +1319,34 @@ Motion fills the gaps; sensors keep the prediction connected to reality.
 <div class="takeaway-line">
 <p><strong>A Kalman filter is a repeating trust exercise:</strong> predict, observe, blend, and carry the improved guess forward.</p>
 </div>
+</section>
+<section id="tank-localization" class="slide level2 compact-slide">
+<h2>Where Does the Robot Think It Is?</h2>
+<div class="tank-demo" data-tank-demo="">
+<div class="tank-controls">
+<label>Kalman gain K <output data-tank="gain-out">0.35</output><input data-tank="gain" aria-label="Robot Kalman gain" type="range" min="0" max="1" step="0.05" value="0.35"></label>
+<label>Camera noise σ <output data-tank="sensor-out">0.25 m</output><input data-tank="sensor" aria-label="Camera position deviation" type="range" min="0.05" max="1.5" step="0.05" value="0.25"></label>
+<label>Motion deviation <output data-tank="motion-out">0.35</output><input data-tank="motion" aria-label="Robot motion deviation" type="range" min="0" max="1.2" step="0.05" value="0.35"></label>
+<button type="button" data-tank="pause">Pause</button><button type="button" data-tank="reset">Reset</button>
+</div>
+<div class="tank-layout">
+<canvas data-tank="field" width="1200" height="700" role="img" aria-label="Top-down robot field. Green robot is the real pose, blue cone is camera coverage, orange Gaussian heatmap is estimated position."></canvas>
+<div class="tank-sidebar">
+<strong>Hold to drive</strong>
+<div class="tank-pad" role="group" aria-label="Tank robot driving controls">
+<button data-steer="up" aria-label="Drive forward">↑</button>
+<button data-steer="left" aria-label="Turn left">←</button>
+<button data-steer="down" aria-label="Drive backward">↓</button>
+<button data-steer="right" aria-label="Turn right">→</button>
+</div>
+<p>Arrow keys or WASD also work. Combine forward + turn to curve.</p>
+<p><span class="tank-green">Green robot</span>: reality<br><span class="tank-orange">Orange glow</span>: position belief<br>White cross: best estimate</p>
+<dl><dt>Camera evidence</dt><dd data-tank="sight">No tags visible</dd><dt>Position error</dt><dd data-tank="error">0.00 m</dd><dt>Position uncertainty σ</dt><dd data-tank="sigma">0.35 m</dd><dt>Filter update</dt><dd data-tank="status">Predicting from wheels</dd></dl>
+</div>
+</div>
+<div class="tank-caption">Drive away from tags: confidence spreads. Turn the camera toward a tag: new evidence tightens the estimate. At K = 0, tag readings have no influence.</div>
+<small class="tank-assumption">Teaching model: known tag locations provide simulated noisy position and heading readings. The glow is a 2D Gaussian, with a dashed 95% position region. Tag patterns are illustrative.</small>
+</div>
 
 </section>
     </div>
@@ -1939,6 +1967,7 @@ Motion fills the gaps; sensors keep the prediction connected to reality.
         });
       });
     </script>
+    <script src="assets/tank-demo.js"></script>
     <script id="quarto-html-after-body" type="application/javascript">
       window.document.addEventListener("DOMContentLoaded", function (event) {
         const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
