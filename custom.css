@@ -1208,6 +1208,97 @@ body,
 .calibration-table .calibrated-row td:first-child,.calibration-table .calibrated-row td:last-child { color:#62dfa6; font-weight:800; }
 .calibration-takeaway { margin:.75em 0 .25em; text-align:center; font-size:1.2em; }
 .calibration-takeaway strong { color:#62dfa6; }
+
+/* Final synthesis slide */
+.reveal .conclusion-slide h2 {
+  margin-bottom: .45em;
+}
+
+.conclusion-wrap {
+  max-width: 1580px;
+  margin: 0 auto;
+}
+
+.conclusion-lead {
+  max-width: 1320px;
+  margin: 0 auto 1.15em;
+  font-size: 1.3em;
+  line-height: 1.35;
+}
+
+.conclusion-lead strong {
+  color: #62dfa6;
+}
+
+.conclusion-steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 22px;
+  text-align: left;
+}
+
+.conclusion-steps > div {
+  min-height: 230px;
+  padding: 28px 25px 22px;
+  background: linear-gradient(150deg, rgba(61, 83, 113, .55), rgba(25, 33, 49, .78));
+  border: 1px solid rgba(143, 200, 255, .35);
+  border-radius: 16px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .2);
+}
+
+.conclusion-steps span {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 16px;
+  border-radius: 50%;
+  background: #62dfa6;
+  color: #102119;
+  font-size: .9em;
+  font-weight: 800;
+}
+
+.conclusion-steps h3 {
+  margin: 0 0 .4em;
+  color: #8fc8ff;
+  font-size: 1.05em;
+}
+
+.conclusion-steps p {
+  margin: 0;
+  font-size: .75em;
+  line-height: 1.42;
+}
+
+.conclusion-loop {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: .75em;
+  margin: 1em auto .55em;
+  font-size: 1.14em;
+}
+
+.conclusion-loop i {
+  color: #ffb957;
+  font-style: normal;
+}
+
+.conclusion-caveat {
+  margin: 0;
+  font-size: .88em;
+  color: rgba(255, 255, 255, .78);
+}
+
+.conclusion-caveat strong {
+  color: #ffcf87;
+}
+
+@media (max-width: 900px) {
+  .conclusion-steps { grid-template-columns: repeat(2, 1fr); }
+  .conclusion-steps > div { min-height: 0; }
+}
 .calibration-explainer small { display:block; text-align:center; color:#9fb2c1; }
 .kalman-sim {
   font-size: 0.72em;

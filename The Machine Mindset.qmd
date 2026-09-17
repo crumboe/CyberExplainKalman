@@ -1018,6 +1018,8 @@ where we now think it is—and how sure we are
 </div>
 ```
 
+---
+
 ## Two Cameras, One Better Estimate {#tank-sensor-fusion .compact-slide}
 
 ```{=html}
@@ -1139,5 +1141,23 @@ where we now think it is—and how sure we are
 </table>
 <p class="calibration-takeaway"><strong>Sensor fusion reduces noise; calibration removes shared bias.</strong></p>
 <small>The total σ column uses \(\sqrt{\sigma_{random}^2 + \sigma_{bias}^2}\). In this version, 4 calibrated cameras give \(\sqrt{0.40^2 + 0.05^2} = 0.403\text{ m}\), while many badly calibrated cameras still approach the 0.60 m bias floor.</small>
+</div>
+```
+
+---
+
+## Conclusion: Make Uncertainty Useful {.center .conclusion-slide}
+
+```{=html}
+<div class="conclusion-wrap">
+<p class="conclusion-lead">The goal is not perfect certainty. It is a <strong>better estimate—and an honest account of how much to trust it.</strong></p>
+<div class="conclusion-steps" aria-label="Four ideas from the presentation">
+<div><span>1</span><h3>Represent</h3><p>Use probability and Gaussians to describe what you know—and what you do not.</p></div>
+<div><span>2</span><h3>Update</h3><p>Use Bayes to turn new evidence into a revised belief.</p></div>
+<div><span>3</span><h3>Combine</h3><p>Weight predictions and measurements by their uncertainty, not by instinct.</p></div>
+<div><span>4</span><h3>Repeat</h3><p>Let the Kalman filter carry the improved estimate into the next moment.</p></div>
+</div>
+<div class="conclusion-loop"><strong>Predict</strong><i>→</i><strong>Measure</strong><i>→</i><strong>Update</strong><i>→</i><strong>Repeat</strong></div>
+<p class="conclusion-caveat">And remember: <strong>fusion reduces random noise; calibration removes shared bias.</strong></p>
 </div>
 ```
