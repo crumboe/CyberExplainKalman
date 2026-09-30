@@ -119,7 +119,10 @@
 
       const renderPosition = (role, value) => {
         get(role).style.left = position(value);
-        get(role).dataset.overflow = value < 0 ? "← beyond track" : value > 10 ? "beyond track →" : "";
+        const overflow = value < 0 ? "← beyond track" : value > 10 ? "beyond track →" : "";
+        get(role).dataset.overflow = overflow;
+        const keyOverflow = demo.querySelector(`[data-overflow-for="${role}"]`);
+        if (keyOverflow) keyOverflow.textContent = overflow;
       };
 
       const tick = () => {
@@ -267,7 +270,10 @@
       const position = (value) => `${8 + clamp(value, 0, 10) * 8.7}%`;
       const renderPosition = (role, value) => {
         get(role).style.left = position(value);
-        get(role).dataset.overflow = value < 0 ? "← beyond track" : value > 10 ? "beyond track →" : "";
+        const overflow = value < 0 ? "← beyond track" : value > 10 ? "beyond track →" : "";
+        get(role).dataset.overflow = overflow;
+        const keyOverflow = demo.querySelector(`[data-overflow-for="${role}"]`);
+        if (keyOverflow) keyOverflow.textContent = overflow;
       };
 
       const tick = () => {

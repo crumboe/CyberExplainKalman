@@ -518,12 +518,19 @@ First watch these three markers. Then change **K** and see which way the updated
 <span class="truth-readout">True position: <strong data-role="truth">6.00 m</strong> &nbsp; Speed: <strong data-role="truth-speed">0.00 m/s</strong></span>
 </div>
 
+<div class="belief-display">
+<div class="belief-key" aria-label="Live position values">
+<div class="belief-key-row prior-key"><i></i><strong>Motion guess</strong><small data-role="prior-value">6.00 m</small><em data-overflow-for="prior-marker"></em></div>
+<div class="belief-key-row estimate-key"><i></i><strong>Updated guess</strong><small data-role="estimate-value">6.00 m</small><em data-overflow-for="estimate-marker"></em></div>
+<div class="belief-key-row sensor-key"><i></i><strong>Sensor</strong><small data-role="measurement-value">6.00 m</small><em data-overflow-for="sensor-marker"></em></div>
+</div>
 <div class="belief-panel">
 <span class="panel-title">Machine understanding — three competing locations</span>
 <div class="belief-track"></div>
-<div class="belief-marker prior-marker" data-role="prior-marker"><span></span><strong>Motion guess</strong><small data-role="prior-value">6.00 m</small></div>
-<div class="belief-marker measurement-marker" data-role="sensor-marker"><span></span><strong>Sensor</strong><small data-role="measurement-value">6.00 m</small></div>
-<div class="belief-marker estimate-marker" data-role="estimate-marker"><span></span><strong>Updated guess</strong><small data-role="estimate-value">6.00 m</small></div>
+<div class="belief-marker prior-marker" data-role="prior-marker" aria-label="Motion guess marker"><span></span></div>
+<div class="belief-marker measurement-marker" data-role="sensor-marker" aria-label="Sensor marker"><span></span></div>
+<div class="belief-marker estimate-marker" data-role="estimate-marker" aria-label="Updated guess marker"><span></span></div>
+</div>
 </div>
 
 <div class="kalman-live-math" aria-live="polite">
@@ -579,13 +586,21 @@ Use a result **between 4 m and 6 m**, closer to the steadier observer. The next 
 <span class="truth-readout">True position: <strong data-role="truth">6.00 m</strong> &nbsp; Speed: <strong data-role="truth-speed">0.00 m/s</strong></span>
 </div>
 
+<div class="belief-display fusion-belief-display">
+<div class="belief-key" aria-label="Live position values">
+<div class="belief-key-row prior-key"><i></i><strong>Motion guess</strong><small data-role="prior-value">6.00 m</small><em data-overflow-for="prior-marker"></em></div>
+<div class="belief-key-row estimate-key"><i></i><strong>Combined guess</strong><small data-role="estimate-value">6.00 m</small><em data-overflow-for="estimate-marker"></em></div>
+<div class="belief-key-row front-key"><i></i><strong>Front sensor</strong><small data-role="front-position">6.00 m</small><em data-overflow-for="front-marker"></em></div>
+<div class="belief-key-row rear-key"><i></i><strong>Rear sensor</strong><small data-role="rear-position">6.00 m</small><em data-overflow-for="rear-marker"></em></div>
+</div>
 <div class="belief-panel fusion-belief-panel">
 <span class="panel-title">Machine understanding — convert both distances into position</span>
 <div class="belief-track"></div>
-<div class="belief-marker prior-marker" data-role="prior-marker"><span></span><strong>Motion guess</strong><small data-role="prior-value">6.00 m</small></div>
-<div class="belief-marker front-marker" data-role="front-marker"><span></span><strong>Front sensor</strong><small data-role="front-position">6.00 m</small></div>
-<div class="belief-marker rear-marker" data-role="rear-marker"><span></span><strong>Rear sensor</strong><small data-role="rear-position">6.00 m</small></div>
-<div class="belief-marker estimate-marker" data-role="estimate-marker"><span></span><strong>Combined guess</strong><small data-role="estimate-value">6.00 m</small></div>
+<div class="belief-marker prior-marker" data-role="prior-marker" aria-label="Motion guess marker"><span></span></div>
+<div class="belief-marker front-marker" data-role="front-marker" aria-label="Front sensor marker"><span></span></div>
+<div class="belief-marker rear-marker" data-role="rear-marker" aria-label="Rear sensor marker"><span></span></div>
+<div class="belief-marker estimate-marker" data-role="estimate-marker" aria-label="Combined guess marker"><span></span></div>
+</div>
 </div>
 
 <div class="kalman-live-math fusion-live-math" aria-live="polite">
@@ -627,6 +642,17 @@ Use a result **between 4 m and 6 m**, closer to the steadier observer. The next 
 ::: {.highlight-box}
 A Kalman filter does not claim to know the exact truth. It keeps a **best guess plus an honest measure of confidence**, then improves both whenever new evidence arrives.
 :::
+
+## From a straight track to a top-down map {.center .dimension-slide}
+
+The cart moved along a line, so **one number** told us where it was: for example, 6 m along the track.
+
+<div class="dimension-bridge" aria-label="One-dimensional track position becomes a two-dimensional floor position with direction">
+<div><strong>On a track</strong><span class="dimension-track"><i></i></span><small>position = distance along the line</small></div>
+<div><strong>On a floor</strong><span class="dimension-floor"><i></i></span><small>position = left/right + forward/back</small></div>
+</div>
+
+A robot can also turn. The next view looks **down from above** so we can see its position and which way it faces. The same guess → sensor → update loop still applies.
 
 ## Where Does the Robot Think It Is? {#tank-localization .compact-slide}
 

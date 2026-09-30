@@ -665,19 +665,32 @@ Reset
 </div>
 <p><span class="truth-readout">True position: <strong data-role="truth">6.00 m</strong> &nbsp; Speed: <strong data-role="truth-speed">0.00 m/s</strong></span></p>
 </div>
+<div class="belief-display">
+<div class="belief-key" aria-label="Live position values">
+<div class="belief-key-row prior-key">
+<i></i><strong>Motion guess</strong><small data-role="prior-value">6.00 m</small><em data-overflow-for="prior-marker"></em>
+</div>
+<div class="belief-key-row estimate-key">
+<i></i><strong>Updated guess</strong><small data-role="estimate-value">6.00 m</small><em data-overflow-for="estimate-marker"></em>
+</div>
+<div class="belief-key-row sensor-key">
+<i></i><strong>Sensor</strong><small data-role="measurement-value">6.00 m</small><em data-overflow-for="sensor-marker"></em>
+</div>
+</div>
 <div class="belief-panel">
 <span class="panel-title">Machine understanding — three competing locations</span>
 <div class="belief-track">
 
 </div>
-<div class="belief-marker prior-marker" data-role="prior-marker">
-<span></span><strong>Motion guess</strong><small data-role="prior-value">6.00 m</small>
+<div class="belief-marker prior-marker" data-role="prior-marker" aria-label="Motion guess marker">
+<span></span>
 </div>
-<div class="belief-marker measurement-marker" data-role="sensor-marker">
-<span></span><strong>Sensor</strong><small data-role="measurement-value">6.00 m</small>
+<div class="belief-marker measurement-marker" data-role="sensor-marker" aria-label="Sensor marker">
+<span></span>
 </div>
-<div class="belief-marker estimate-marker" data-role="estimate-marker">
-<span></span><strong>Updated guess</strong><small data-role="estimate-value">6.00 m</small>
+<div class="belief-marker estimate-marker" data-role="estimate-marker" aria-label="Updated guess marker">
+<span></span>
+</div>
 </div>
 </div>
 <div class="kalman-live-math" aria-live="polite">
@@ -767,22 +780,38 @@ Reset
 </div>
 <p><span class="truth-readout">True position: <strong data-role="truth">6.00 m</strong> &nbsp; Speed: <strong data-role="truth-speed">0.00 m/s</strong></span></p>
 </div>
+<div class="belief-display fusion-belief-display">
+<div class="belief-key" aria-label="Live position values">
+<div class="belief-key-row prior-key">
+<i></i><strong>Motion guess</strong><small data-role="prior-value">6.00 m</small><em data-overflow-for="prior-marker"></em>
+</div>
+<div class="belief-key-row estimate-key">
+<i></i><strong>Combined guess</strong><small data-role="estimate-value">6.00 m</small><em data-overflow-for="estimate-marker"></em>
+</div>
+<div class="belief-key-row front-key">
+<i></i><strong>Front sensor</strong><small data-role="front-position">6.00 m</small><em data-overflow-for="front-marker"></em>
+</div>
+<div class="belief-key-row rear-key">
+<i></i><strong>Rear sensor</strong><small data-role="rear-position">6.00 m</small><em data-overflow-for="rear-marker"></em>
+</div>
+</div>
 <div class="belief-panel fusion-belief-panel">
 <span class="panel-title">Machine understanding — convert both distances into position</span>
 <div class="belief-track">
 
 </div>
-<div class="belief-marker prior-marker" data-role="prior-marker">
-<span></span><strong>Motion guess</strong><small data-role="prior-value">6.00 m</small>
+<div class="belief-marker prior-marker" data-role="prior-marker" aria-label="Motion guess marker">
+<span></span>
 </div>
-<div class="belief-marker front-marker" data-role="front-marker">
-<span></span><strong>Front sensor</strong><small data-role="front-position">6.00 m</small>
+<div class="belief-marker front-marker" data-role="front-marker" aria-label="Front sensor marker">
+<span></span>
 </div>
-<div class="belief-marker rear-marker" data-role="rear-marker">
-<span></span><strong>Rear sensor</strong><small data-role="rear-position">6.00 m</small>
+<div class="belief-marker rear-marker" data-role="rear-marker" aria-label="Rear sensor marker">
+<span></span>
 </div>
-<div class="belief-marker estimate-marker" data-role="estimate-marker">
-<span></span><strong>Combined guess</strong><small data-role="estimate-value">6.00 m</small>
+<div class="belief-marker estimate-marker" data-role="estimate-marker" aria-label="Combined guess marker">
+<span></span>
+</div>
 </div>
 </div>
 <div class="kalman-live-math fusion-live-math" aria-live="polite">
@@ -838,6 +867,19 @@ Motion fills the gaps; sensors keep the prediction connected to reality.
 <div class="highlight-box">
 <p>A Kalman filter does not claim to know the exact truth. It keeps a <strong>best guess plus an honest measure of confidence</strong>, then improves both whenever new evidence arrives.</p>
 </div>
+</section>
+<section id="from-a-straight-track-to-a-top-down-map" class="slide level2 center dimension-slide">
+<h2>From a straight track to a top-down map</h2>
+<p>The cart moved along a line, so <strong>one number</strong> told us where it was: for example, 6 m along the track.</p>
+<div class="dimension-bridge" aria-label="One-dimensional track position becomes a two-dimensional floor position with direction">
+<div>
+<strong>On a track</strong><span class="dimension-track"><i></i></span><small>position = distance along the line</small>
+</div>
+<div>
+<strong>On a floor</strong><span class="dimension-floor"><i></i></span><small>position = left/right + forward/back</small>
+</div>
+</div>
+<p>A robot can also turn. The next view looks <strong>down from above</strong> so we can see its position and which way it faces. The same guess → sensor → update loop still applies.</p>
 </section>
 <section id="tank-localization" class="slide level2 compact-slide">
 <h2>Where Does the Robot Think It Is?</h2>
@@ -1309,7 +1351,10 @@ Motion fills the gaps; sensors keep the prediction connected to reality.
 
           const renderPosition = (role, value) => {
             get(role).style.left = position(value);
-            get(role).dataset.overflow = value < 0 ? "← beyond track" : value > 10 ? "beyond track →" : "";
+            const overflow = value < 0 ? "← beyond track" : value > 10 ? "beyond track →" : "";
+            get(role).dataset.overflow = overflow;
+            const keyOverflow = demo.querySelector(`[data-overflow-for="${role}"]`);
+            if (keyOverflow) keyOverflow.textContent = overflow;
           };
 
           const tick = () => {
@@ -1457,7 +1502,10 @@ Motion fills the gaps; sensors keep the prediction connected to reality.
           const position = (value) => `${8 + clamp(value, 0, 10) * 8.7}%`;
           const renderPosition = (role, value) => {
             get(role).style.left = position(value);
-            get(role).dataset.overflow = value < 0 ? "← beyond track" : value > 10 ? "beyond track →" : "";
+            const overflow = value < 0 ? "← beyond track" : value > 10 ? "beyond track →" : "";
+            get(role).dataset.overflow = overflow;
+            const keyOverflow = demo.querySelector(`[data-overflow-for="${role}"]`);
+            if (keyOverflow) keyOverflow.textContent = overflow;
           };
 
           const tick = () => {
