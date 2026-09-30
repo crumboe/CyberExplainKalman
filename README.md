@@ -1,4 +1,4 @@
-# Probability, Bayes, and Kalman Filter
+# How Machines Make Better Guesses
 
 An interactive Quarto/Reveal.js presentation about reasoning under uncertainty.
 

@@ -1,6 +1,6 @@
 ---
-title: "Probability, Bayes, and Kalman Filter"
-subtitle: "Finding Truth in a Noisy World"
+title: "How Machines Make Better Guesses"
+subtitle: "From a hidden bag to a moving robot"
 author: "Christopher Reckner"
 lang: en
 format:
@@ -29,696 +29,333 @@ format:
     include-after-body: disable-mobile-scroll.html
 ---
 
-## Agenda {.center}
+## The cart has two answers {.center .cart-hook}
 
-### Timing Summary
+**Motion predicts 4 meters.** A sensor reads **7 meters**.
 
-| Time | Section | Duration |
-|------|---------|----------|
-| 0:00 – 0:05 | Introduction | 5 min |
-| 0:05 – 0:35 | Part I: Logic of Maybe | 30 min |
-| 0:35 – 0:55 | Part II: Bayes Activity | 20 min |
-| 0:55 – 1:05 | BREAK | 10 min |
-| 1:05 – 1:30 | Part III: Gaussians | 25 min |
-| 1:30 – 1:55 | Part IV: Kalman | 25 min |
-| 1:55 – 2:00 | Conclusion | 5 min |
+Where should a moving cart think it is **right now**?
 
-<!-- Slide 2: Introduction - The Hidden State -->
-## Introduction: The Hidden State {.left auto-animate="true"}
+<div class="cart-choice" role="img" aria-label="Motion guess at 4 meters and sensor reading at 7 meters on a track; the answer is still open."><span>4 m<br><small>motion</small></span><span class="cart-choice-question">Your guess?</span><span>7 m<br><small>sensor</small></span></div>
 
-::: {.columns}
+**Pick a position between them.** We will return to your answer.
 
-::: {.column width="50%"}
+## Try It — Guess the Hidden Bag {#interactive-bayes .compact-slide}
 
-::: {.fragment  .fade-in}
-### Error is inescapable 
-What is 5 cm truely? Can we ever measure a perfect 5cm?
-:::
-::: {.fragment  .fade-in}
-### Yes and No
-* To a drill press : 5cm => 5cm +- .5cm
-* To a mill : 5cm => 5cm +- .005cm
-* To an ASML Photolithography Machine: 5cm => 5cm +- 0.000002cm
-:::
-
-:::
-
-::: {.column width="50%"}
-::: {style="height: 5em;"}
-:::
-::: {.fragment .goal-box .fade-up}
-### Today's Goal
-The Mathmatics of finding truth through Error, and incorporating new data as Evidence rather than truth. 
-Since by definition we cannot measure the error of any particular measurment, We use probability to model the likelyhood of sensing a true value
-:::
-::: {style="height: 2em;"}
-:::
-:::
-
-:::
-
-
-
-## Boolean vs. Probabilistic Logic {.compact-slide}
-:::{.columns}
-:::{.column width="50%"}
-:::{.fragment}
-### Boolean Logic
-
-```python
-# Boolean logic example
-# if (Shooter_will_make_the_shot == True):
-#     shoot
-```
-
-
-:::
-:::{.fragment}
-### Probabilistic Logic
-
-```python
-# Probability logic example
-# if (Probability_we_make_the_shot >= 80%)
-#     shoot
-```
-
-:::
-
-:::
-:::{.column width="50%"}
-:::{.fragment}
-### Key difference:
-Combining evidence with trust levels enables better decisions.
-
-* Boolean: Instantaneous sensor read → immediate judgment
-
-* Probabilistic: Averages sensor noise, reduces false positives/negatives
-
-:::
-:::{.fragment}
-### Caveat:
-There are alternative filtering approaches that don't rely on probability:
-
-- Rolling average on distance sensors
-- Debounce period on limit switches  
-- Moving median filters
-- Exponential smoothing
-- These can work very well depending on implementation and use case
-:::
-:::
-::::
-
-## Understanding Set Space {auto-animate=true data-autoslide="0"}
-:::{.fragment}
-- We want a number that represents how often something happens, or does not
-:::
-:::{.fragment}
-- If you know nothing about an event, you could assume it's a 50:50 chance, pass or fail, it will happen or it wont
-:::
-:::{.fragment}
-- With Evidence about the type of event (I.E. Rolling a 2 on a D6 Die) you can refine your guess, in this case to 1:6
-:::
-:::{.fragment}
-- You can also experiment to find probability. If given a weighted die, you could roll it many times to gather data, and hone in on the true likelyhood of any given face landing up. 
-:::
-
-<!-- Slide 3: Understanding Set Space (Part 1) -->
-## Let's Visualize Set Space {auto-animate=true data-autoslide="0"}
-
-
-:::{.fragment}
-For Example: We have ball shooter, and a scout finds that during competition we make our shot ~ 30 % of the time
-:::
-
-
-:::{.clearfragment}
-::: {.legacy-diagram}
-
-<div data-id="box" style="position: absolute; left: 100px; top: 100px; width: 1500px; height: 880px; border: 3px solid #42affa; border-radius: 10px;"></div>
-
-<div data-id="box-label" style="position: absolute; left: 700px; top: -20px;  color: #42affa; font-size: 50px;">All Possible States: Balls Shot -- Our Set/Universe</div>
-
-<div data-id="circle1" style="position: absolute; left: 200px; top: 200px; width: 700px; height: 700px; background: rgba(255, 100, 100, 0.3); border: 3px solid #ff6464; border-radius: 50%;"></div>
-
-<div data-id="label1" style="position: absolute; left: 900px; top: 250px; color: rgba(255, 100, 100, 1); font-size: 50px;">Target Hit -- Our Event. The fraction of balls shot which made it to the target</div>
-
-:::
-:::
-
-<!-- Slide 4: Understanding Set Space (Part 2) -->
-## Understanding Set Space {.dense-diagram auto-animate=true data-autoslide="0"}
-
-- The scout also notices that our shooter was broken for some part of the competition, and also collects that data. Suprisingly, we still made a few shots despite the mechanical failure. 
-- Our set representation below uses area to show how often each event occured for all the shots we fired during
-
-::: {.legacy-diagram}
-
-<div data-id="box" style="position: absolute; left: 100px; top: 100px; width: 1500px; height: 880px; border: 3px solid #42affa; border-radius: 10px;"></div>
-
-<div data-id="box-label" style="position: absolute; left: 700px; top: 40px;  color: #42affa; font-size: 50px;">All Possible States: Balls Shot</div>
-
-<div data-id="circle1" style="position: absolute; left: 200px; top: 200px; width: 700px; height: 700px; background: rgba(255, 100, 100, 0.3); border: 3px solid #ff6464; border-radius: 50%;"></div>
-
-<div data-id="label1" style="position: absolute; left: 100px; top: 100px; color: white; font-size: 40px; ">$$P(\text{Target Hit})$$</div>
-
-<div data-id="circle2" style="position: absolute; left: 850px; top:350px; width: 240px; height: 240px; background: rgba(100, 255, 100, 0.3); border: 3px solid #64ff64; border-radius: 50%;"></div>
-
-<div data-id="label2" style="position: absolute;left: 900px; top: 200px; color: white; font-size: 30px; ">$$P(\text{Shooter Was Broken})$$</div>
-
-:::
-
-<!-- Slide 5: Understanding Set Space (Part 3 - AND) -->
-## What Can we Identify in our Set? {auto-animate=true data-autoslide="0"}
-:::{.fragment}
-### Target Hit AND Shooter Was Broken
-:::
-::: {.legacy-diagram}
-
-<div data-id="box" style="position: absolute; left: 100px; top: 100px; width: 1500px; height: 880px; border: 3px solid #42affa; border-radius: 10px;"></div>
-
-<div data-id="box-label" style="position: absolute; left: 700px; top: 40px; color: #42affa; font-size: 50px;">All Possible States: Balls Shot</div>
-
-<!-- Container for blend mode effect -->
-<div style="position: absolute; left: 0; top: 0; width: 1500px; height: 880px; isolation: isolate;">
-  <!-- Circle 1 - darker with blend mode -->
-  <div data-id="circle1" style="position: absolute; left: 200px; top: 200px; width: 700px; height: 700px; background: rgba(134, 134, 134, 1); border: 0px solid #ff6464; border-radius: 50%; mix-blend-mode: overlay;"></div>
-  
-  <!-- Circle 2 - darker with blend mode -->
-  <div data-id="circle2" style="position: absolute; left: 850px; top: 350px; width: 240px; height: 240px; background: rgba(146, 146, 146, 1); border: 0px solid #64ff64; border-radius: 50%; mix-blend-mode: plus-lighter;"></div>
-
-</div>
-
-<div data-id="label1" style="position: absolute; left: 100px; top: 100px; color: white; font-size: 40px; ">$$P(\text{Target Hit})$$</div>
-
-<div data-id="label2" style="position: absolute;left: 900px; top: 200px; color: white; font-size: 30px;">$$P(\text{Shooter Was Broken})$$</div>
-:::{.clearfragment}
-<div style="position: absolute; left: 950px; top: 800px; color: #64ff64; font-size: 30px; font-weight: bold; text-shadow: 2px 2px 4px black;">$$P(\text{Target Hit} \cap \text{Shooter Broken})$$</div>
-:::
-:::
-
-<!-- Slide 6: Understanding Set Space (Part 4 - OR) -->
-## What Can we Identify in our Set? {auto-animate=true data-autoslide="0"}
-:::{.fragment}
-### Target Hit OR Shooter Was Broken
-:::
-
-::: {.legacy-diagram}
-
-<div data-id="box" style="position: absolute; left: 100px; top: 100px; width: 1500px; height: 880px; border: 3px solid #42affa; border-radius: 10px;"></div>
-
-<div data-id="box-label" style="position: absolute; left: 700px; top: 40px; color: #42affa; font-size: 50px;">All Possible States: Balls Shot</div>
-
-<!-- Container for blend mode effect -->
-<div style="position: absolute; left: 0; top: 0; width: 1500px; height: 880px; isolation: isolate;">
-  <!-- Circle 1 - darker with blend mode -->
-  <div data-id="circle1" style="position: absolute; left: 200px; top: 200px; width: 700px; height: 700px; background: rgba(255, 255, 255, 1); border: 0px solid #ff6464; border-radius: 50%; mix-blend-mode: normal;"></div>
-  
-  <!-- Circle 2 - darker with blend mode -->
-  <div data-id="circle2" style="position: absolute; left: 850px; top: 350px; width: 240px; height: 240px; background: rgba(255, 255, 255, 1); border: 0px solid #64ff64; border-radius: 50%; mix-blend-mode: normal;"></div>
-
-</div>
-
-<div data-id="label1" style="position: absolute; left: 100px; top: 100px; color: white; font-size: 40px; ">$$P(\text{Target Hit})$$</div>
-
-<div data-id="label2" style="position: absolute; left: 900px; top: 200px; color: white; font-size: 30px;">$$P(\text{Shooter Was Broken})$$</div>
-:::{.clearfragment}
-<div style="position: absolute; left: 950px; top: 650px; color: #64ff64; font-size: 30px; font-weight: bold; text-shadow: 2px 2px 4px black;">$$P(\text{Target Hit} \cup \text{Shooter Broken})$$</div>
-:::
-:::
-
-<!-- Slide 7: Understanding Set Space (Part 5 - NEITHER) -->
-## What Can we Identify in our Set? {auto-animate=true data-autoslide="0"}
-:::{.fragment}
-### Neither Target Hit NOR Shooter Was Broken
-:::
-
-::: {.legacy-diagram}
-
-<div data-id="box" style="position: absolute; left: 100px; top: 100px; width: 1500px; height: 880px; border: 3px solid #42affa; border-radius: 10px;"></div>
-
-<div data-id="box-label" style="position: absolute; left: 700px; top: 40px; color: #42affa; font-size: 50px;">All Possible States: Balls Shot</div>
-
-<!-- Container for blend mode effect -->
-<div style="position: absolute; left: 0; top: 0; width: 1500px; height: 880px; isolation: isolate;">
-  <div data-id="boxneith" style="position: absolute; left: 100px; top: 100px; width: 1500px; height: 880px; border: 0px solid #42affa; background: rgba(255, 255, 255, .9); border-radius: 10px;mix-blend-mode: normal;"></div>
-
-  <!-- Circle 1 - gray/dimmed -->
-  <div data-id="circle1" style="position: absolute; left: 200px; top: 200px; width: 700px; height: 700px; background: rgba(0, 0, 0, 1); border: 0px solid #666666; border-radius: 50%; "></div>
-  
-  <!-- Circle 2 - gray/dimmed -->
-  <div data-id="circle2" style="position: absolute; left: 850px; top: 350px; width: 240px; height: 240px; background: rgba(0, 0, 0, 1); border: 0px solid #666666; border-radius: 50%;"></div>
-
-
-</div>
-
-<div data-id="label1" style="position: absolute; left: 100px; top: 100px; color: black; font-size: 40px; ">$$P(\text{Target Hit})$$</div>
-
-<div data-id="label2" style="position: absolute; left: 900px; top: 200px; color: black; font-size: 30px;">$$P(\text{Shooter Was Broken})$$</div>
-:::{.clearfragment}
-<div style="position: absolute; left: 950px; top: 720px; color: #051e2eff; font-size: 30px; font-weight: bold; text-shadow: 2px 2px 4px black;">$$P(\overline{\text{Target Hit}} \cap \overline{\text{Shooter Broken}})$$</div>
-:::
-
-:::
-<!-- Slide 4: Understanding Set Space (Given -->
-## What Can we Identify in our Set? {auto-animate=true data-autoslide="0"}
-:::{.fragment}
-### Probability of Hitting The shot GIVEN the evidence the Shooter is broken
-:::
-We need to change our frame of reference
-
-::: {.legacy-diagram}
-
-<div data-id="box" style="position: absolute; left: 100px; top: 100px; width: 1500px; height: 880px; border: 3px solid #42affa; border-radius: 10px;"></div>
-
-<div data-id="box-label" style="position: absolute; left: 700px; top: 40px;  color: #42affa; font-size: 50px;">All Possible States: Balls Shot</div>
-
-<div data-id="circle1" style="position: absolute; left: 200px; top: 200px; width: 700px; height: 700px; background: rgba(255, 100, 100, 0.3); border: 3px solid #ff6464; border-radius: 50%;"></div>
-
-<div data-id="label1" style="position: absolute; left: 100px; top: 100px; color: white; font-size: 40px; ">$$P(\text{Target Hit})$$</div>
-
-<div data-id="circle2" style="position: absolute; left: 850px; top:350px; width: 240px; height: 240px; background: rgba(100, 255, 100, 0.3); border: 3px solid #64ff64; border-radius: 50%;"></div>
-
-<div data-id="label2" style="position: absolute;left: 900px; top: 200px; color: white; font-size: 30px;">$$P(\text{Shooter Was Broken})$$</div>
-
-:::
-
-
-
-<!-- Slide 5: Understanding Set Space (Part 3 - AND) -->
-## Understanding Set Space {auto-animate=true data-autoslide="0"}
-### Probability of Hitting The shot GIVEN the evidence the Shooter is broken
-By setting our Evidence to true, we shrink the universe of posibility to the subset of P(Shooter Was Broken). 
-
-::: {.legacy-diagram}
-
-<div data-id="circle2" style="position: absolute; left: 310px; top: 20px; width: 880px; height: 880px; background: rgba(100, 255, 100, 0.22); border: 4px solid #64ff64; border-radius: 50%;"></div>
-
-<div data-id="circle1" style="position: absolute; left: 200px; top: 200px; width: 700px; height: 700px; background: rgba(255, 100, 100, 0.30); border: 4px solid #ff6464; border-radius: 50%;"></div>
-
-<div data-id="label1" style="position: absolute; left: 335px; top: 500px; width: 390px; color: white; font-size: 34px; text-align: center;">$$P(\text{Target Hit} \cap \text{Shooter Broken})$$</div>
-
-<div data-id="label2" style="position: absolute; left: 760px; top: 70px; color: white; font-size: 34px;">$$P(\text{Shooter Was Broken})$$</div>
-
-:::
-
-<!-- Slide 5: Understanding Set Space (Part 3 - AND) -->
-## Understanding Set Space {auto-animate=true data-autoslide="0"}
-### Probability of Hitting The shot GIVEN the evidence the Shooter is broken
-Lets define ratios in terms of prior Set "All Possible States: Balls Shot"
-
-::: {.legacy-diagram}
-
-<div data-id="circle2" style="position: absolute; left: 310px; top: 20px; width: 880px; height: 880px; background: rgba(100, 255, 100, 0.22); border: 4px solid #64ff64; border-radius: 50%;"></div>
-
-<div data-id="circle1" style="position: absolute; left: 200px; top: 200px; width: 700px; height: 700px; background: rgba(255, 100, 100, 0.30); border: 4px solid #ff6464; border-radius: 50%;"></div>
-
-<div data-id="label1" style="position: absolute; left: 335px; top: 500px; width: 390px; color: white; font-size: 34px; text-align: center;">$$P(\text{Target Hit} \cap \text{Shooter Broken})$$</div>
-
-<div data-id="label2" style="position: absolute; left: 760px; top: 70px; color: white; font-size: 34px;">$$P(\text{Shooter Was Broken})$$</div>
-
-
-
-
-:::
-
-
-<!-- Slide 5: Understanding Set Space (Part 3 - AND) -->
-## Understanding Set Space {auto-animate=true data-autoslide="0"}
-### Probability of Hitting The shot GIVEN the evidence the Shooter is broken
-So what is P(Target Hit | Shooter was broken)?
-
-::: {.legacy-diagram}
-
-<div data-id="circle2" style="position: absolute; left: 310px; top: 20px; width: 880px; height: 880px; background: rgba(100, 255, 100, 0.22); border: 4px solid #64ff64; border-radius: 50%;"></div>
-
-<div data-id="circle1" style="position: absolute; left: 200px; top: 200px; width: 700px; height: 700px; background: rgba(255, 100, 100, 0.30); border: 4px solid #ff6464; border-radius: 50%;"></div>
-
-<div data-id="label1" style="position: absolute; left: 335px; top: 500px; width: 390px; color: white; font-size: 34px; text-align: center;">$$P(\text{Target Hit} \cap \text{Shooter Broken})$$</div>
-<!-- <div data-id="label1prob" style="position: absolute; left: 150px; top: 550px; color: white; font-size: 50px;">P(Target Hit AND Shooter Was Broken)</div> -->
-
-<div data-id="label2" style="position: absolute; left: 760px; top: 70px; color: white; font-size: 34px;">$$P(\text{Shooter Was Broken})$$</div>
-
-
-
-<div data-id="eq" style="position: absolute;left: 150px; top: 750px; color: white; font-size: 30px; text-align: center;">
-$$P(\text{Target Hit} \mid \text{Shooter Broken}) = \frac{P(\text{Target Hit} \cap \text{Shooter Broken})}{P(\text{Shooter Broken})}$$
-</div>
-
-:::
-<!-- Slide 5: Understanding Set Space (Part 3 - AND) -->
-## Understanding Set Space {auto-animate=true data-autoslide="0"}
-### Bayes Theorem
-
-::: {.legacy-diagram}
-
-
-<div data-id="eq" style="position: absolute;left: 50px; top: 200px; color: white; font-size: 30px; text-align: center; width: 95%;">
-$$P(\text{Target Hit} \mid \text{Shooter Broken}) = \frac{P(\text{Target Hit} \cap \text{Shooter Broken})}{P(\text{Shooter Broken})}$$
-</div>
-<div data-id="eq2" style="position: absolute;left: 50px; top: 350px; color: white; font-size: 30px; text-align: center; width: 95%;">
-$$P(\text{Shooter Broken}) = \frac{P(\text{Target Hit} \cap \text{Shooter Broken})}{P(\text{Target Hit} \mid \text{Shooter Broken})}$$
-</div>
-<div data-id="eq3" style="position: absolute;left: 50px; top: 500px; color: white; font-size: 30px; text-align: center; width: 95%;">
-$$P(\text{Target Hit} \cap \text{Shooter Broken}) = P(\text{Shooter Broken}) \times P(\text{Target Hit} \mid \text{Shooter Broken})$$
-</div>
-
-:::
-<!-- Slide 5: Understanding Set Space (Part 3 - AND) -->
-## Understanding Set Space {auto-animate=true data-autoslide="0"}
-### Bayes Theorem -- Generally
-
-::: {.legacy-diagram}
-
-
-<div data-id="eq" style="position: absolute;left: 50px; top: 200px; color: white; font-size: 30px; text-align: center; width: 95%;">
-$$P(\text{Event} \mid \text{Evidence}) = \frac{P(\text{Event} \cap \text{Evidence})}{P(\text{Evidence})}$$
-</div>
-<div data-id="eq2" style="position: absolute;left: 50px; top: 350px; color: white; font-size: 30px; text-align: center; width: 95%;">
-$$P(\text{Evidence}) = \frac{P(\text{Event} \cap \text{Evidence})}{P(\text{Event} \mid \text{Evidence})}$$
-</div>
-<div data-id="eq3" style="position: absolute;left: 50px; top: 500px; color: white; font-size: 30px; text-align: center; width: 95%;">
-$$P(\text{Event} \cap \text{Evidence}) = P(\text{Evidence}) \times P(\text{Event} \mid \text{Evidence})$$
-</div>
-
-:::
-<!-- Slide 5: Understanding Set Space (Part 3 - AND) -->
-## Understanding Set Space {.dense-diagram auto-animate=true data-autoslide="0"}
-### Bayes Theorem -- Generally
-For events that are dependent, finding The intersection (AND) can be difficult. So Bayes tells us =>
-
-::: {.legacy-diagram}
-
-
-
-<div data-id="eq3" style="position: absolute;left: 50px; top: 100px; color: white; font-size: 30px; text-align: center; width: 95%;">
-$$P(\text{Evidence} \cap \text{Event}) = P(\text{Event}) \times P(\text{Evidence} \mid \text{Event})$$
-</div>
-<div data-id="eqtext" style="position: absolute;left: 50px; top: 300px; color: white; font-size: 60px; text-align: center; width: 95%;">
-So we substitute and rewrite the our original equation as:
-</div>
-
-<div data-id="eq4" style="position: absolute;left: 50px; top: 500px; color: white; font-size: 30px; text-align: center; width: 95%;">
-$$P(\text{Event} \mid \text{Evidence}) = \frac{P(\text{Event}) \times P(\text{Evidence} \mid \text{Event})}{P(\text{Evidence})}$$
-</div>
-
-
-:::
-
-<!-- Slide 5: Understanding Set Space (Part 3 - AND) -->
-## Understanding Set Space {.compact-slide auto-animate=true data-autoslide="0"}
-### Bayes Theorem — Evidence Accumulates
-
-For dependent events, Bayes gives us a practical way to update a belief with new evidence:
-
-$$
-P(\text{Event} \mid \text{Evidence})
-=
-\frac{P(\text{Event})\,P(\text{Evidence} \mid \text{Event})}{P(\text{Evidence})}
-$$
-
-::: {.evidence-flow}
-
-::: {.evidence-card}
-**1. Start with a prior**
-Our confidence before the new observation.
-:::
-
-::: {.evidence-card}
-**2. Evaluate the evidence**
-Ask how likely this observation is under the event.
-:::
-
-::: {.evidence-card}
-**3. Calculate the posterior**
-The updated confidence after incorporating the evidence.
-:::
-
-::: {.evidence-card}
-**4. Repeat**
-Use the posterior as the prior for the next observation.
-:::
-
-:::
-
-::: {.highlight-box}
-Reliable evidence strengthens confidence; contradictory evidence weakens it. Repeating the loop produces increasingly informed beliefs.
-:::
-
-## Activity — Diagnose the Hidden Motor {#activity-setup .compact-slide}
-
-### The question
-
-One box was chosen and stays hidden. Each bead is a new test result. **Which motor is more likely?**
-
-::: {.activity-grid}
-::: {.activity-card .good-motor}
-**Hypothesis A — motor is good**
-
-**90% green** · **10% red**
-
-A red result is unusual when the motor is healthy.
-:::
-
-::: {.activity-card .bad-motor}
-**Hypothesis B — motor is broken**
-
-**50% green** · **50% red**
-
-A red result is five times more likely when it is broken.
-:::
-:::
-
-::: {.prior-strip}
-<span><strong>Starting prior:</strong> no preference yet</span>
-<span class="prior-value good">Good 50%</span>
-<span class="prior-value bad">Broken 50%</span>
-:::
-
-::: {.presenter-prompt}
-**Ask the room:** If the first test is red, which hypothesis should gain confidence—and why?
-:::
-
-## Test 1 — A Red Result {#activity-test-one .compact-slide}
-
-### Step 1: weight each hypothesis by how well it predicts red
-
-::: {.bayes-weights}
-::: {.weight-card}
-**Good motor**
-Prior × likelihood<br>
-$0.50 \times 0.10 = 0.05$
-:::
-
-::: {.weight-card .emphasis}
-**Broken motor**
-Prior × likelihood<br>
-$0.50 \times 0.50 = 0.25$
-:::
-:::
-
-### Step 2: normalize the two weights
-
-$$
-P(\text{Broken}\mid\text{Red})
-=\frac{0.25}{0.05+0.25}
-=\mathbf{83.3\%}
-$$
-
-<div class="belief-bar" role="img" aria-label="Posterior probability: good motor 16.7 percent, broken motor 83.3 percent.">
-  <span class="belief-good" style="width: 16.7%;">Good 16.7%</span><span class="belief-bad" style="width: 83.3%;">Broken 83.3%</span>
-</div>
-
-::: {.highlight-box}
-The **posterior is 83.3% broken**. That posterior becomes the prior for the next test.
-:::
-
-## Test Again — A Green Result {#activity-test-two .compact-slide}
-
-### Step 3: reuse the posterior as the new prior
-
-::: {.update-chain}
-<span>Previous posterior</span><strong>83.3% broken</strong><span class="flow-arrow">→</span><span>New prior</span><strong>83.3% broken</strong>
-:::
-
-### Step 4: apply the green likelihoods
-
-::: {.bayes-weights}
-::: {.weight-card}
-**Good motor**
-$0.167 \times 0.90 = 0.150$
-:::
-
-::: {.weight-card .emphasis}
-**Broken motor**
-$0.833 \times 0.50 = 0.417$
-:::
-:::
-
-$$
-P(\text{Broken}\mid\text{Red, Green})
-=\frac{0.417}{0.150+0.417}
-=\mathbf{73.5\%}
-$$
-
-<div class="belief-bar" role="img" aria-label="Updated probability: good motor 26.5 percent, broken motor 73.5 percent.">
-  <span class="belief-good" style="width: 26.5%;">Good 26.5%</span><span class="belief-bad" style="width: 73.5%;">Broken 73.5%</span>
-</div>
-
-::: {.presenter-prompt}
-Green is evidence for a good motor, so confidence in “broken” falls—but one green result does not erase the earlier red result.
-:::
-
-## Try It — Diagnose a Hidden Motor {#interactive-bayes .compact-slide}
+**Bag A:** 90% green. **Bag B:** 50% green. Start at 50/50. Before each draw, predict which bag a green ball would favor.
 
 <div class="interactive-bayes" data-bayes-demo>
 <div class="demo-toolbar">
-<button type="button" class="demo-button reset-button" data-action="reset">Reset and choose a hidden box</button>
+<button type="button" class="demo-button reset-button" data-action="reset">Choose a new hidden bag</button>
 <button type="button" class="demo-button draw-button" data-action="draw">Draw a ball</button>
-<button type="button" class="demo-button reveal-button" data-action="reveal">Reveal the box</button>
-<span class="hidden-box-status" data-role="box-status">A hidden box is ready.</span>
+<button type="button" class="demo-button reveal-button" data-action="reveal">Reveal the bag</button>
+<button type="button" class="demo-button" data-action="show-math" aria-expanded="false">Show the arithmetic</button>
+<span class="hidden-box-status" data-role="box-status">A hidden bag is ready.</span>
 </div>
 
 <div class="demo-summary">
 <div class="draw-result" data-role="draw-result">
 <span class="result-ball neutral"></span>
-<span><strong>No draws yet</strong><small>Press “Draw a ball” to collect evidence.</small></span>
+<span><strong>No draws yet</strong><small>Draw a ball to get a clue.</small></span>
 </div>
 <div class="draw-history-wrap">
-<strong>Evidence so far</strong>
+<strong>Balls drawn so far</strong>
 <div class="draw-history" data-role="history"><span class="empty-history">None yet</span></div>
 </div>
 </div>
 
-<div class="live-math" aria-live="polite">
+<div class="live-math" data-role="math" aria-live="polite" hidden>
 <div class="math-stage">
-<span class="stage-label">1. Prior</span>
-<strong>Broken <span data-role="prior-b">50.0%</span></strong>
-<small>Good <span data-role="prior-a">50.0%</span></small>
+<span class="stage-label">1. Starting guess</span>
+<strong>Bag B <span data-role="prior-b">50.0%</span></strong>
+<small>Bag A <span data-role="prior-a">50.0%</span></small>
 </div>
 <div class="math-operator">×</div>
 <div class="math-stage">
-<span class="stage-label">2. Likelihood</span>
-<strong>P(<span data-role="color-one">result</span> | Broken) = <span data-role="like-b">—</span></strong>
-<small>P(<span data-role="color-two">result</span> | Good) = <span data-role="like-a">—</span></small>
+<span class="stage-label">2. Chance of this color</span>
+<strong>P(<span data-role="color-one">result</span> | Bag B) = <span data-role="like-b">—</span></strong>
+<small>P(<span data-role="color-two">result</span> | Bag A) = <span data-role="like-a">—</span></small>
 </div>
 <div class="math-operator">→</div>
 <div class="math-stage">
-<span class="stage-label">3. Weighted evidence</span>
-<strong>Broken: <span data-role="weight-b">—</span></strong>
-<small>Good: <span data-role="weight-a">—</span></small>
+<span class="stage-label">3. Scores</span>
+<strong>Bag B: <span data-role="weight-b">—</span></strong>
+<small>Bag A: <span data-role="weight-a">—</span></small>
 </div>
 <div class="math-operator">→</div>
 <div class="math-stage result-stage">
-<span class="stage-label">4. New posterior</span>
-<strong>Broken <span data-role="posterior-b">50.0%</span></strong>
-<small>Becomes the next prior</small>
+<span class="stage-label">4. Updated guess</span>
+<strong>Bag B <span data-role="posterior-b">50.0%</span></strong>
+<small>Starts the next draw</small>
 </div>
 </div>
 
-<div class="belief-bar interactive-belief" role="img" data-role="belief-bar" aria-label="Current belief: good motor 50 percent, broken motor 50 percent.">
-<span class="belief-good" data-role="bar-a" style="width: 50%;">Good 50.0%</span><span class="belief-bad" data-role="bar-b" style="width: 50%;">Broken 50.0%</span>
+<div class="belief-bar interactive-belief" role="img" data-role="belief-bar" aria-label="Current guess: Bag A 50 percent, Bag B 50 percent.">
+<span class="belief-good" data-role="bar-a" style="width: 50%;">Bag A 50.0%</span><span class="belief-bad" data-role="bar-b" style="width: 50%;">Bag B 50.0%</span>
 </div>
 
-<div class="demo-explanation" data-role="explanation">Every draw uses the current posterior as the next prior. Draw repeatedly and watch the estimate respond.</div>
+<div class="demo-explanation" data-role="explanation">Each new ball changes our guess. Draw again to see how the guess responds.</div>
 </div>
 
-## Repeat — Each Test Refines the Estimate {#activity-repeat .compact-slide}
+## Probability starts with a count
 
-### Example sequence from the same hidden box: Red → Green → Red → Green
+Suppose a student tries **100 practice questions** and answers **77** correctly. These are example numbers for the lesson.
 
-| Test | Observation | Prior: broken | Updated belief: broken | Interpretation |
-|:--|:--:|--:|--:|:--|
-| Start | — | — | **50.0%** | Both hypotheses are equally plausible |
-| 1 | Red | 50.0% | **83.3%** | Strong evidence for broken |
-| 2 | Green | 83.3% | **73.5%** | Evidence pulls back toward good |
-| 3 | Red | 73.5% | **93.3%** | Repeated red makes broken very likely |
-| 4 | Green | 93.3% | **88.5%** | Estimate adjusts, but remains confident |
+In the bag activity, a clue changed our guess. Here we will count a known group before changing the question.
 
-::: {.activity-loop}
-<strong>Prior</strong><span>×</span><strong>likelihood of new result</strong><span>→</span><strong>normalize</strong><span>→</span><strong>posterior</strong><span>↻ next test</span>
+$$P(\text{correct}) = \frac{\text{correct answers}}{\text{all questions}} = \frac{77}{100} = 0.77 = 77\%$$
+
+The denominator answers: **Which questions are we counting out of?** Here it is all 100 questions.
+
+## Add one more observation {.dense-diagram auto-animate=true data-autoslide="0"}
+
+Of the 100 questions, **20** were word problems. The student answered **10** of those correctly.
+
+The red and green circle areas match **77** and **20** questions. Their shared area matches the **10** correct word problems.
+
+::: {.legacy-diagram}
+
+
+
+<div data-id="circle1" style="position: absolute; left: 160.000px; top: 70.000px; width: 800.000px; height: 800.000px; background: rgba(255, 100, 100, 0.3); border: 3px solid #ff6464; border-radius: 50%;"></div>
+
+<div data-id="label1" style="position: absolute; left: 300px; top: 180px; color: white; font-size: 40px; ">77 correct answers</div>
+
+<div data-id="circle2" style="position: absolute; left: 738.283px; top: 266.141px; width: 407.718px; height: 407.718px; background: rgba(100, 255, 100, 0.3); border: 3px solid #64ff64; border-radius: 50%;"></div>
+
+<div data-id="label2" style="position: absolute;left: 900px; top: 200px; color: white; font-size: 30px; ">20 word problems</div>
+
 :::
 
-::: {.highlight-box}
-We never “start over.” We carry forward what we learned, then let each new observation correct the estimate. A Kalman filter performs this same cycle with position measurements.
+<!-- Slide 5: Understanding Set Space (Part 3 - AND) -->
+
+## “And” means the overlap {.dense-diagram auto-animate=true data-autoslide="0"}
+
+**10 questions** were word problems **and** were answered correctly.
+
+Out of all 100 questions, that overlap is **10/100 = 10%**.
+
+::: {.legacy-diagram}
+
+
+
+<!-- Container for blend mode effect -->
+<div style="position: absolute; left: 0; top: 0; width: 1500px; height: 880px; isolation: isolate;">
+  <!-- Circle 1 - darker with blend mode -->
+  <div data-id="circle1" style="position: absolute; left: 160.000px; top: 70.000px; width: 800.000px; height: 800.000px; background: rgba(134, 134, 134, 1); border: 0px solid #ff6464; border-radius: 50%; mix-blend-mode: overlay;"></div>
+  
+  <!-- Circle 2 - darker with blend mode -->
+  <div data-id="circle2" style="position: absolute; left: 738.283px; top: 266.141px; width: 407.718px; height: 407.718px; background: rgba(146, 146, 146, 1); border: 0px solid #64ff64; border-radius: 50%; mix-blend-mode: plus-lighter;"></div>
+
+</div>
+
+<div data-id="label1" style="position: absolute; left: 300px; top: 180px; color: white; font-size: 40px; ">77 correct answers</div>
+
+<div data-id="label2" style="position: absolute;left: 900px; top: 200px; color: white; font-size: 30px;">20 word problems</div>
+:::{.clearfragment}
+<div style="position: absolute; left: 765px; top: 470px; width: 210px; color: #64ff64; font-size: 27px; font-weight: bold; text-align: center; text-shadow: 2px 2px 4px black;">10 correct<br>word problems</div>
+:::
 :::
 
----
+<!-- Slide 6: Understanding Set Space (Part 4 - OR) -->
 
-## Let's Take a Break {.center}
+## “Or” includes either group {.dense-diagram auto-animate=true data-autoslide="0"}
 
-### When we return
+Count the 77 correct answers and the 20 word problems. The 10 overlapping questions appear in both counts, so subtract them once.
 
-We will turn the same **prior → evidence → posterior** loop into a better estimate of position.
+$$77 + 20 - 10 = 87\text{ questions}$$
 
----
+::: {.legacy-diagram}
 
-## Two Imperfect Beliefs {.gaussian-slide auto-animate=true auto-animate-easing="ease-in-out"}
+
+
+<!-- Container for blend mode effect -->
+<div style="position: absolute; left: 0; top: 0; width: 1500px; height: 880px; isolation: isolate;">
+  <!-- Circle 1 - darker with blend mode -->
+  <div data-id="circle1" style="position: absolute; left: 160.000px; top: 70.000px; width: 800.000px; height: 800.000px; background: rgba(255, 255, 255, 1); border: 0px solid #ff6464; border-radius: 50%; mix-blend-mode: normal;"></div>
+  
+  <!-- Circle 2 - darker with blend mode -->
+  <div data-id="circle2" style="position: absolute; left: 738.283px; top: 266.141px; width: 407.718px; height: 407.718px; background: rgba(255, 255, 255, 1); border: 0px solid #64ff64; border-radius: 50%; mix-blend-mode: normal;"></div>
+
+</div>
+
+<div data-id="label1" style="position: absolute; left: 300px; top: 180px; color: white; font-size: 40px; ">77 correct answers</div>
+
+<div data-id="label2" style="position: absolute; left: 900px; top: 200px; color: white; font-size: 30px;">20 word problems</div>
+:::{.clearfragment}
+<div style="position: absolute; left: 540px; top: 500px; width: 350px; color: #172333; font-size: 32px; font-weight: bold; text-align: center;">87 in either group</div>
+:::
+:::
+
+<!-- Slide 7: Understanding Set Space (Part 5 - NEITHER) -->
+
+## “Neither” is what remains {auto-animate=true data-autoslide="0"}
+
+We counted **87** questions that were correct, word problems, or both. The other **100 − 87 = 13** were neither.
+
+This bar uses the full set of 100 questions. Each section's width matches its count exactly.
+
+```{=html}
+<div class="question-count-strip" role="img" aria-label="Of 100 questions, 67 were correct non-word problems, 10 were correct word problems, 10 were incorrect word problems, and 13 were incorrect non-word problems.">
+  <span style="flex:0 0 67%; background:#b54858;">67</span><span style="flex:0 0 10%; background:#c39b45;">10</span><span style="flex:0 0 10%; background:#25845a;">10</span><span style="flex:0 0 13%; background:#516b84;">13</span>
+</div>
+<div class="question-count-key">
+  <span>67 correct, not word problems</span><span>10 correct word problems</span><span>10 incorrect word problems</span><span>13 neither</span>
+</div>
+```
+
+## Quick check: which group is on the bottom?
+
+We know a question **was a word problem**. We want the chance it was answered correctly.
+
+Should we count out of **100 questions**, **77 correct answers**, or **20 word problems**?
+
+::: {.fragment .fade-up}
+**20 word problems.** The known clue selects the group we count inside. Of those 20, 10 were correct.
+:::
+
+To restart the count at any point, first ask: **Which group are we looking inside?**
+
+## Focus on the 20 word problems {.dense-diagram auto-animate=true data-autoslide="0"}
+
+Both circles grow for a closer view. Their areas and shared region keep the same proportions.
+
+Of these **20** word problems, just **10** were answered correctly.
+
+::: {.legacy-diagram}
+
+<div data-id="circle2" style="position: absolute; left: 716.111px; top: 230.755px; width: 448.490px; height: 448.490px; background: rgba(100, 255, 100, 0.22); border: 4px solid #64ff64; border-radius: 50%;"></div>
+
+<div data-id="circle1" style="position: absolute; left: 80.000px; top: 15.000px; width: 880.000px; height: 880.000px; background: rgba(255, 100, 100, 0.30); border: 4px solid #ff6464; border-radius: 50%;"></div>
+
+<div data-id="label1" style="position: absolute; left: 762px; top: 500px; width: 195px; color: white; font-size: 28px; text-align: center;">10 correct<br>word problems</div>
+
+<div data-id="label2" style="position: absolute; left: 1080px; top: 70px; color: white; font-size: 34px;">20 word problems</div>
+
+:::
+
+<!-- Slide 5: Understanding Set Space (Part 3 - AND) -->
+
+## Turn that count into a probability {.dense-diagram auto-animate=true data-autoslide="0"}
+
+$$\frac{10\text{ correct word problems}}{20\text{ word problems}} = 0.50 = 50\%$$
+
+The bar **|** is read “given.” So $P(\text{correct} \mid \text{word problem})$ asks: “What fraction were correct **among the word problems**?”
+
+::: {.legacy-diagram}
+
+<div data-id="circle2" style="position: absolute; left: 716.111px; top: 230.755px; width: 448.490px; height: 448.490px; background: rgba(100, 255, 100, 0.22); border: 4px solid #64ff64; border-radius: 50%;"></div>
+
+<div data-id="circle1" style="position: absolute; left: 80.000px; top: 15.000px; width: 880.000px; height: 880.000px; background: rgba(255, 100, 100, 0.30); border: 4px solid #ff6464; border-radius: 50%;"></div>
+
+<div data-id="label1" style="position: absolute; left: 762px; top: 500px; width: 195px; color: white; font-size: 28px; text-align: center;">10 correct<br>word problems</div>
+
+<div data-id="label2" style="position: absolute; left: 1080px; top: 70px; color: white; font-size: 34px;">$$P(\text{Word Problem})$$</div>
+
+
+
+:::
+<!-- Slide 5: Understanding Set Space (Part 3 - AND) -->
+
+## The denominator follows the question {auto-animate=true data-autoslide="0"}
+
+For “correct **given word problem**,” we count out of the 20 word problems:
+
+$$P(\text{correct} \mid \text{word problem}) = \frac{\text{correct and word problem}}{\text{word problem}} = \frac{10}{20} = 50\%$$
+
+The word after **given** tells us which group goes on the bottom.
+
+## Reverse the question, change the answer {auto-animate=true data-autoslide="0"}
+
+Now ask: “Of the **77 correct answers**, how many were word problems?”
+
+$$P(\text{word problem} \mid \text{correct}) = \frac{\text{correct and word problem}}{\text{correct answers}} = \frac{10}{77} \approx 13.0\%$$
+
+The overlap is still **10**. The denominator changed from **20** to **77**.
+
+## Find the overlap another way {auto-animate=true data-autoslide="0"}
+
+Start with the fraction answered correctly, then ask what fraction of those correct answers were word problems:
+
+$$P(\text{correct and word problem}) = P(\text{correct}) \times P(\text{word problem} \mid \text{correct})$$
+
+$$\frac{77}{100} \times \frac{10}{77} = \frac{10}{100}$$
+
+The **77** cancels. We recover the same 10 overlapping questions out of 100.
+
+## Bayes' rule connects the two questions {.compact-slide auto-animate=true data-autoslide="0"}
+
+We wanted the chance of a correct answer **among word problems**. Use the overlap we just found:
+
+$$P(\text{correct} \mid \text{word problem}) = \frac{P(\text{correct})\,P(\text{word problem} \mid \text{correct})}{P(\text{word problem})}$$
+
+$$\frac{(77/100)(10/77)}{20/100} = \frac{10/100}{20/100} = \frac{10}{20} = 50\%$$
+
+Bayes' rule gives the same answer as counting directly. It is useful when we know the probabilities but cannot see every case in a table.
+
+## The short version so far {.center .rejoin-slide}
+
+**“And”** means the shared cases. Here, that is **10 questions**.
+
+**“Given”** tells us which group to count inside. For word problems, that is **20 questions**.
+
+**10 out of 20 = 50%.** The long formula reaches the same answer.
+
+Keep those three facts as we switch from questions to a moving cart.
+
+## Why would a cart need two guesses?
+
+Imagine a cart moving along a straight track. We want to know where it is now.
+
+1. **Guess from motion:** Using its last known position and speed, we predict the cart is near **4 meters now**. Its speed may have changed.
+2. **Guess from a sensor:** A sensor reports about **7 meters**. The sensor may be noisy.
+
+The two guesses disagree. **Which one should pull our final answer more?**
+
+## Two Guesses About One Location {.gaussian-slide auto-animate=true auto-animate-easing="ease-in-out"}
+
+The **green hump** is our motion guess; the **blue hump** is the new sensor reading. The highest point of each hump is its best guess.
+
+The green hump is wider, so it allows more possible locations. The blue hump is narrower, so we have more reason to trust it.
 
 <div class="gaussian-canvas" role="img" aria-label="A broad model prediction and a narrower sensor measurement shown as probability distributions.">
   <div class="probability-baseline"></div>
   <div data-id="model-curve" class="distribution model-distribution" style="left: 120px; width: 760px; height: 380px;"></div>
-  <div data-id="sensor-curve" class="distribution sensor-distribution" style="left: 900px; width: 420px; height: 520px; opacity: 1;"></div>
+  <div data-id="sensor-curve" class="distribution sensor-distribution" style="left: 890px; width: 440px; height: 520px; opacity: 1;"></div>
   <div data-id="model-mean" class="mean-line model-mean" style="left: 500px; height: 390px;"></div>
   <div data-id="sensor-mean" class="mean-line sensor-mean" style="left: 1110px; height: 530px;"></div>
-  <div data-id="model-label" class="curve-label" style="left: 300px;">Prior: model prediction</div>
-  <div data-id="sensor-label" class="curve-label" style="left: 990px;">Evidence: sensor reading</div>
+  <div data-id="model-label" class="curve-label" style="left: 300px;">Motion guess: about 4 m</div>
+  <div data-id="sensor-label" class="curve-label" style="left: 990px;">Sensor: about 7 m</div>
 </div>
 
 <div class="gaussian-legend">
-  <span><i class="legend-swatch model-swatch"></i> Wider curve = less confidence</span>
-  <span><i class="legend-swatch sensor-swatch"></i> Narrower curve = more confidence</span>
+  <span><i class="legend-swatch model-swatch"></i> Wider curve = less sure of the location</span>
+  <span><i class="legend-swatch sensor-swatch"></i> Narrower curve = more sure of the location</span>
 </div>
 
----
+## A first answer with ordinary algebra
 
-## Combine Two Imperfect Guesses {.gaussian-slide auto-animate=true auto-animate-easing="ease-in-out"}
+The motion guess is **4 m**. The sensor says **7 m**. The gap between them is **3 m**.
+
+For this example, let the steadier sensor pull us **three quarters of the way** across that gap:
+
+$$4 + 0.75(7-4) = 4 + 2.25 = 6.25\text{ m}$$
+
+The answer is between 4 and 7, and closer to 7. Later we will calculate the 0.75 from how much each source tends to vary.
+
+## Combine the Two Location Guesses {.gaussian-slide auto-animate=true auto-animate-easing="ease-in-out"}
+
+The calculation put our guess at **6.25 m**, between the two readings and closer to the steadier blue one.
+
+The white hump is narrower than either starting hump: using both clues rules out some locations.
 
 <div class="gaussian-canvas" role="img" aria-label="The model prediction moves toward the more precise sensor measurement and becomes a narrower posterior distribution.">
   <div class="probability-baseline"></div>
-  <div data-id="model-curve" class="distribution posterior-distribution" style="left: 710px; width: 500px; height: 570px;"></div>
-  <div data-id="sensor-curve" class="distribution sensor-distribution" style="left: 900px; width: 420px; height: 520px; opacity: 0.22;"></div>
+  <div data-id="model-curve" class="distribution posterior-distribution" style="left: 770px; width: 380px; height: 570px;"></div>
+  <div data-id="sensor-curve" class="distribution sensor-distribution" style="left: 890px; width: 440px; height: 520px; opacity: 0.22;"></div>
   <div data-id="model-mean" class="mean-line posterior-mean" style="left: 960px; height: 580px;"></div>
   <div data-id="sensor-mean" class="mean-line sensor-mean" style="left: 1110px; height: 530px; opacity: 0.22;"></div>
-  <div data-id="model-label" class="curve-label posterior-label" style="left: 790px;">Updated best guess</div>
-  <div data-id="sensor-label" class="curve-label muted-label" style="left: 1020px; opacity: 0.35;">New sensor reading</div>
+  <div data-id="model-label" class="curve-label posterior-label" style="left: 790px;">Updated guess: about 6.25 m</div>
 </div>
-
-::: {.highlight-box}
-The new best guess lands between the prediction and the sensor reading—but closer to whichever one is more dependable. The narrower shape means **we are now more confident**.
-:::
-
----
-
-## A Kalman Filter Is Bayes in Motion
-
-::: {.columns}
-
-::: {.column width="48%"}
-
-### Bayes asks one useful question
-
-> “Given my old guess and this new evidence, what is my better guess now?”
-
-::: {.plain-language-card}
-**Old guess** + **new evidence** → **updated guess**
-:::
-
-:::
-
-::: {.column width="52%"}
-
-### A Kalman filter asks it again and again
-
-- **Old guess:** where motion says the object should be.
-- **New evidence:** where a sensor says the object is.
-- **Updated guess:** the most believable location right now.
-- Then motion carries that answer forward to the next moment.
-
-:::
-
-:::
-
----
 
 ## The Four-Step Loop
 
@@ -749,10 +386,8 @@ The new best guess lands between the prediction and the sensor reading—but clo
 </div>
 
 ::: {.takeaway-line}
-**Predict where it is going. Check what the sensor saw. Blend them according to trust.**
+**Predict where the cart is. Read the sensor. Move the guess toward the more dependable reading.**
 :::
-
----
 
 ## Motion Fills the Gaps {.motion-gap-slide}
 
@@ -799,114 +434,6 @@ Sensors give us **snapshots**. The object keeps moving between those snapshots.
 **Motion carries the estimate forward. The next sensor reading pulls it back toward reality.**
 :::
 
----
-
-## Live Kalman Filter — Cart Near a Wall {#kalman-cart-demo .kalman-demo-slide .compact-slide}
-
-<div class="kalman-sim" data-kalman-demo>
-<div class="sim-controls">
-<div class="cart-buttons" aria-label="Command cart velocity">
-<button type="button" data-drive="-1" aria-label="Hold to drive cart left">← Hold left</button>
-<button type="button" data-drive="1" aria-label="Hold to drive cart right">Hold right →</button>
-<button type="button" data-action="reset">Reset</button>
-</div>
-<label>Commanded speed <output data-role="drive-speed-output">0.95 m/s</output><input data-role="drive-speed" type="range" min="0" max="3" step="0.05" value="0.95" aria-label="Commanded drive speed in meters per second"></label>
-<label>Kalman gain K <output data-role="gain-output">0.55</output><input data-role="gain" type="range" min="0" max="1" step="0.05" value="0.55"></label>
-<label>Drive uncertainty σ <output data-role="motion-output">0.20</output><input data-role="motion-noise" type="range" min="0" max="1.2" step="0.05" value="0.20"></label>
-<label>Sensor deviation σ <output data-role="sensor-output">0.35 m</output><input data-role="sensor-noise" type="range" min="0.05" max="1.5" step="0.05" value="0.35"></label>
-</div>
-
-<div class="world-panel">
-<span class="panel-title">Real world — hidden truth</span>
-<span class="physics-note">Hold to accelerate. Release to brake. Uncertainty adds acceleration error and wheel slip.</span>
-<div class="sim-wall"><span>Wall</span></div>
-<div class="sim-track"></div>
-<div class="real-cart" data-role="real-cart"><span class="sensor-face"></span><span class="cart-body">CART</span></div>
-<div class="ultrasonic-beam" data-role="beam"></div>
-<span class="truth-readout">True position: <strong data-role="truth">6.00 m</strong> &nbsp; Speed: <strong data-role="truth-speed">0.00 m/s</strong></span>
-</div>
-
-<div class="belief-panel">
-<span class="panel-title">Machine understanding — three competing locations</span>
-<div class="belief-track"></div>
-<div class="belief-marker prior-marker" data-role="prior-marker"><span></span><strong>Motion prior</strong><small data-role="prior-value">6.00 m</small></div>
-<div class="belief-marker measurement-marker" data-role="sensor-marker"><span></span><strong>Sensor</strong><small data-role="measurement-value">6.00 m</small></div>
-<div class="belief-marker estimate-marker" data-role="estimate-marker"><span></span><strong>Posterior</strong><small data-role="estimate-value">6.00 m</small></div>
-</div>
-
-<div class="kalman-live-math" aria-live="polite">
-<div><span>Bayes prior</span><strong>P(position)</strong><small>Motion predicts <b data-role="math-prior">6.00 m</b> at <b data-role="model-speed">0.00 m/s</b></small></div>
-<div><span>Sensor likelihood</span><strong>P(reading | position)</strong><small>Ultrasonic reads <b data-role="math-sensor">6.00 m</b></small></div>
-<div><span>New evidence</span><strong>reading − prior</strong><small>Innovation = <b data-role="innovation">0.00 m</b></small></div>
-<div><span>Bayes posterior</span><strong>prior + K × innovation</strong><small><b data-role="equation">6.00 + 0.55 × 0.00 = 6.00 m</b></small></div>
-</div>
-
-<div class="sim-footer">
-<span>Command <strong data-role="drive-status">STOP</strong></span>
-<span>Model speed <strong data-role="footer-model-speed">0.00 m/s</strong></span>
-<span>Prior uncertainty P⁻ ≈ <strong data-role="prior-variance">0.040 m²</strong></span>
-<span>Sensor variance R = <strong data-role="sensor-variance">0.123 m²</strong></span>
-<span>Posterior uncertainty P ≈ <strong data-role="posterior-variance">0.018 m²</strong></span>
-</div>
-</div>
-
----
-
-## Sensor Fusion — Two Views of the Same Cart {#kalman-sensor-fusion .kalman-demo-slide .compact-slide}
-
-<div class="kalman-sim fusion-sim" data-kalman-fusion-demo>
-<div class="sim-controls fusion-controls">
-<div class="cart-buttons" aria-label="Command cart velocity">
-<button type="button" data-drive="-1" aria-label="Hold to drive cart left">← Hold left</button>
-<button type="button" data-drive="1" aria-label="Hold to drive cart right">Hold right →</button>
-<button type="button" data-action="reset">Reset</button>
-</div>
-<label>Commanded speed <output data-role="drive-speed-output">0.95 m/s</output><input data-role="drive-speed" type="range" min="0" max="3" step="0.05" value="0.95" aria-label="Commanded drive speed in meters per second"></label>
-<label>Kalman gain K <output data-role="gain-output">0.55</output><input data-role="gain" type="range" min="0" max="1" step="0.05" value="0.55"></label>
-<label>Drive uncertainty σ <output data-role="motion-output">0.20</output><input data-role="motion-noise" type="range" min="0" max="1.2" step="0.05" value="0.20"></label>
-<label>Front sensor noise σ <output data-role="front-output">0.25 m</output><input data-role="front-noise" type="range" min="0.05" max="1.5" step="0.05" value="0.25"></label>
-<label>Rear sensor noise σ <output data-role="rear-output">0.65 m</output><input data-role="rear-noise" type="range" min="0.05" max="1.5" step="0.05" value="0.65"></label>
-</div>
-
-<div class="world-panel fusion-world">
-<span class="panel-title">Real world — two sensors, one hidden position</span>
-<span class="physics-note">Hold to accelerate. Release to brake. Uncertainty adds acceleration error and wheel slip.</span>
-<div class="sim-wall left-wall"><span>Rear wall</span></div>
-<div class="sim-wall right-wall"><span>Front wall</span></div>
-<div class="sim-track"></div>
-<div class="real-cart fusion-cart" data-role="real-cart"><span class="sensor-face rear-sensor-face"></span><span class="sensor-face front-sensor-face"></span><span class="cart-body">CART</span></div>
-<div class="ultrasonic-beam rear-beam" data-role="rear-beam"></div>
-<div class="ultrasonic-beam front-beam" data-role="front-beam"></div>
-<span class="truth-readout">True position: <strong data-role="truth">6.00 m</strong> &nbsp; Speed: <strong data-role="truth-speed">0.00 m/s</strong></span>
-</div>
-
-<div class="belief-panel fusion-belief-panel">
-<span class="panel-title">Machine understanding — convert both distances into position</span>
-<div class="belief-track"></div>
-<div class="belief-marker prior-marker" data-role="prior-marker"><span></span><strong>Motion prior</strong><small data-role="prior-value">6.00 m</small></div>
-<div class="belief-marker front-marker" data-role="front-marker"><span></span><strong>Front sensor</strong><small data-role="front-position">6.00 m</small></div>
-<div class="belief-marker rear-marker" data-role="rear-marker"><span></span><strong>Rear sensor</strong><small data-role="rear-position">6.00 m</small></div>
-<div class="belief-marker estimate-marker" data-role="estimate-marker"><span></span><strong>Fused posterior</strong><small data-role="estimate-value">6.00 m</small></div>
-</div>
-
-<div class="kalman-live-math fusion-live-math" aria-live="polite">
-<div><span>Front reading</span><strong data-role="front-distance">4.00 m to wall</strong><small>Position = 10 m − distance = <b data-role="front-math-position">6.00 m</b></small></div>
-<div><span>Rear reading</span><strong data-role="rear-distance">6.00 m to wall</strong><small>Position = distance = <b data-role="rear-math-position">6.00 m</b></small></div>
-<div><span>Sensor fusion</span><strong>more weight to lower variance</strong><small>Combined reading = <b data-role="fused-reading">6.00 m</b></small></div>
-<div><span>Bayes posterior</span><strong>prior + K × gap</strong><small><b data-role="equation">6.00 + 0.55 × 0.00 = 6.00 m</b></small></div>
-</div>
-
-<div class="sim-footer">
-<span>Command <strong data-role="drive-status">STOP</strong></span>
-<span>Model speed <strong data-role="model-speed">0.00 m/s</strong></span>
-<span>Front weight <strong data-role="front-weight">87%</strong></span>
-<span>Rear weight <strong data-role="rear-weight">13%</strong></span>
-<span>Fused sensor variance <strong data-role="fused-variance">0.055 m²</strong></span>
-</div>
-</div>
-
----
-
 ## The “Trust Dial” Controls the Move
 
 <div class="gain-grid">
@@ -931,9 +458,151 @@ Sensors give us **snapshots**. The object keeps moving between those snapshots.
 **Updated guess** = motion prediction + **some fraction of the gap** toward the sensor
 :::
 
-Engineers call that fraction the **Kalman gain**. It is calculated from the relative uncertainty of the prediction and the sensor—not chosen by hand each time.
+Engineers call that fraction the **Kalman gain**. The filter calculates it from how much each source tends to vary.
 
----
+## Typical error versus squared spread
+
+A camera might usually miss by about **0.10 m**. We call that a typical error size.
+
+To compare uncertainty in the trust-dial formula, the filter **squares** that size:
+
+$$0.10\text{ m} \times 0.10\text{ m} = 0.01\text{ m}^2$$
+
+If the typical error grows to **1.50 m**, its square is **2.25 m²**. A big error produces a much bigger spread number.
+
+**Meters squared measures spread here.** It is not another position along the track.
+
+## How the Filter Sets the Trust Dial {#kalman-gain-math .compact-slide}
+
+```{=html}
+<div class="gain-math-slide">
+<div class="gain-main-equation"><span>Sensor's share of the gap</span><strong>K = P⁻ ÷ (P⁻ + R)</strong><small>P⁻ is spread in the motion guess. R is spread in the sensor reading. They use the same units: m².</small></div>
+<div class="gain-definition-row"><div><strong>P⁻</strong><span>Motion spread</span><small>More wheel slip raises this number.</small></div><div><strong>R</strong><span>Sensor spread</span><small>More sensor noise raises this number.</small></div><div><strong>K</strong><span>Sensor influence</span><small>Near 0: little pull. Near 1: strong pull.</small></div></div>
+<div class="gain-example reliable"><h3>Our 4 m versus 7 m example</h3><p>Suppose motion spread is 0.03 m² and sensor spread is 0.01 m².</p><strong>K = 0.03 ÷ (0.03 + 0.01) = 0.75</strong><p>Updated position = 4 + 0.75 × (7 − 4) = <strong>6.25 m</strong></p></div>
+<div class="gain-math-caption">If sensor spread R grows, K shrinks and the guess moves less. If motion spread P⁻ grows, K rises and the sensor gets more say.</div>
+</div>
+```
+
+## Three numbers to watch in the cart demo {.center .rejoin-slide}
+
+**Motion guess:** where the cart should be from its movement.
+
+**Sensor reading:** where the sensor says it is.
+
+**Updated guess:** a point between them. It moves toward the sensor by **K × the gap**.
+
+First watch these three markers. Then change **K** and see which way the updated guess moves.
+
+## Live Kalman Filter — Cart Near a Wall {#kalman-cart-demo .kalman-demo-slide .compact-slide}
+
+<div class="kalman-sim" data-kalman-demo>
+<div class="sim-controls">
+<div class="cart-buttons" aria-label="Command cart velocity">
+<button type="button" data-drive="-1" aria-label="Hold to drive cart left">← Hold left</button>
+<button type="button" data-drive="1" aria-label="Hold to drive cart right">Hold right →</button>
+<button type="button" data-action="reset">Reset</button>
+</div>
+<label>Commanded speed <output data-role="drive-speed-output">0.95 m/s</output><input data-role="drive-speed" type="range" min="0" max="3" step="0.05" value="0.95" aria-label="Commanded drive speed in meters per second"></label>
+<label>Kalman gain K <output data-role="gain-output">0.55</output><input data-role="gain" type="range" min="0" max="1" step="0.05" value="0.55"></label>
+<label>Typical wheel slip <output data-role="motion-output">0.20</output><input data-role="motion-noise" type="range" min="0" max="1.2" step="0.05" value="0.20"></label>
+<label>Typical sensor error <output data-role="sensor-output">0.35 m</output><input data-role="sensor-noise" type="range" min="0.05" max="1.5" step="0.05" value="0.35"></label>
+</div>
+
+<div class="world-panel">
+<span class="panel-title">Real world — hidden truth</span>
+<span class="physics-note">Hold to accelerate. Release to brake. Uncertainty adds acceleration error and wheel slip.</span>
+<div class="sim-wall"><span>Wall</span></div>
+<div class="sim-track"></div>
+<div class="real-cart" data-role="real-cart"><span class="sensor-face"></span><span class="cart-body">CART</span></div>
+<div class="ultrasonic-beam" data-role="beam"></div>
+<span class="truth-readout">True position: <strong data-role="truth">6.00 m</strong> &nbsp; Speed: <strong data-role="truth-speed">0.00 m/s</strong></span>
+</div>
+
+<div class="belief-panel">
+<span class="panel-title">Machine understanding — three competing locations</span>
+<div class="belief-track"></div>
+<div class="belief-marker prior-marker" data-role="prior-marker"><span></span><strong>Motion guess</strong><small data-role="prior-value">6.00 m</small></div>
+<div class="belief-marker measurement-marker" data-role="sensor-marker"><span></span><strong>Sensor</strong><small data-role="measurement-value">6.00 m</small></div>
+<div class="belief-marker estimate-marker" data-role="estimate-marker"><span></span><strong>Updated guess</strong><small data-role="estimate-value">6.00 m</small></div>
+</div>
+
+<div class="kalman-live-math" aria-live="polite">
+<div><span>Guess from motion</span><strong>Where wheels predict</strong><small>Motion predicts <b data-role="math-prior">6.00 m</b> at <b data-role="model-speed">0.00 m/s</b></small></div>
+<div><span>Sensor reading</span><strong>Where the sensor points</strong><small>Ultrasonic reads <b data-role="math-sensor">6.00 m</b></small></div>
+<div><span>Gap between them</span><strong>reading − guess</strong><small>Difference = <b data-role="innovation">0.00 m</b></small></div>
+<div><span>Updated guess</span><strong>guess + K × gap</strong><small><b data-role="equation">6.00 + 0.55 × 0.00 = 6.00 m</b></small></div>
+</div>
+
+<div class="sim-footer">
+<span>Command <strong data-role="drive-status">STOP</strong></span>
+<span>Model speed <strong data-role="footer-model-speed">0.00 m/s</strong></span>
+<span>Motion spread P⁻ ≈ <strong data-role="prior-variance">0.040 m²</strong></span>
+<span>Sensor variance R = <strong data-role="sensor-variance">0.123 m²</strong></span>
+<span>Updated spread P ≈ <strong data-role="posterior-variance">0.018 m²</strong></span>
+</div>
+</div>
+
+## What If Two Sensors Disagree?
+
+Imagine two people estimating where a cart stopped along a straight track.
+
+- One says **4 m**. Their estimates are usually close to the truth.
+- The other says **6 m**. Their estimates tend to vary more.
+
+Use a result **between 4 m and 6 m**, closer to the steadier observer. The next demo does this with two sensors.
+
+## Combine Two Sensor Readings {#kalman-sensor-fusion .kalman-demo-slide .compact-slide}
+
+<div class="kalman-sim fusion-sim" data-kalman-fusion-demo>
+<div class="sim-controls fusion-controls">
+<div class="cart-buttons" aria-label="Command cart velocity">
+<button type="button" data-drive="-1" aria-label="Hold to drive cart left">← Hold left</button>
+<button type="button" data-drive="1" aria-label="Hold to drive cart right">Hold right →</button>
+<button type="button" data-action="reset">Reset</button>
+</div>
+<label>Commanded speed <output data-role="drive-speed-output">0.95 m/s</output><input data-role="drive-speed" type="range" min="0" max="3" step="0.05" value="0.95" aria-label="Commanded drive speed in meters per second"></label>
+<label>Kalman gain K <output data-role="gain-output">0.55</output><input data-role="gain" type="range" min="0" max="1" step="0.05" value="0.55"></label>
+<label>Typical wheel slip <output data-role="motion-output">0.20</output><input data-role="motion-noise" type="range" min="0" max="1.2" step="0.05" value="0.20"></label>
+<label>Front sensor error <output data-role="front-output">0.25 m</output><input data-role="front-noise" type="range" min="0.05" max="1.5" step="0.05" value="0.25"></label>
+<label>Rear sensor error <output data-role="rear-output">0.65 m</output><input data-role="rear-noise" type="range" min="0.05" max="1.5" step="0.05" value="0.65"></label>
+</div>
+
+<div class="world-panel fusion-world">
+<span class="panel-title">Real world — two sensors, one hidden position</span>
+<span class="physics-note">Hold to accelerate. Release to brake. Uncertainty adds acceleration error and wheel slip.</span>
+<div class="sim-wall left-wall"><span>Rear wall</span></div>
+<div class="sim-wall right-wall"><span>Front wall</span></div>
+<div class="sim-track"></div>
+<div class="real-cart fusion-cart" data-role="real-cart"><span class="sensor-face rear-sensor-face"></span><span class="sensor-face front-sensor-face"></span><span class="cart-body">CART</span></div>
+<div class="ultrasonic-beam rear-beam" data-role="rear-beam"></div>
+<div class="ultrasonic-beam front-beam" data-role="front-beam"></div>
+<span class="truth-readout">True position: <strong data-role="truth">6.00 m</strong> &nbsp; Speed: <strong data-role="truth-speed">0.00 m/s</strong></span>
+</div>
+
+<div class="belief-panel fusion-belief-panel">
+<span class="panel-title">Machine understanding — convert both distances into position</span>
+<div class="belief-track"></div>
+<div class="belief-marker prior-marker" data-role="prior-marker"><span></span><strong>Motion guess</strong><small data-role="prior-value">6.00 m</small></div>
+<div class="belief-marker front-marker" data-role="front-marker"><span></span><strong>Front sensor</strong><small data-role="front-position">6.00 m</small></div>
+<div class="belief-marker rear-marker" data-role="rear-marker"><span></span><strong>Rear sensor</strong><small data-role="rear-position">6.00 m</small></div>
+<div class="belief-marker estimate-marker" data-role="estimate-marker"><span></span><strong>Combined guess</strong><small data-role="estimate-value">6.00 m</small></div>
+</div>
+
+<div class="kalman-live-math fusion-live-math" aria-live="polite">
+<div><span>Front reading</span><strong data-role="front-distance">4.00 m to wall</strong><small>Position = 10 m − distance = <b data-role="front-math-position">6.00 m</b></small></div>
+<div><span>Rear reading</span><strong data-role="rear-distance">6.00 m to wall</strong><small>Position = distance = <b data-role="rear-math-position">6.00 m</b></small></div>
+<div><span>Combine sensors</span><strong>Trust the steadier sensor more</strong><small>Combined reading = <b data-role="fused-reading">6.00 m</b></small></div>
+<div><span>Updated guess</span><strong>motion guess + K × gap</strong><small><b data-role="equation">6.00 + 0.55 × 0.00 = 6.00 m</b></small></div>
+</div>
+
+<div class="sim-footer">
+<span>Command <strong data-role="drive-status">STOP</strong></span>
+<span>Model speed <strong data-role="model-speed">0.00 m/s</strong></span>
+<span>Front weight <strong data-role="front-weight">87%</strong></span>
+<span>Rear weight <strong data-role="rear-weight">13%</strong></span>
+<span>Combined reading variance <strong data-role="fused-variance">0.055 m²</strong></span>
+</div>
+</div>
 
 ## Why the Combination Works Better
 
@@ -959,42 +628,13 @@ Engineers call that fraction the **Kalman gain**. It is calculated from the rela
 A Kalman filter does not claim to know the exact truth. It keeps a **best guess plus an honest measure of confidence**, then improves both whenever new evidence arrives.
 :::
 
----
-
-## The Big Picture {.center}
-
-<div class="big-picture">
-
-**Prediction**
-where motion says it should be
-
-<span aria-hidden="true">+</span>
-
-**Observation**
-where the sensor says it is
-
-<span aria-hidden="true">→</span>
-
-**Updated best guess**
-where we now think it is—and how sure we are
-
-</div>
-
-### Then repeat at the next time step.
-
-::: {.takeaway-line}
-**A Kalman filter is a repeating trust exercise:** predict, observe, blend, and carry the improved guess forward.
-:::
-
----
-
 ## Where Does the Robot Think It Is? {#tank-localization .compact-slide}
 
 ```{=html}
 <div class="tank-demo" data-tank-demo>
 <div class="tank-controls">
 <label>Kalman gain K <output data-tank="gain-out">0.35</output><input data-tank="gain" aria-label="Robot Kalman gain" type="range" min="0" max="1" step="0.05" value="0.35"></label>
-<label>Camera noise σ <output data-tank="sensor-out">0.25 m</output><input data-tank="sensor" aria-label="Camera position deviation" type="range" min="0.05" max="1.5" step="0.05" value="0.25"></label>
+<label>Typical camera error <output data-tank="sensor-out">0.25 m</output><input data-tank="sensor" aria-label="Camera position deviation" type="range" min="0.05" max="1.5" step="0.05" value="0.25"></label>
 <label>Motion deviation <output data-tank="motion-out">0.35</output><input data-tank="motion" aria-label="Robot motion deviation" type="range" min="0" max="1.2" step="0.05" value="0.35"></label>
 <button type="button" data-tank="pause">Pause</button><button type="button" data-tank="reset">Reset</button>
 </div>
@@ -1010,15 +650,13 @@ where we now think it is—and how sure we are
 </div>
 <p>Arrow keys or WASD also work. Combine forward + turn to curve.</p>
 <p><span class="tank-green">Green robot</span>: reality<br><span class="tank-orange">Orange glow</span>: position belief<br>White cross: best estimate</p>
-<dl><dt>Camera evidence</dt><dd data-tank="sight">No tags visible</dd><dt>Position error</dt><dd data-tank="error">0.00 m</dd><dt>Position uncertainty σ</dt><dd data-tank="sigma">0.35 m</dd><dt>Filter update</dt><dd data-tank="status">Predicting from wheels</dd></dl>
+<dl><dt>Camera sees</dt><dd data-tank="sight">No tags visible</dd><dt>Position error</dt><dd data-tank="error">0.00 m</dd><dt>Position spread</dt><dd data-tank="sigma">0.35 m</dd><dt>Filter update</dt><dd data-tank="status">Predicting from wheels</dd></dl>
 </div>
 </div>
-<div class="tank-caption">Drive away from tags: confidence spreads. Turn the camera toward a tag: new evidence tightens the estimate. At K = 0, tag readings have no influence.</div>
+<div class="tank-caption">Now the cart is a robot that can turn. A tag is a known marker on the field: drive away from markers and the guess spreads; point the camera at one and the guess tightens.</div>
 <small class="tank-assumption">Teaching model: known tag locations provide simulated noisy position and heading readings. The glow is a 2D Gaussian, with a dashed 95% position region. Tag patterns are illustrative.</small>
 </div>
 ```
-
----
 
 ## Two Cameras, One Better Estimate {#tank-sensor-fusion .compact-slide}
 
@@ -1026,8 +664,8 @@ where we now think it is—and how sure we are
 <div class="tank-demo tank-fusion-demo" data-tank-fusion-demo>
 <div class="tank-controls tank-fusion-controls">
 <label>Kalman gain K <output data-tank="gain-out">0.35</output><input data-tank="gain" aria-label="Fusion Kalman gain" type="range" min="0" max="1" step="0.05" value="0.35"></label>
-<label>Front camera σ <output data-tank="sensor-out">0.25 m</output><input data-tank="sensor" aria-label="Front camera position deviation" type="range" min="0.05" max="1.5" step="0.05" value="0.25"></label>
-<label>Rear camera σ <output data-tank="sensor2-out">0.60 m</output><input data-tank="sensor2" aria-label="Rear camera position deviation" type="range" min="0.05" max="1.5" step="0.05" value="0.60"></label>
+<label>Front camera error <output data-tank="sensor-out">0.25 m</output><input data-tank="sensor" aria-label="Front camera position deviation" type="range" min="0.05" max="1.5" step="0.05" value="0.25"></label>
+<label>Rear camera error <output data-tank="sensor2-out">0.60 m</output><input data-tank="sensor2" aria-label="Rear camera position deviation" type="range" min="0.05" max="1.5" step="0.05" value="0.60"></label>
 <label>Motion deviation <output data-tank="motion-out">0.35</output><input data-tank="motion" aria-label="Robot motion deviation" type="range" min="0" max="1.2" step="0.05" value="0.35"></label>
 <button type="button" data-tank="pause">Pause</button><button type="button" data-tank="reset">Reset</button>
 </div>
@@ -1040,39 +678,21 @@ where we now think it is—and how sure we are
 </div>
 <p>Arrow keys or WASD also work.</p>
 <p><span class="tank-blue">Blue cone</span>: front camera<br><span class="tank-purple">Purple cone</span>: rear camera<br><span class="tank-orange">Orange glow</span>: fused belief</p>
-<dl><dt>Front camera</dt><dd data-tank="sight">No tags visible</dd><dt>Rear camera</dt><dd data-tank="sight2">No tags visible</dd><dt>Fusion weights</dt><dd data-tank="weights">No camera update</dd><dt>Position error</dt><dd data-tank="error">0.00 m</dd><dt>Position uncertainty σ</dt><dd data-tank="sigma">0.35 m</dd><dt>Filter update</dt><dd data-tank="status">Predicting from wheels</dd></dl>
+<dl><dt>Front camera</dt><dd data-tank="sight">No tags visible</dd><dt>Rear camera</dt><dd data-tank="sight2">No tags visible</dd><dt>Camera influence</dt><dd data-tank="weights">No camera update</dd><dt>Position error</dt><dd data-tank="error">0.00 m</dd><dt>Position spread</dt><dd data-tank="sigma">0.35 m</dd><dt>Filter update</dt><dd data-tank="status">Predicting from wheels</dd></dl>
 </div>
 </div>
-<div class="tank-caption">Each camera votes in proportion to its precision. Lower deviation means more weight. A camera with no visible tags contributes no measurement.</div>
+<div class="tank-caption">Each camera gets more say when its readings are steadier. A camera that cannot see a field marker has nothing new to add.</div>
 <small class="tank-assumption">Teaching model: the two simulated AprilTag pose estimates are conditionally independent. Real systems must also account for shared calibration errors and correlated measurements.</small>
 </div>
 ```
 
----
-
-## How the Filter Calculates Gain {#kalman-gain-math .compact-slide}
-
-```{=html}
-<div class="gain-math-slide">
-<div class="gain-main-equation"><span>Kalman gain</span><strong>K = P⁻ ÷ (P⁻ + R)</strong><small>The filter compares uncertainty in its prediction with uncertainty in the camera measurement.</small></div>
-<div class="gain-definition-row"><div><strong>P⁻</strong><span>Prediction variance</span><small>Wheel drift and motion raise this value.</small></div><div><strong>R = σ²</strong><span>Camera variance</span><small>Noisy or poor-quality images raise this value.</small></div><div><strong>K</strong><span>Camera influence</span><small>0 ignores the camera. 1 follows it fully.</small></div></div>
-<div class="gain-examples">
-<div class="gain-example reliable"><h3>Reliable camera</h3><p>P⁻ = 0.10 m²</p><p>σ = 0.10 m, so R = 0.01 m²</p><strong>K = 0.10 ÷ (0.10 + 0.01) = 0.91</strong><div class="gain-trust"><span style="width:9%">9%</span><b style="width:91%">Camera 91%</b></div></div>
-<div class="gain-example noisy"><h3>Noisy camera</h3><p>P⁻ = 0.10 m²</p><p>σ = 1.50 m, so R = 2.25 m²</p><strong>K = 0.10 ÷ (0.10 + 2.25) = 0.04</strong><div class="gain-trust"><span style="width:96%">Prediction 96%</span><b style="width:4%">4%</b></div></div>
-</div>
-<div class="gain-math-caption">A noisy camera still contributes. Its influence grows later if wheel uncertainty accumulates and P⁻ becomes larger.</div>
-</div>
-```
-
----
-
-## The Filter Chooses Its Gain {#automatic-kalman-gain .compact-slide}
+## The Trust Dial Adjusts Automatically {#automatic-kalman-gain .compact-slide}
 
 ```{=html}
 <div class="tank-demo tank-auto-demo" data-tank-auto-demo>
 <div class="tank-controls tank-auto-controls">
 <label class="tank-auto-gain">Calculated K position / heading <output data-tank="gain-out">0.35 / 0.35</output><span>Each state uses its own uncertainty</span></label>
-<label>Camera noise σ <output data-tank="sensor-out">0.25 m</output><input data-tank="sensor" aria-label="Camera position deviation" type="range" min="0.05" max="1.5" step="0.05" value="0.25"></label>
+<label>Typical camera error <output data-tank="sensor-out">0.25 m</output><input data-tank="sensor" aria-label="Camera position deviation" type="range" min="0.05" max="1.5" step="0.05" value="0.25"></label>
 <label>Motion deviation <output data-tank="motion-out">0.35</output><input data-tank="motion" aria-label="Robot motion deviation" type="range" min="0" max="1.2" step="0.05" value="0.35"></label>
 <button type="button" data-tank="pause">Pause</button><button type="button" data-tank="reset">Reset</button>
 </div>
@@ -1088,15 +708,21 @@ where we now think it is—and how sure we are
 </div>
 <p>Arrow keys or WASD also work. Combine forward + turn to curve.</p>
 <p><span class="tank-green">Green robot</span>: reality<br><span class="tank-orange">Orange glow</span>: position belief<br>White cross: best estimate</p>
-<dl><dt>Camera evidence</dt><dd data-tank="sight">No tags visible</dd><dt>Position gain Kxy</dt><dd data-tank="auto-k">Waiting for a tag</dd><dt>Heading gain Kθ</dt><dd data-tank="heading-k">Waiting for a tag</dd><dt>Position variance P⁻ / R</dt><dd data-tank="position-variance">0.120 / waiting</dd><dt>Heading variance P⁻θ / Rθ</dt><dd data-tank="heading-variance">0.003 / waiting</dd><dt>Position error</dt><dd data-tank="error">0.00 m</dd><dt>Position uncertainty σ</dt><dd data-tank="sigma">0.35 m</dd><dt>Filter update</dt><dd data-tank="status">Predicting from wheels</dd></dl>
+<dl><dt>Camera sees</dt><dd data-tank="sight">No tags visible</dd><dt>Position gain Kxy</dt><dd data-tank="auto-k">Waiting for a tag</dd><dt>Heading gain Kθ</dt><dd data-tank="heading-k">Waiting for a tag</dd><dt>Position variance P⁻ / R</dt><dd data-tank="position-variance">0.120 / waiting</dd><dt>Heading variance P⁻θ / Rθ</dt><dd data-tank="heading-variance">0.003 / waiting</dd><dt>Position error</dt><dd data-tank="error">0.00 m</dd><dt>Position spread</dt><dd data-tank="sigma">0.35 m</dd><dt>Filter update</dt><dd data-tank="status">Predicting from wheels</dd></dl>
 </div>
 </div>
-<div class="tank-caption"><strong>The filter recalculates K whenever a tag is visible.</strong> Wheel drift raises P⁻ and makes the camera more useful. Camera noise raises R and makes the filter trust its wheel prediction.</div>
+<div class="tank-caption"><strong>The filter recalculates K whenever it sees a field marker.</strong> More wheel slip moves the guess toward the camera; a less reliable camera moves it less.</div>
 <small class="tank-assumption">Teaching model: K = P⁻ ÷ (P⁻ + R). Velocity affects K by changing motion uncertainty, so a stationary robot can still correct an existing position error.</small>
 </div>
 ```
 
----
+## What to watch in the camera comparison {.center .rejoin-slide}
+
+All four setups follow the **same route**. Each one starts with the same wheel motion and front-camera reading.
+
+The other cameras add more clues. Watch the **cumulative average position error** in each panel: smaller means the guesses have been closer to the real robot.
+
+The displays move quickly. Follow **one number per panel** on the first pass.
 
 ## One Noisy Camera or Several? {#camera-overlap-comparison .compact-slide}
 
@@ -1113,51 +739,36 @@ where we now think it is—and how sure we are
 <div><h3>Four cameras around the robot</h3><canvas data-compare="surround" width="820" height="500" role="img" aria-label="Robot localization using four noisy cameras around the robot"></canvas><p><strong data-compare="surround-error">0.00 m cumulative average</strong><span data-compare="surround-count">0 cameras</span><span data-compare="surround-measurement">measurement σ —</span><span data-compare="surround-sigma">belief σ 0.35 m</span></p></div>
 </div>
 <div class="camera-compare-route"><strong>12 matched trials share the same real motion</strong><span data-compare="route-status">Trial 1 target 2 · lap 1</span><span>The controller follows truth, so neither filter changes the route.</span></div>
-<div class="camera-compare-caption"><strong>Every filter receives the same wheel motion and front-camera reading.</strong> Added cameras provide independent readings from overlapping or wider directions. Camera σ stays at 1.00 m and motion deviation stays at 0.45.</div>
+<div class="camera-compare-caption"><strong>Every filter receives the same wheel motion and front-camera reading.</strong> Added cameras provide extra readings. Compare the running average error after several trials.</div>
 </div>
 ```
 
----
-
-## Calibration Sets the Error Floor {#calibration-error-floor .compact-slide}
+## More Cameras Cannot Fix the Same Mistake {#calibration-error-floor .compact-slide}
 
 ```{=html}
-<div class="calibration-explainer">
-<p class="calibration-lead"><strong>More cameras reduce random scatter.</strong> They do <em>not</em> remove the calibration mistake that every camera shares.</p>
-<div class="calibration-equation"><strong>z<sub>i</sub> = x + b + ε<sub>i</sub></strong><span>measured position = truth + shared bias + one camera's random noise</span></div>
-<div class="calibration-logic">
-<div><h3>Average the random part</h3><p>Independent noise shrinks as more cameras contribute to the estimate.</p><strong>\(\sigma_{random}/\sqrt{N}\)</strong></div>
-<div><h3>The shared offset stays</h3><p>If every camera is misaligned the same way, averaging still preserves that common shift.</p><strong>\(\sigma_{total}^2 = \sigma_{bias}^2 + \sigma_{random}^2/N\)</strong></div>
-<div><h3>Calibration lowers the floor</h3><p>Recalibration attacks the error that sensor fusion alone can never average away.</p><strong>\(\lim_{N\to\infty}\sigma_{total}=\sigma_{bias}\)</strong></div>
+<div class="calibration-simple">
+<p class="calibration-lead">Imagine four cameras built with the <strong>same misplaced zero mark</strong>, like four rulers that all start 0.60 m too far right.</p>
+<div class="calibration-simple-grid">
+<div><h3>Separate random wobble</h3><p>One camera's readings scatter by about <strong>0.80 m</strong>. Averaging four independent readings cuts that typical wobble to about <strong>0.40 m</strong>.</p></div>
+<div><h3>Shared wrong starting point</h3><p>All four cameras are shifted <strong>0.60 m</strong> the same way. Their average is still shifted <strong>0.60 m</strong>.</p></div>
 </div>
-<table class="calibration-table">
-<thead><tr><th>Setup</th><th>Independent noise left after averaging<br><small>extra cameras can reduce this</small></th><th>Shared calibration bias<br><small>averaging cannot remove this</small></th><th>Total σ<br><small>combined from the two columns at left</small></th></tr></thead>
-<tbody>
-<tr><td>1 camera, uncalibrated</td><td>0.80 m</td><td>0.60 m</td><td>1.00 m</td></tr>
-<tr><td>4 cameras, same bad calibration</td><td>0.40 m</td><td>0.60 m</td><td>0.72 m</td></tr>
-<tr><td>Many cameras, same bad calibration</td><td>approaches 0</td><td>0.60 m</td><td>approaches 0.60 m</td></tr>
-<tr class="calibrated-row"><td>4 cameras, well calibrated</td><td>0.40 m</td><td>0.05 m</td><td>0.403 m</td></tr>
-</tbody>
-</table>
-<p class="calibration-takeaway"><strong>Sensor fusion reduces noise; calibration removes shared bias.</strong></p>
-<small>The total σ column uses \(\sqrt{\sigma_{random}^2 + \sigma_{bias}^2}\). In this version, 4 calibrated cameras give \(\sqrt{0.40^2 + 0.05^2} = 0.403\text{ m}\), while many badly calibrated cameras still approach the 0.60 m bias floor.</small>
+<p class="calibration-simple-fix">Calibration checks the cameras against a known position and fixes the shared shift.</p>
+<p class="calibration-takeaway"><strong>More cameras can calm random wobble. They cannot cancel a mistake they all share.</strong></p>
 </div>
 ```
 
----
-
-## Conclusion: Make Uncertainty Useful {.center .conclusion-slide}
+## What to Remember {.center .conclusion-slide}
 
 ```{=html}
 <div class="conclusion-wrap">
-<p class="conclusion-lead">The goal is not perfect certainty. It is a <strong>better estimate—and an honest account of how much to trust it.</strong></p>
+<p class="conclusion-lead">Our opening cart: motion said <strong>4 m</strong>, the sensor said <strong>7 m</strong>, and our trust dial moved the guess to <strong>6.25 m</strong>.</p>
 <div class="conclusion-steps" aria-label="Four ideas from the presentation">
-<div><span>1</span><h3>Represent</h3><p>Use probability and Gaussians to describe what you know—and what you do not.</p></div>
-<div><span>2</span><h3>Update</h3><p>Use Bayes to turn new evidence into a revised belief.</p></div>
-<div><span>3</span><h3>Combine</h3><p>Weight predictions and measurements by their uncertainty, not by instinct.</p></div>
-<div><span>4</span><h3>Repeat</h3><p>Let the Kalman filter carry the improved estimate into the next moment.</p></div>
+<div><span>1</span><h3>Count</h3><p>Start with what has happened so far.</p></div>
+<div><span>2</span><h3>Update</h3><p>Use each new clue to revise the guess.</p></div>
+<div><span>3</span><h3>Combine</h3><p>If readings disagree, listen more to the steadier source.</p></div>
+<div><span>4</span><h3>Repeat</h3><p>Carry the new guess forward, then check the next reading.</p></div>
 </div>
 <div class="conclusion-loop"><strong>Predict</strong><i>→</i><strong>Measure</strong><i>→</i><strong>Update</strong><i>→</i><strong>Repeat</strong></div>
-<p class="conclusion-caveat">And remember: <strong>fusion reduces random noise; calibration removes shared bias.</strong></p>
+<p class="conclusion-caveat">A Kalman filter repeats this loop. <strong>More cameras can reduce random errors; shared mistakes need calibration.</strong></p>
 </div>
 ```

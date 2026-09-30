@@ -15,8 +15,8 @@
       const decimal = (value) => value.toFixed(3);
 
       const renderReset = () => {
-        get("box-status").textContent = "A hidden box is ready.";
-        get("draw-result").innerHTML = '<span class="result-ball neutral"></span><span><strong>No draws yet</strong><small>Press “Draw a ball” to collect evidence.</small></span>';
+        get("box-status").textContent = "A hidden bag is ready.";
+        get("draw-result").innerHTML = '<span class="result-ball neutral"></span><span><strong>No draws yet</strong><small>Draw a ball to get a clue.</small></span>';
         get("history").innerHTML = '<span class="empty-history">None yet</span>';
         get("prior-b").textContent = "50.0%";
         get("prior-a").textContent = "50.0%";
@@ -25,10 +25,10 @@
         get("posterior-b").textContent = "50.0%";
         get("bar-a").style.width = "50%";
         get("bar-b").style.width = "50%";
-        get("bar-a").textContent = "Good 50.0%";
-        get("bar-b").textContent = "Broken 50.0%";
-        get("belief-bar").setAttribute("aria-label", "Current belief: good motor 50 percent, broken motor 50 percent.");
-        get("explanation").textContent = "Every draw uses the current posterior as the next prior. Draw repeatedly and watch the estimate respond.";
+        get("bar-a").textContent = "Bag A 50.0%";
+        get("bar-b").textContent = "Bag B 50.0%";
+        get("belief-bar").setAttribute("aria-label", "Current guess: Bag A 50 percent, Bag B 50 percent.");
+        get("explanation").textContent = "Each new ball changes our guess. Draw again to see how the guess responds.";
       };
 
       const reset = () => {
@@ -53,7 +53,7 @@
         state.draws.push(color);
         state.priorB = posteriorB;
 
-        get("draw-result").innerHTML = `<span class="result-ball ${color.toLowerCase()}"></span><span><strong>${color} ball drawn</strong><small>Draw ${state.draws.length} from the same hidden box</small></span>`;
+        get("draw-result").innerHTML = `<span class="result-ball ${color.toLowerCase()}"></span><span><strong>${color} ball drawn</strong><small>Draw ${state.draws.length} from the same hidden bag</small></span>`;
         get("history").innerHTML = "";
         state.draws.forEach((item, index) => {
           const ball = document.createElement("span");
@@ -72,12 +72,12 @@
         get("posterior-b").textContent = pct(posteriorB);
         get("bar-a").style.width = pct(posteriorA);
         get("bar-b").style.width = pct(posteriorB);
-        get("bar-a").textContent = `Good ${pct(posteriorA)}`;
-        get("bar-b").textContent = `Broken ${pct(posteriorB)}`;
-        get("belief-bar").setAttribute("aria-label", `Current belief: good motor ${pct(posteriorA)}, broken motor ${pct(posteriorB)}.`);
+        get("bar-a").textContent = `Bag A ${pct(posteriorA)}`;
+        get("bar-b").textContent = `Bag B ${pct(posteriorB)}`;
+        get("belief-bar").setAttribute("aria-label", `Current guess: Bag A ${pct(posteriorA)}, Bag B ${pct(posteriorB)}.`);
         get("explanation").textContent = color === "Red"
-          ? `Red is more consistent with a broken motor, so belief in “broken” moves from ${pct(priorB)} to ${pct(posteriorB)}.`
-          : `Green is more consistent with a good motor, so belief in “broken” moves from ${pct(priorB)} to ${pct(posteriorB)}.`;
+          ? `Red is more common in Bag B, so our guess for Bag B rises from ${pct(priorB)} to ${pct(posteriorB)}.`
+          : `Green is more common in Bag A, so our guess for Bag B falls from ${pct(priorB)} to ${pct(posteriorB)}.`;
       };
 
       demo.querySelectorAll("button").forEach((button) => {
@@ -85,8 +85,14 @@
           event.stopPropagation();
           if (button.dataset.action === "reset") reset();
           if (button.dataset.action === "draw") draw();
+          if (button.dataset.action === "show-math") {
+            const math = get("math");
+            math.hidden = !math.hidden;
+            button.setAttribute("aria-expanded", String(!math.hidden));
+            button.textContent = math.hidden ? "Show the arithmetic" : "Hide the arithmetic";
+          }
           if (button.dataset.action === "reveal") {
-            get("box-status").textContent = state.box === "A" ? "Chosen box: A — good motor" : "Chosen box: B — broken motor";
+            get("box-status").textContent = state.box === "A" ? "Chosen bag: A" : "Chosen bag: B";
           }
         });
       });
