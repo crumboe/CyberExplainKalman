@@ -10,48 +10,53 @@
       demo.dataset.bound = "true";
 
       const get = (role) => demo.querySelector(`[data-role="${role}"]`);
-      const state = { box: "A", priorB: 0.5, draws: [] };
+      const state = { box: "A", priorA: 0.5, draws: [] };
       const pct = (value) => `${(value * 100).toFixed(1)}%`;
       const decimal = (value) => value.toFixed(3);
+      // Bag A is 90% blue; Bag B is half blue, half yellow.
+      const chance = { A: { Blue: 0.9, Yellow: 0.1 }, B: { Blue: 0.5, Yellow: 0.5 } };
+
+      const renderBar = (priorA) => {
+        const priorB = 1 - priorA;
+        get("bar-a").style.width = pct(priorA);
+        get("bar-b").style.width = pct(priorB);
+        get("bar-a").textContent = `Bag A ${pct(priorA)}`;
+        get("bar-b").textContent = `Bag B ${pct(priorB)}`;
+        get("belief-bar").setAttribute("aria-label", `Current guess: Bag A ${pct(priorA)}, Bag B ${pct(priorB)}.`);
+      };
 
       const renderReset = () => {
         get("box-status").textContent = "A hidden bag is ready.";
         get("draw-result").innerHTML = '<span class="result-ball neutral"></span><span><strong>No draws yet</strong><small>Draw a ball to get a clue.</small></span>';
         get("history").innerHTML = '<span class="empty-history">None yet</span>';
-        get("prior-b").textContent = "50.0%";
         get("prior-a").textContent = "50.0%";
-        ["color-one", "color-two"].forEach((role) => get(role).textContent = "result");
-        ["like-b", "like-a", "weight-b", "weight-a"].forEach((role) => get(role).textContent = "—");
-        get("posterior-b").textContent = "50.0%";
-        get("bar-a").style.width = "50%";
-        get("bar-b").style.width = "50%";
-        get("bar-a").textContent = "Bag A 50.0%";
-        get("bar-b").textContent = "Bag B 50.0%";
-        get("belief-bar").setAttribute("aria-label", "Current guess: Bag A 50 percent, Bag B 50 percent.");
+        get("prior-b").textContent = "50.0%";
+        ["color-one", "color-two"].forEach((role) => get(role).textContent = "it");
+        ["like-a", "like-b", "weight-a", "weight-b"].forEach((role) => get(role).textContent = "—");
+        get("posterior-a").textContent = "50.0%";
+        renderBar(0.5);
         get("explanation").textContent = "Each new ball changes our guess. Draw again to see how the guess responds.";
       };
 
       const reset = () => {
         state.box = Math.random() < 0.5 ? "A" : "B";
-        state.priorB = 0.5;
+        state.priorA = 0.5;
         state.draws = [];
         renderReset();
       };
 
       const draw = () => {
-        const priorB = state.priorB;
-        const priorA = 1 - priorB;
-        const redChance = state.box === "B" ? 0.5 : 0.1;
-        const color = Math.random() < redChance ? "Red" : "Green";
-        const likeB = color === "Red" ? 0.5 : 0.5;
-        const likeA = color === "Red" ? 0.1 : 0.9;
-        const weightB = priorB * likeB;
+        const priorA = state.priorA;
+        const priorB = 1 - priorA;
+        const color = Math.random() < chance[state.box].Blue ? "Blue" : "Yellow";
+        const likeA = chance.A[color];
+        const likeB = chance.B[color];
         const weightA = priorA * likeA;
-        const posteriorB = weightB / (weightB + weightA);
-        const posteriorA = 1 - posteriorB;
+        const weightB = priorB * likeB;
+        const posteriorA = weightA / (weightA + weightB);
 
         state.draws.push(color);
-        state.priorB = posteriorB;
+        state.priorA = posteriorA;
 
         get("draw-result").innerHTML = `<span class="result-ball ${color.toLowerCase()}"></span><span><strong>${color} ball drawn</strong><small>Draw ${state.draws.length} from the same hidden bag</small></span>`;
         get("history").innerHTML = "";
@@ -61,23 +66,19 @@
           ball.title = `Draw ${index + 1}: ${item}`;
           get("history").appendChild(ball);
         });
-        get("prior-b").textContent = pct(priorB);
         get("prior-a").textContent = pct(priorA);
-        get("color-one").textContent = color;
-        get("color-two").textContent = color;
-        get("like-b").textContent = likeB.toFixed(2);
+        get("prior-b").textContent = pct(priorB);
+        get("color-one").textContent = color.toLowerCase();
+        get("color-two").textContent = color.toLowerCase();
         get("like-a").textContent = likeA.toFixed(2);
-        get("weight-b").textContent = `${decimal(priorB)} × ${likeB.toFixed(2)} = ${decimal(weightB)}`;
+        get("like-b").textContent = likeB.toFixed(2);
         get("weight-a").textContent = `${decimal(priorA)} × ${likeA.toFixed(2)} = ${decimal(weightA)}`;
-        get("posterior-b").textContent = pct(posteriorB);
-        get("bar-a").style.width = pct(posteriorA);
-        get("bar-b").style.width = pct(posteriorB);
-        get("bar-a").textContent = `Bag A ${pct(posteriorA)}`;
-        get("bar-b").textContent = `Bag B ${pct(posteriorB)}`;
-        get("belief-bar").setAttribute("aria-label", `Current guess: Bag A ${pct(posteriorA)}, Bag B ${pct(posteriorB)}.`);
-        get("explanation").textContent = color === "Red"
-          ? `Red is more common in Bag B, so our guess for Bag B rises from ${pct(priorB)} to ${pct(posteriorB)}.`
-          : `Green is more common in Bag A, so our guess for Bag B falls from ${pct(priorB)} to ${pct(posteriorB)}.`;
+        get("weight-b").textContent = `${decimal(priorB)} × ${likeB.toFixed(2)} = ${decimal(weightB)}`;
+        get("posterior-a").textContent = pct(posteriorA);
+        renderBar(posteriorA);
+        get("explanation").textContent = color === "Yellow"
+          ? `Yellow almost never comes from Bag A, so our guess for Bag A drops from ${pct(priorA)} to ${pct(posteriorA)}.`
+          : `Blue is more common in Bag A, so our guess for Bag A rises from ${pct(priorA)} to ${pct(posteriorA)}.`;
       };
 
       demo.querySelectorAll("button").forEach((button) => {
@@ -100,12 +101,80 @@
       reset();
     });
 
+    // Shared trust-dial control: Auto K computes the gain from the spreads;
+    // turning Auto off hands the slider to the student.
+    const bindGainControl = (demo, get, state, onChange) => {
+      const toggle = get("auto-toggle");
+      const slider = get("gain");
+      const render = () => {
+        toggle.setAttribute("aria-pressed", String(state.auto));
+        toggle.textContent = state.auto ? "Auto K: ON" : "Auto K: OFF";
+        toggle.classList.toggle("is-on", state.auto);
+        slider.disabled = state.auto;
+        demo.classList.toggle("manual-gain", !state.auto);
+        if (!state.auto) get("gain-output").textContent = Number(slider.value).toFixed(2);
+      };
+      toggle.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        state.auto = !state.auto;
+        render();
+        onChange();
+      });
+      slider.addEventListener("pointerdown", (event) => event.stopPropagation());
+      slider.addEventListener("input", () => {
+        get("gain-output").textContent = Number(slider.value).toFixed(2);
+        onChange();
+      });
+      render();
+    };
+
+    const showGain = (get, state, gain) => {
+      if (!state.auto) return;
+      get("gain-output").textContent = gain.toFixed(2);
+      get("gain").value = String(gain);
+    };
+
+    const bindDriveButtons = (demo, state, clamp, gaussian) => {
+      const stopDrive = (event) => {
+        event?.preventDefault();
+        event?.stopPropagation();
+        state.driveCommand = 0;
+        demo.querySelectorAll("[data-drive]").forEach((button) => button.classList.remove("is-driving"));
+      };
+      demo.querySelectorAll("[data-drive]").forEach((button) => {
+        button.addEventListener("pointerdown", (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          button.setPointerCapture?.(event.pointerId);
+          if (state.driveCommand === 0) state.tractionBias = clamp(gaussian() * 0.07, -0.15, 0.2);
+          state.driveCommand = Number(button.dataset.drive);
+          button.classList.add("is-driving");
+        });
+        ["pointerup", "pointercancel", "lostpointercapture", "blur"].forEach((name) => button.addEventListener(name, stopDrive));
+        button.addEventListener("keydown", (event) => {
+          if (![" ", "Enter"].includes(event.key)) return;
+          event.preventDefault(); event.stopPropagation();
+          state.driveCommand = Number(button.dataset.drive);
+          button.classList.add("is-driving");
+        });
+        button.addEventListener("keyup", (event) => {
+          if ([" ", "Enter"].includes(event.key)) stopDrive(event);
+        });
+        button.addEventListener("click", (event) => { event.preventDefault(); event.stopPropagation(); });
+      });
+      window.addEventListener("blur", () => stopDrive());
+      document.addEventListener("visibilitychange", () => { if (document.hidden) stopDrive(); });
+      return stopDrive;
+    };
+
     document.querySelectorAll("[data-kalman-demo]").forEach((demo) => {
       if (demo.dataset.bound === "true") return;
       demo.dataset.bound = "true";
 
       const get = (role) => demo.querySelector(`[data-role="${role}"]`);
-      const state = { truth: 6, estimate: 6, truthVelocity: 0, modelVelocity: 0, driveCommand: 0, tractionBias: 0, posteriorVariance: 0.12, loops: 0 };
+      const state = { truth: 6, estimate: 6, truthVelocity: 0, modelVelocity: 0, driveCommand: 0, tractionBias: 0, posteriorVariance: 0.12, autoEstimate: 6, autoVariance: 0.12, auto: true, loops: 0 };
+      const score = { n: 0, you: 0, auto: 0, sensor: 0 };
       const clamp = (value, low, high) => Math.min(high, Math.max(low, value));
       const approach = (value, target, maxChange) => value + clamp(target - value, -maxChange, maxChange);
       const gaussian = () => {
@@ -116,6 +185,25 @@
       const meters = (value) => `${value.toFixed(2)} m`;
       const speed = (value) => `${(Math.abs(value) < 0.005 ? 0 : value).toFixed(2)} m/s`;
       const position = (value) => `${8 + clamp(value, 0, 10) * 8.7}%`;
+      const centimeters = (total) => score.n ? `${(100 * total / score.n).toFixed(1)} cm` : "—";
+
+      const resetScore = () => {
+        score.n = 0; score.you = 0; score.auto = 0; score.sensor = 0;
+        // Start the automatic rival from the same belief as the student.
+        state.autoEstimate = state.estimate;
+        state.autoVariance = state.posteriorVariance;
+      };
+
+      const renderScore = () => {
+        get("score-you").textContent = state.auto ? "same as auto" : centimeters(score.you);
+        get("score-auto").textContent = centimeters(score.auto);
+        get("score-sensor").textContent = centimeters(score.sensor);
+        const youEl = get("score-you").parentElement;
+        const autoEl = get("score-auto").parentElement;
+        const ready = !state.auto && score.n > 20;
+        youEl.classList.toggle("is-best", ready && score.you <= score.auto);
+        autoEl.classList.toggle("is-best", ready && score.auto < score.you);
+      };
 
       const renderPosition = (role, value) => {
         get(role).style.left = position(value);
@@ -126,7 +214,6 @@
       };
 
       const tick = () => {
-        const gain = Number(get("gain").value);
         const motionSigma = Number(get("motion-noise").value);
         const sensorSigma = Number(get("sensor-noise").value);
         const dt = 0.05;
@@ -150,17 +237,32 @@
 
         // With no commanded motion and zero model velocity, the predicted mean
         // stays put. Drive uncertainty widens the belief instead of moving it.
+        // At a wall the wheels keep spinning, so the encoders (and this motion
+        // guess) run past it until the sensor pulls the estimate back.
         const prior = state.estimate + state.modelVelocity * dt;
         const measurement = clamp(state.truth + gaussian() * sensorSigma, 0.3, 9.9);
         const innovation = measurement - prior;
-        const posterior = prior + gain * innovation;
         const motionVariance = dt * (0.002 + motionSigma * motionSigma * (0.04 + 0.30 * accelerationDemand + 0.18 * Math.abs(state.modelVelocity)));
         const priorVariance = state.posteriorVariance + motionVariance;
         const sensorVariance = sensorSigma * sensorSigma;
-        // General covariance update for a manually selected gain.
+        const gain = state.auto ? priorVariance / (priorVariance + sensorVariance) : Number(get("gain").value);
+        const posterior = prior + gain * innovation;
+        // General covariance update; it reduces to (1 - K)P when K is automatic.
         state.posteriorVariance = (1 - gain) ** 2 * priorVariance + gain ** 2 * sensorVariance;
         state.estimate = posterior;
+
+        // The automatic rival sees the same motion and sensor reading.
+        const autoPrior = state.autoEstimate + state.modelVelocity * dt;
+        const autoPriorVariance = state.autoVariance + motionVariance;
+        const autoGain = autoPriorVariance / (autoPriorVariance + sensorVariance);
+        state.autoEstimate = autoPrior + autoGain * (measurement - autoPrior);
+        state.autoVariance = (1 - autoGain) * autoPriorVariance;
         state.loops += 1;
+
+        score.n += 1;
+        score.you += Math.abs(posterior - state.truth);
+        score.auto += Math.abs(state.autoEstimate - state.truth);
+        score.sensor += Math.abs(measurement - state.truth);
 
         renderPosition("real-cart", state.truth);
         renderPosition("prior-marker", prior);
@@ -177,12 +279,10 @@
         get("math-sensor").textContent = meters(measurement);
         get("innovation").textContent = `${innovation >= 0 ? "+" : ""}${meters(innovation)}`;
         get("equation").textContent = `${prior.toFixed(2)} + ${gain.toFixed(2)} × (${innovation.toFixed(2)}) = ${posterior.toFixed(2)} m`;
-        const direction = state.driveCommand < 0 ? "LEFT" : state.driveCommand > 0 ? "RIGHT" : "STOP";
-        get("drive-status").textContent = direction === "STOP" ? direction : `${direction} · traction ${Math.round((1 - motionSigma * clamp(0.32 + state.tractionBias, 0.15, 0.55)) * 100)}%`;
-        get("footer-model-speed").textContent = speed(state.modelVelocity);
-        get("prior-variance").textContent = `${priorVariance.toFixed(3)} m²`;
-        get("sensor-variance").textContent = `${sensorVariance.toFixed(3)} m²`;
-        get("posterior-variance").textContent = `${state.posteriorVariance.toFixed(3)} m²`;
+        get("prior-variance").textContent = priorVariance.toFixed(3);
+        get("sensor-variance").textContent = sensorVariance.toFixed(3);
+        showGain(get, state, gain);
+        renderScore();
       };
 
       const reset = () => {
@@ -195,56 +295,25 @@
         state.posteriorVariance = 0.12;
         state.loops = 0;
         demo.querySelectorAll("[data-drive]").forEach((button) => button.classList.remove("is-driving"));
+        resetScore();
         tick();
       };
 
-      ["drive-speed", "gain", "motion-noise", "sensor-noise"].forEach((role) => {
+      ["drive-speed", "motion-noise", "sensor-noise"].forEach((role) => {
         get(role).addEventListener("input", () => {
           get("drive-speed-output").textContent = `${Number(get("drive-speed").value).toFixed(2)} m/s`;
-          get("gain-output").textContent = Number(get("gain").value).toFixed(2);
           get("motion-output").textContent = Number(get("motion-noise").value).toFixed(2);
           get("sensor-output").textContent = `${Number(get("sensor-noise").value).toFixed(2)} m`;
+          if (role !== "drive-speed") resetScore();
         });
       });
-
-      const stopDrive = (event) => {
-        event?.preventDefault();
-        event?.stopPropagation();
-        state.driveCommand = 0;
-        demo.querySelectorAll("[data-drive]").forEach((button) => button.classList.remove("is-driving"));
-      };
-      demo.querySelectorAll("[data-drive]").forEach((button) => {
-        button.addEventListener("pointerdown", (event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          button.setPointerCapture?.(event.pointerId);
-          if (state.driveCommand === 0) {
-            const motionSigma = Number(get("motion-noise").value);
-            state.tractionBias = clamp(gaussian() * 0.07, -0.15, 0.2);
-          }
-          state.driveCommand = Number(button.dataset.drive);
-          button.classList.add("is-driving");
-        });
-        ["pointerup", "pointercancel", "lostpointercapture", "blur"].forEach((name) => button.addEventListener(name, stopDrive));
-        button.addEventListener("keydown", (event) => {
-          if (![" ", "Enter"].includes(event.key)) return;
-          event.preventDefault(); event.stopPropagation();
-          state.driveCommand = Number(button.dataset.drive);
-          button.classList.add("is-driving");
-        });
-        button.addEventListener("keyup", (event) => {
-          if ([" ", "Enter"].includes(event.key)) stopDrive(event);
-        });
-        button.addEventListener("click", (event) => { event.preventDefault(); event.stopPropagation(); });
-      });
-      get("gain").addEventListener("pointerdown", (event) => event.stopPropagation());
+      bindGainControl(demo, get, state, resetScore);
+      const stopDrive = bindDriveButtons(demo, state, clamp, gaussian);
       demo.querySelector('[data-action="reset"]').addEventListener("click", (event) => {
         event.stopPropagation();
         reset();
       });
 
-      window.addEventListener("blur", () => stopDrive());
-      document.addEventListener("visibilitychange", () => { if (document.hidden) stopDrive(); });
       reset();
       window.setInterval(() => {
         if (document.hidden || !demo.closest("section").classList.contains("present")) { stopDrive(); return; }
@@ -257,7 +326,7 @@
       demo.dataset.bound = "true";
 
       const get = (role) => demo.querySelector(`[data-role="${role}"]`);
-      const state = { truth: 6, estimate: 6, truthVelocity: 0, modelVelocity: 0, driveCommand: 0, tractionBias: 0, loops: 0 };
+      const state = { truth: 6, estimate: 6, truthVelocity: 0, modelVelocity: 0, driveCommand: 0, tractionBias: 0, posteriorVariance: 0.12, auto: true, loops: 0 };
       const clamp = (value, low, high) => Math.min(high, Math.max(low, value));
       const approach = (value, target, maxChange) => value + clamp(target - value, -maxChange, maxChange);
       const gaussian = () => {
@@ -277,7 +346,6 @@
       };
 
       const tick = () => {
-        const gain = Number(get("gain").value);
         const motionSigma = Number(get("motion-noise").value);
         const frontSigma = Number(get("front-noise").value);
         const rearSigma = Number(get("rear-noise").value);
@@ -312,8 +380,12 @@
         const rearWeight = 1 - frontWeight;
         const fusedReading = frontWeight * frontPosition + rearWeight * rearPosition;
         const fusedVariance = 1 / (frontPrecision + rearPrecision);
+        const motionVariance = dt * (0.002 + motionSigma * motionSigma * (0.04 + 0.30 * accelerationDemand + 0.18 * Math.abs(state.modelVelocity)));
+        const priorVariance = state.posteriorVariance + motionVariance;
+        const gain = state.auto ? priorVariance / (priorVariance + fusedVariance) : Number(get("gain").value);
         const innovation = fusedReading - prior;
         const posterior = prior + gain * innovation;
+        state.posteriorVariance = (1 - gain) ** 2 * priorVariance + gain ** 2 * fusedVariance;
         state.estimate = posterior;
         state.loops += 1;
 
@@ -341,7 +413,9 @@
         get("model-speed").textContent = speed(state.modelVelocity);
         get("front-weight").textContent = `${Math.round(frontWeight * 100)}%`;
         get("rear-weight").textContent = `${Math.round(rearWeight * 100)}%`;
-        get("fused-variance").textContent = `${fusedVariance.toFixed(3)} m²`;
+        get("fused-variance").textContent = fusedVariance.toFixed(3);
+        get("prior-variance").textContent = priorVariance.toFixed(3);
+        showGain(get, state, gain);
       };
 
       const reset = () => {
@@ -351,58 +425,27 @@
         state.modelVelocity = 0;
         state.driveCommand = 0;
         state.tractionBias = 0;
+        state.posteriorVariance = 0.12;
         state.loops = 0;
         demo.querySelectorAll("[data-drive]").forEach((button) => button.classList.remove("is-driving"));
         tick();
       };
 
-      ["drive-speed", "gain", "motion-noise", "front-noise", "rear-noise"].forEach((role) => {
+      ["drive-speed", "motion-noise", "front-noise", "rear-noise"].forEach((role) => {
         get(role).addEventListener("input", () => {
           get("drive-speed-output").textContent = `${Number(get("drive-speed").value).toFixed(2)} m/s`;
-          get("gain-output").textContent = Number(get("gain").value).toFixed(2);
           get("motion-output").textContent = Number(get("motion-noise").value).toFixed(2);
           get("front-output").textContent = `${Number(get("front-noise").value).toFixed(2)} m`;
           get("rear-output").textContent = `${Number(get("rear-noise").value).toFixed(2)} m`;
         });
       });
-
-      const stopDrive = (event) => {
-        event?.preventDefault();
-        event?.stopPropagation();
-        state.driveCommand = 0;
-        demo.querySelectorAll("[data-drive]").forEach((button) => button.classList.remove("is-driving"));
-      };
-      demo.querySelectorAll("[data-drive]").forEach((button) => {
-        button.addEventListener("pointerdown", (event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          button.setPointerCapture?.(event.pointerId);
-          if (state.driveCommand === 0) {
-            const motionSigma = Number(get("motion-noise").value);
-            state.tractionBias = clamp(gaussian() * 0.07, -0.15, 0.2);
-          }
-          state.driveCommand = Number(button.dataset.drive);
-          button.classList.add("is-driving");
-        });
-        ["pointerup", "pointercancel", "lostpointercapture", "blur"].forEach((name) => button.addEventListener(name, stopDrive));
-        button.addEventListener("keydown", (event) => {
-          if (![" ", "Enter"].includes(event.key)) return;
-          event.preventDefault(); event.stopPropagation();
-          state.driveCommand = Number(button.dataset.drive);
-          button.classList.add("is-driving");
-        });
-        button.addEventListener("keyup", (event) => {
-          if ([" ", "Enter"].includes(event.key)) stopDrive(event);
-        });
-        button.addEventListener("click", (event) => { event.preventDefault(); event.stopPropagation(); });
-      });
+      bindGainControl(demo, get, state, () => {});
+      const stopDrive = bindDriveButtons(demo, state, clamp, gaussian);
       demo.querySelector('[data-action="reset"]').addEventListener("click", (event) => {
         event.stopPropagation();
         reset();
       });
 
-      window.addEventListener("blur", () => stopDrive());
-      document.addEventListener("visibilitychange", () => { if (document.hidden) stopDrive(); });
       reset();
       window.setInterval(() => {
         if (document.hidden || !demo.closest("section").classList.contains("present")) { stopDrive(); return; }
@@ -411,6 +454,6 @@
     });
   });
 </script>
-<script src="assets/tank-demo.js?v=42"></script>
-<script src="assets/camera-compare-demo.js?v=49"></script>
+<script src="assets/tank-demo.js?v=43"></script>
+<script src="assets/camera-compare-demo.js?v=50"></script>
 <script src="assets/sensor-noise-demo.js?v=2"></script>

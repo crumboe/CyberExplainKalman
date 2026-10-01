@@ -111,13 +111,15 @@
       get("sigma").textContent = Math.sqrt(s.p).toFixed(2) + " m";
       const anyCamera = seen.length || seenRear.length;
       const gainActive = autoGain ? s.k > 0 : +get("gain").value > 0;
-      get("status").textContent = paused ? "Paused" : anyCamera && gainActive ? (fusion ? "Wheel prediction + fused camera correction" : autoGain ? "Automatic camera correction" : "Wheel prediction + camera correction") : "Predicting from wheels only";
+      get("status").textContent = paused ? "Paused" : anyCamera && gainActive ? (fusion ? "Wheels + both cameras" : "Wheels + camera correction") : "Predicting from wheels only";
       if (autoGain) {
-        get("gain-out").textContent = anyCamera ? `${s.k.toFixed(2)} / ${s.hk.toFixed(2)}` : "— / —";
-        get("auto-k").textContent = s.r === null ? "Waiting for a tag" : s.k.toFixed(2);
-        get("heading-k").textContent = s.hr === null ? "Waiting for a tag" : s.hk.toFixed(2);
-        get("position-variance").textContent = s.r === null ? `${s.prior.toFixed(3)} / waiting` : `${s.prior.toFixed(3)} / ${s.r.toFixed(3)} m²`;
-        get("heading-variance").textContent = s.hr === null ? `${s.headingPrior.toFixed(4)} / waiting` : `${s.headingPrior.toFixed(4)} / ${s.hr.toFixed(4)} rad²`;
+        // Optional readouts: the main deck shows only the position dial.
+        const put = (name, text) => { const el = get(name); if (el) el.textContent = text; };
+        put("gain-out", anyCamera ? s.k.toFixed(2) : "—");
+        put("auto-k", s.r === null ? "Waiting for a tag" : s.k.toFixed(2));
+        put("heading-k", s.hr === null ? "Waiting for a tag" : s.hk.toFixed(2));
+        put("position-variance", s.r === null ? `${s.prior.toFixed(3)} / waiting` : `${s.prior.toFixed(3)} / ${s.r.toFixed(3)}`);
+        put("heading-variance", s.hr === null ? `${s.headingPrior.toFixed(4)} / waiting` : `${s.headingPrior.toFixed(4)} / ${s.hr.toFixed(4)}`);
       }
     }
     function draw() {
@@ -141,22 +143,22 @@
         ctx.fillStyle="rgba(181,127,255,0.10)";ctx.strokeStyle="#b57fff";
         ctx.beginPath();ctx.moveTo(X(s.x),Y(s.y));ctx.arc(X(s.x),Y(s.y),4.6*scale,s.a+Math.PI-Math.PI/5,s.a+Math.PI+Math.PI/5);ctx.closePath();ctx.fill();ctx.stroke();
       }
-      seen.forEach(tag => {ctx.strokeStyle="#62dfa6";ctx.setLineDash([5,5]);ctx.beginPath();ctx.moveTo(X(s.x),Y(s.y));ctx.lineTo(X(tag.x),Y(tag.y));ctx.stroke();});ctx.setLineDash([]);
+      seen.forEach(tag => {ctx.strokeStyle="#62c3ff";ctx.setLineDash([5,5]);ctx.beginPath();ctx.moveTo(X(s.x),Y(s.y));ctx.lineTo(X(tag.x),Y(tag.y));ctx.stroke();});ctx.setLineDash([]);
       seenRear.forEach(tag => {ctx.strokeStyle="#b57fff";ctx.setLineDash([5,5]);ctx.beginPath();ctx.moveTo(X(s.x),Y(s.y));ctx.lineTo(X(tag.x),Y(tag.y));ctx.stroke();});ctx.setLineDash([]);
       tags.forEach((tag,i) => {
         const x=X(tag.x),y=Y(tag.y),vis=seen.some(t=>t.i===i)||seenRear.some(t=>t.i===i);
-        ctx.fillStyle=vis?"#62dfa6":"#fff";ctx.fillRect(x-17,y-17,34,34);
+        ctx.fillStyle=vis?"#62c3ff":"#fff";ctx.fillRect(x-17,y-17,34,34);
         ctx.fillStyle="#06101c";ctx.fillRect(x-13,y-13,26,26);
         for(let row=0;row<4;row++)for(let col=0;col<4;col++)if(((i+3)*(row+1)+col*3+row*col)%5<2){ctx.fillStyle="#fff";ctx.fillRect(x-9+col*4.5,y-9+row*4.5,4.5,4.5);}
-        ctx.font="bold 16px sans-serif";ctx.textAlign="center";ctx.fillStyle=vis?"#62dfa6":"#dce6ef";
+        ctx.font="bold 16px sans-serif";ctx.textAlign="center";ctx.fillStyle=vis?"#62c3ff":"#dce6ef";
         ctx.fillText("#"+(i+1),x,y+(tag.y>6? -25:34));
       });
       ctx.save();ctx.translate(X(s.x),Y(s.y));ctx.rotate(s.a);
       ctx.fillStyle="#9cabb7";ctx.fillRect(-23,-24,46,10);ctx.fillRect(-23,14,46,10);
-      ctx.fillStyle="#62dfa6";ctx.fillRect(-22,-14,44,28);
+      ctx.fillStyle="#dfe7ee";ctx.fillRect(-22,-14,44,28);
       ctx.fillStyle="#071321";ctx.beginPath();ctx.moveTo(19,0);ctx.lineTo(5,-8);ctx.lineTo(5,8);ctx.closePath();ctx.fill();
       ctx.fillStyle="#62c3ff";ctx.fillRect(21,-7,7,14);ctx.restore();
-      ctx.strokeStyle="#fff";ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(cx-10,cy);ctx.lineTo(cx+10,cy);ctx.moveTo(cx,cy-10);ctx.lineTo(cx,cy+10);ctx.stroke();
+      ctx.strokeStyle="#ffb957";ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(cx-10,cy);ctx.lineTo(cx+10,cy);ctx.moveTo(cx,cy-10);ctx.lineTo(cx,cy+10);ctx.stroke();
       ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+24*Math.cos(s.ea),cy+24*Math.sin(s.ea));ctx.stroke();
       ctx.restore();
       ctx.strokeStyle="#8199ac";ctx.lineWidth=3;ctx.strokeRect(ox,oy,1080,630);
