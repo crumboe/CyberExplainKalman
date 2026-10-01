@@ -36,7 +36,6 @@
     }
   </style>
   <link rel="stylesheet" href="The Machine Mindset_files/libs/revealjs/dist/theme/quarto-4df01d85d5cf19cc6202400f4f043f84.css">
-  <link rel="stylesheet" href="custom.css">
   <link href="The Machine Mindset_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="The Machine Mindset_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="The Machine Mindset_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
@@ -131,6 +130,7 @@
       margin-right: 0; 
     }
   </style>
+  <link rel="stylesheet" href="custom.css?v=2026-10-01b">
 </head>
 <body class="quarto-dark">
   <div class="reveal">
@@ -173,12 +173,12 @@ The blue dot <strong>keeps moving.</strong>
 <section id="the-same-trick-is-everywhere" class="slide level2 compact-slide">
 <h2>The same trick is everywhere</h2>
 <div class="use-grid">
-<div><span class="use-icon" aria-hidden="true">📱</span><h3>Phone GPS</h3><p>Keeps the dot smooth between satellite fixes and through tunnels.</p></div>
-<div><span class="use-icon" aria-hidden="true">🚁</span><h3>Drones</h3><p>Stay level in the wind using shaky motion sensors.</p></div>
-<div><span class="use-icon" aria-hidden="true">🥽</span><h3>VR headsets</h3><p>Track your head hundreds of times a second so you don't get sick.</p></div>
-<div><span class="use-icon" aria-hidden="true">🤖</span><h3>FIRST Robotics</h3><p>Robots read AprilTags on the field to work out where they are.</p></div>
-<div><span class="use-icon" aria-hidden="true">🚗</span><h3>Self-driving cars</h3><p>Blend camera, radar, and wheel data into one picture of the road.</p></div>
-<div><span class="use-icon" aria-hidden="true">🌙</span><h3>Apollo 11</h3><p>Helped navigate the 1969 Moon landing on a tiny computer.</p></div>
+<div><h3>Phone GPS</h3><p>Keeps the dot smooth between satellite fixes and through tunnels.</p></div>
+<div><h3>Drones</h3><p>Stay level in the wind using shaky motion sensors.</p></div>
+<div><h3>VR headsets</h3><p>Track your head hundreds of times a second so you don't get sick.</p></div>
+<div><h3>FIRST Robotics</h3><p>Robots read AprilTags on the field to work out where they are.</p></div>
+<div><h3>Self-driving cars</h3><p>Blend camera, radar, and wheel data into one picture of the road.</p></div>
+<div><h3>Apollo 11</h3><p>Helped navigate the 1969 Moon landing on a tiny computer.</p></div>
 </div>
 <div class="takeaway-line">
 <p>They all use the same idea: a <strong>Kalman filter</strong>. Today you’ll learn how one works.</p>
@@ -710,7 +710,7 @@ Sensor: 7 m
 </div>
 <p>The sensor is <strong>3 times steadier</strong>, so it sits <strong>3 times heavier</strong>. The balance point slides toward it.</p>
 <div class="fragment takeaway-line">
-<p><strong>Balance check:</strong> 1 × 2.25 = 3 × 0.75. Both sides equal 2.25. ✔ The pivot is <strong>0.75</strong> of the way from 4 to 7.</p>
+<p><strong>Balance check:</strong> 1 × 2.25 = 3 × 0.75. Both sides equal 2.25, so it balances. The pivot is <strong>0.75</strong> of the way from 4 to 7.</p>
 </div>
 <aside class="notes">
 <p><strong>~2 min.</strong> Students know balance points from physics and geometry. “A heavy kid sits closer to the pivot, so the pivot moves toward the heavy kid. Here ‘heavy’ means <em>steady</em>.”</p>

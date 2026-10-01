@@ -2026,7 +2026,7 @@ body,
 .hook-big strong { color: #62c3ff; }
 
 .use-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin: 0.6em 0 0.2em; }
-.use-grid > div { padding: 22px 26px; background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 16px; }
+.use-grid > div { padding: 22px 26px; background: var(--panel-bg); border: 1px solid var(--panel-border); border-top: 4px solid #62c3ff; border-radius: 16px; }
 .use-grid h3 { margin: 0.15em 0 0.2em; font-size: 1.15em; }
 .use-grid p { margin: 0; color: var(--text-muted); font-size: 0.85em; }
 .use-icon { font-size: 1.6em; }
@@ -2115,7 +2115,7 @@ body,
 .score-board > span { white-space: nowrap; }
 .score-board strong { margin-left: 0.3em; color: #ffffff; }
 .score-board .is-best { padding: 0.1em 0.4em; background: rgba(255, 185, 87, 0.16); border: 1px solid #ffb957; border-radius: 8px; }
-.score-board .is-best::after { content: " \1F3C6"; }
+.score-board .is-best::after { content: " (best)"; color: #ffb957; font-weight: 800; }
 .score-spreads { font-size: 0.8em; }
 .score-spreads b { color: #ffffff; }
 
