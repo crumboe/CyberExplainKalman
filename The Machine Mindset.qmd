@@ -311,11 +311,42 @@ Imagine a cart moving along a straight track. We want to know where it is now.
 
 The two guesses disagree. **Which one should pull our final answer more?**
 
+## A still wall, many sensor readings {#sensor-noise-builds-bell .sensor-noise-slide .compact-slide}
+
+**The sensor and wall stay still.** Yet each distance reading can be a little different. Watch where the readings land.
+
+<div class="sensor-noise-demo" data-sensor-noise-demo>
+<div class="noise-scene" role="img" aria-label="A stationary distance sensor points toward a stationary wall five meters away.">
+<div class="noise-device"><span class="noise-eye"></span><strong>Sensor</strong></div>
+<div class="noise-beam"></div>
+<div class="noise-wall"><strong>Wall</strong></div>
+<div class="noise-true-distance">Actual distance: <strong>5.00 m</strong></div>
+</div>
+<div class="noise-toolbar">
+<span>Reading now: <strong data-noise="reading">—</strong></span>
+<span><strong data-noise="count">0</strong> readings collected</span>
+<button type="button" data-noise-action="pause">Pause</button>
+<button type="button" data-noise-action="reset">Reset</button>
+<span class="noise-status" data-noise="status" aria-live="polite">Collecting readings</span>
+</div>
+<div class="noise-chart" role="img" aria-label="Each sensor reading drops a block into a column, building a distribution of repeated readings.">
+<span class="noise-dot-label">Current reading</span>
+<span class="noise-center-guide"></span>
+<span class="noise-dot" data-noise="dot"></span>
+<div class="noise-block-layer" data-noise="blocks"></div>
+<div class="noise-axis"><span>4 m</span><span>5 m<br><small>actual distance</small></span><span>6 m</span></div>
+</div>
+</div>
+
+**One block = one reading.** Readings near 5 m pile up; large errors are rarer. We can approximate this pile with a **Gaussian PDF** (probability density function): a smooth curve showing where readings are more likely.
+
+<small class="noise-caveat">This simulation combines several small random errors. Real sensors can also have bias or outliers, so check their readings before using a bell curve.</small>
+
 ## Two Guesses About One Location {.gaussian-slide auto-animate=true auto-animate-easing="ease-in-out"}
 
-The **green hump** is our motion guess; the **blue hump** is the new sensor reading. The highest point of each hump is its best guess.
+Back with the cart, its sensor reports **7 m**. The **blue hump** models the scatter we just watched around that reading. The **green hump** is the motion guess at **4 m**.
 
-The green hump is wider, so it allows more possible locations. The blue hump is narrower, so we have more reason to trust it.
+Each hump peaks at its best guess. The wider green hump means less certainty; the narrower blue hump means more.
 
 <div class="gaussian-canvas" role="img" aria-label="A broad model prediction and a narrower sensor measurement shown as probability distributions.">
   <div class="probability-baseline"></div>

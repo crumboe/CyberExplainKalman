@@ -408,10 +408,44 @@ Each new ball changes our guess. Draw again to see how the guess responds.
 </ol>
 <p>The two guesses disagree. <strong>Which one should pull our final answer more?</strong></p>
 </section>
+<section id="sensor-noise-builds-bell" class="slide level2 sensor-noise-slide compact-slide">
+<h2>A still wall, many sensor readings</h2>
+<p><strong>The sensor and wall stay still.</strong> Yet each distance reading can be a little different. Watch where the readings land.</p>
+<div class="sensor-noise-demo" data-sensor-noise-demo="">
+<div class="noise-scene" role="img" aria-label="A stationary distance sensor points toward a stationary wall five meters away.">
+<div class="noise-device">
+<span class="noise-eye"></span><strong>Sensor</strong>
+</div>
+<div class="noise-beam">
+
+</div>
+<div class="noise-wall">
+<strong>Wall</strong>
+</div>
+<div class="noise-true-distance">
+Actual distance: <strong>5.00 m</strong>
+</div>
+</div>
+<div class="noise-toolbar">
+<p><span>Reading now: <strong data-noise="reading">—</strong></span> <span><strong data-noise="count">0</strong> readings collected</span> <button type="button" data-noise-action="pause">Pause</button> <button type="button" data-noise-action="reset">Reset</button> <span class="noise-status" data-noise="status" aria-live="polite">Collecting readings</span></p>
+</div>
+<div class="noise-chart" role="img" aria-label="Each sensor reading drops a block into a column, building a distribution of repeated readings.">
+<span class="noise-dot-label">Current reading</span> <span class="noise-center-guide"></span> <span class="noise-dot" data-noise="dot"></span>
+<div class="noise-block-layer" data-noise="blocks">
+
+</div>
+<div class="noise-axis">
+<span>4 m</span><span>5 m<br><small>actual distance</small></span><span>6 m</span>
+</div>
+</div>
+</div>
+<p><strong>One block = one reading.</strong> Readings near 5 m pile up; large errors are rarer. We can approximate this pile with a <strong>Gaussian PDF</strong> (probability density function): a smooth curve showing where readings are more likely.</p>
+<p><small class="noise-caveat">This simulation combines several small random errors. Real sensors can also have bias or outliers, so check their readings before using a bell curve.</small></p>
+</section>
 <section id="two-guesses-about-one-location" class="slide level2 gaussian-slide" data-auto-animate="true" data-auto-animate-easing="ease-in-out">
 <h2 data-id="quarto-animate-title">Two Guesses About One Location</h2>
-<p>The <strong>green hump</strong> is our motion guess; the <strong>blue hump</strong> is the new sensor reading. The highest point of each hump is its best guess.</p>
-<p>The green hump is wider, so it allows more possible locations. The blue hump is narrower, so we have more reason to trust it.</p>
+<p>Back with the cart, its sensor reports <strong>7 m</strong>. The <strong>blue hump</strong> models the scatter we just watched around that reading. The <strong>green hump</strong> is the motion guess at <strong>4 m</strong>.</p>
+<p>Each hump peaks at its best guess. The wider green hump means less certainty; the narrower blue hump means more.</p>
 <div class="gaussian-canvas" role="img" aria-label="A broad model prediction and a narrower sensor measurement shown as probability distributions.">
 <div class="probability-baseline">
 
@@ -1653,6 +1687,7 @@ Motion fills the gaps; sensors keep the prediction connected to reality.
     </script>
     <script src="assets/tank-demo.js?v=42"></script>
     <script src="assets/camera-compare-demo.js?v=49"></script>
+    <script src="assets/sensor-noise-demo.js?v=1"></script>
     <script id="quarto-html-after-body" type="application/javascript">
       window.document.addEventListener("DOMContentLoaded", function (event) {
         const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")

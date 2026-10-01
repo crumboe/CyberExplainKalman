@@ -391,6 +391,132 @@ body,
   font-size: 15px;
 }
 
+/* Repeated distance readings build a histogram while the sensor stays still. */
+.sensor-noise-slide h2 { margin-bottom: 0.3em; }
+.sensor-noise-slide p { margin: 0.28em 0; }
+.sensor-noise-demo { margin: 0.35em 0; }
+.noise-scene {
+  position: relative;
+  height: 145px;
+  overflow: hidden;
+  background: rgba(4, 12, 23, 0.48);
+  border: 1px solid var(--panel-border);
+  border-radius: 14px;
+}
+.noise-device {
+  position: absolute;
+  top: 35px;
+  left: 7%;
+  z-index: 2;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 166px;
+  height: 66px;
+  padding: 10px 16px;
+  color: #07111f;
+  background: #62c3ff;
+  border-radius: 13px;
+  font-size: 0.72em;
+}
+.noise-eye { width: 23px; height: 23px; background: #07111f; border: 5px solid #fff; border-radius: 50%; }
+.noise-beam {
+  position: absolute;
+  top: 58px;
+  right: 8%;
+  left: calc(7% + 166px);
+  height: 17px;
+  background: linear-gradient(90deg, rgba(98, 195, 255, 0.66), rgba(98, 195, 255, 0.04));
+  clip-path: polygon(0 50%, 100% 0, 100% 100%);
+}
+.noise-wall {
+  position: absolute;
+  top: 0;
+  right: 7%;
+  bottom: 0;
+  display: grid;
+  width: 56px;
+  place-items: center;
+  background: repeating-linear-gradient(0deg, #718398 0 14px, #405267 14px 19px);
+  border-left: 6px solid #adc0cf;
+}
+.noise-wall strong { color: #fff; font-size: 0.7em; writing-mode: vertical-rl; }
+.noise-true-distance {
+  position: absolute;
+  right: 17%;
+  bottom: 8px;
+  color: var(--text-muted);
+  font-size: 0.68em;
+}
+.noise-toolbar {
+  display: flex;
+  align-items: center;
+  min-height: 61px;
+  padding: 0 8px;
+  color: var(--text-muted);
+  font-size: 0.72em;
+}
+.noise-toolbar p { display: flex; align-items: center; gap: 22px; width: 100%; margin: 0; }
+.noise-toolbar strong { color: #fff; }
+.noise-toolbar button { padding: 0.36em 0.78em !important; font-size: 0.84em !important; }
+.noise-toolbar button:disabled { opacity: 0.5; cursor: default; }
+.noise-status { margin-left: auto; color: #62dfa6; }
+.noise-chart {
+  position: relative;
+  height: 400px;
+  overflow: hidden;
+  background: linear-gradient(90deg, rgba(98,195,255,.04) 1px, transparent 1px), rgba(4, 12, 23, 0.48);
+  background-size: 10% 100%;
+  border: 1px solid var(--panel-border);
+  border-radius: 14px;
+}
+.noise-dot-label { position: absolute; top: 9px; left: 24px; color: var(--accent); font-size: 0.7em; }
+.noise-center-guide { position: absolute; top: 45px; bottom: 54px; left: 50%; border-left: 2px dashed rgba(255,255,255,.36); }
+.noise-dot {
+  position: absolute;
+  top: 66px;
+  left: 50%;
+  z-index: 3;
+  width: 22px;
+  height: 22px;
+  background: #ffbb5c;
+  border: 4px solid #07111f;
+  border-radius: 50%;
+  box-shadow: 0 0 18px #ffbb5c;
+  transform: translate(-50%, -50%);
+}
+.noise-block-layer { position: absolute; inset: 0; pointer-events: none; }
+.noise-block {
+  position: absolute;
+  z-index: 2;
+  box-sizing: border-box;
+  width: 25px;
+  height: 10px;
+  background: #62c3ff;
+  border: 1px solid #bdeaff;
+  border-radius: 2px;
+  box-shadow: 0 0 5px rgba(98,195,255,.3);
+  transform: translateX(-50%);
+}
+.noise-block.falling { background: #ffbb5c; border-color: #ffe0a2; }
+.noise-axis {
+  position: absolute;
+  right: 5%;
+  bottom: 0;
+  left: 5%;
+  display: flex;
+  justify-content: space-between;
+  height: 52px;
+  padding-top: 5px;
+  border-top: 3px solid #93a8bd;
+  color: #fff;
+  font-size: 0.68em;
+  text-align: center;
+}
+.noise-axis small { color: var(--text-muted); font-size: 0.7em; }
+.noise-caveat { display: block; color: var(--text-muted); font-size: 0.62em; }
+
 /* Gaussian/Bayesian update animation built with responsive CSS shapes. */
 .gaussian-canvas {
   position: relative;
