@@ -331,6 +331,8 @@ The two guesses disagree. **Which one should pull our final answer more?**
 </div>
 <div class="noise-chart" role="img" aria-label="Each sensor reading drops a block into a column, building a distribution of repeated readings.">
 <span class="noise-dot-label">Current reading</span>
+<span class="noise-scale-label">Vertical scale: 0–<strong data-noise="scale-max">25</strong> readings per column</span>
+<div class="noise-y-axis" aria-hidden="true"><span data-noise="axis-top">25</span><span data-noise="axis-mid">13</span><span>0</span></div>
 <span class="noise-center-guide"></span>
 <span class="noise-dot" data-noise="dot"></span>
 <div class="noise-block-layer" data-noise="blocks"></div>

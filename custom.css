@@ -472,6 +472,21 @@ body,
   border-radius: 14px;
 }
 .noise-dot-label { position: absolute; top: 9px; left: 24px; color: var(--accent); font-size: 0.7em; }
+.noise-scale-label { position: absolute; top: 9px; right: 24px; color: var(--text-muted); font-size: 0.68em; }
+.noise-scale-label strong { color: #fff; }
+.noise-y-axis {
+  position: absolute;
+  top: 100px;
+  bottom: 54px;
+  left: calc(5% - 45px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 38px;
+  color: var(--text-muted);
+  font-size: 0.56em;
+  text-align: right;
+}
 .noise-center-guide { position: absolute; top: 45px; bottom: 54px; left: 50%; border-left: 2px dashed rgba(255,255,255,.36); }
 .noise-dot {
   position: absolute;
@@ -499,6 +514,7 @@ body,
   box-shadow: 0 0 5px rgba(98,195,255,.3);
   transform: translateX(-50%);
 }
+.noise-block:not(.falling) { transition: top 0.28s ease, height 0.28s ease; }
 .noise-block.falling { background: #ffbb5c; border-color: #ffe0a2; }
 .noise-axis {
   position: absolute;
