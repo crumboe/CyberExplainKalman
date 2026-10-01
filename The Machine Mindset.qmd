@@ -508,14 +508,15 @@ First watch these three markers. Then change **K** and see which way the updated
 <label>Typical sensor error <output data-role="sensor-output">0.35 m</output><input data-role="sensor-noise" type="range" min="0.05" max="1.5" step="0.05" value="0.35"></label>
 </div>
 
+<div class="world-display">
+<div class="world-key"><strong>Real cart</strong><span>Hidden position</span><span>Position: <b data-role="truth">6.00 m</b></span><span>Speed: <b data-role="truth-speed">0.00 m/s</b></span></div>
 <div class="world-panel">
-<span class="panel-title">Real world — hidden truth</span>
 <span class="physics-note">Hold to accelerate. Release to brake. Uncertainty adds acceleration error and wheel slip.</span>
 <div class="sim-wall"><span>Wall</span></div>
 <div class="sim-track"></div>
 <div class="real-cart" data-role="real-cart"><span class="sensor-face"></span><span class="cart-body">CART</span></div>
 <div class="ultrasonic-beam" data-role="beam"></div>
-<span class="truth-readout">True position: <strong data-role="truth">6.00 m</strong> &nbsp; Speed: <strong data-role="truth-speed">0.00 m/s</strong></span>
+</div>
 </div>
 
 <div class="belief-display">
@@ -574,8 +575,9 @@ Use a result **between 4 m and 6 m**, closer to the steadier observer. The next 
 <label>Rear sensor error <output data-role="rear-output">0.65 m</output><input data-role="rear-noise" type="range" min="0.05" max="1.5" step="0.05" value="0.65"></label>
 </div>
 
+<div class="world-display">
+<div class="world-key"><strong>Real cart</strong><span>Two sensors, one hidden position</span><span>Position: <b data-role="truth">6.00 m</b></span><span>Speed: <b data-role="truth-speed">0.00 m/s</b></span></div>
 <div class="world-panel fusion-world">
-<span class="panel-title">Real world — two sensors, one hidden position</span>
 <span class="physics-note">Hold to accelerate. Release to brake. Uncertainty adds acceleration error and wheel slip.</span>
 <div class="sim-wall left-wall"><span>Rear wall</span></div>
 <div class="sim-wall right-wall"><span>Front wall</span></div>
@@ -583,7 +585,7 @@ Use a result **between 4 m and 6 m**, closer to the steadier observer. The next 
 <div class="real-cart fusion-cart" data-role="real-cart"><span class="sensor-face rear-sensor-face"></span><span class="sensor-face front-sensor-face"></span><span class="cart-body">CART</span></div>
 <div class="ultrasonic-beam rear-beam" data-role="rear-beam"></div>
 <div class="ultrasonic-beam front-beam" data-role="front-beam"></div>
-<span class="truth-readout">True position: <strong data-role="truth">6.00 m</strong> &nbsp; Speed: <strong data-role="truth-speed">0.00 m/s</strong></span>
+</div>
 </div>
 
 <div class="belief-display fusion-belief-display">

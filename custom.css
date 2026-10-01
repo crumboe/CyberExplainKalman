@@ -1562,13 +1562,6 @@ body,
   transition: width 90ms linear;
 }
 
-.truth-readout {
-  position: absolute;
-  right: 18px;
-  top: 12px;
-  color: var(--text-muted);
-}
-
 .physics-note {
   position: absolute;
   top: 34px;
@@ -1583,6 +1576,7 @@ body,
   height: 205px;
 }
 
+.world-display,
 .belief-display {
   display: grid;
   grid-template-columns: 320px minmax(0, 1fr);
@@ -1590,7 +1584,26 @@ body,
   margin-bottom: 0.42em;
 }
 
+.world-display > .world-panel,
 .belief-display > .belief-panel { min-width: 0; margin-bottom: 0; }
+
+.world-key {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  height: 185px;
+  padding: 18px 22px;
+  background: rgba(4, 12, 23, 0.48);
+  border: 1px solid var(--panel-border);
+  border-radius: 14px;
+  color: var(--text-muted);
+  font-size: 0.86em;
+}
+
+.world-key strong { color: var(--accent); font-size: 1.12em; }
+.world-key b { color: #ffffff; }
 
 .belief-key {
   box-sizing: border-box;
@@ -1726,8 +1739,8 @@ body,
 .sim-footer strong { color: #ffffff; }
 
 .kalman-sim .belief-marker { width: 26px; }
-.kalman-sim .real-cart,
-.kalman-sim .belief-marker { transition: left 45ms linear; }
+.kalman-sim .real-cart { transition: left 45ms linear; }
+.kalman-sim .belief-marker { transition: none; }
 .kalman-sim .ultrasonic-beam { transition: width 45ms linear; }
 .kalman-sim .cart-buttons button { min-height: 54px; }
 .kalman-sim button:focus-visible,
