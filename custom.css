@@ -2128,3 +2128,9 @@ body,
   .activity-steps,
   .you-try-grid { grid-template-columns: 1fr 1fr; }
 }
+
+/* Colour tracing: a number keeps its source colour through every equation. */
+.c-motion, .c-sensor, .c-estimate { font-weight: 750; }
+.reveal .trace-eq { margin: 0.5em 0; font-size: 1.45em; font-weight: 700; text-align: center; }
+.gain-main-equation strong span { text-transform: none; font-size: 1em; }
+.kalman-live-math strong span, .kalman-live-math small span { display: inline; font-size: 1em; text-transform: none; }

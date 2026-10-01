@@ -130,7 +130,7 @@
       margin-right: 0; 
     }
   </style>
-  <link rel="stylesheet" href="custom.css?v=2026-10-01b">
+  <link rel="stylesheet" href="custom.css?v=2026-10-01d">
 </head>
 <body class="quarto-dark">
   <div class="reveal">
@@ -674,8 +674,8 @@ Sensor: 7 m
 </section>
 <section id="the-reveal-who-guessed-closest" class="slide level2 center">
 <h2>The reveal: who guessed closest?</h2>
-<p>The gap from motion to sensor is <strong>7 − 4 = 3 m</strong>. The steadier sensor pulls us <strong>three quarters</strong> of the way across:</p>
-<p><span class="math display">\[4 + 0.75 \times 3 = 4 + 2.25 = \mathbf{6.25\text{ m}}\]</span></p>
+<p>The gap from <span class="c-motion">motion</span> to <span class="c-sensor">sensor</span> is <strong><span class="c-sensor">7</span> − <span class="c-motion">4</span> = 3 m</strong>. The steadier sensor pulls us <strong><span class="c-estimate">three quarters</span></strong> of the way across:</p>
+<p class="trace-eq"><span class="c-motion">4</span> + <span class="c-estimate">0.75</span> × (<span class="c-sensor">7</span> − <span class="c-motion">4</span>) = <span class="c-motion">4</span> + 2.25 = <span class="c-estimate">6.25 m</span></p>
 <div class="fragment">
 <p>Not 4. Not 7. Not exactly halfway. <strong>Closer to whichever source is steadier.</strong></p>
 <p><strong>Next question: where did 0.75 come from?</strong></p>
@@ -708,9 +708,9 @@ Sensor: 7 m
   <div class="seesaw-arm left-arm" style="left: 20%; width: 45%;"><span>2.25 m</span></div>
   <div class="seesaw-arm right-arm" style="left: 65%; width: 15%;"><span>0.75 m</span></div>
 </div>
-<p>The sensor is <strong>3 times steadier</strong>, so it sits <strong>3 times heavier</strong>. The balance point slides toward it.</p>
+<p>The <span class="c-sensor">sensor</span> is <strong>3 times steadier</strong>, so it sits <strong>3 times heavier</strong>. The balance point slides toward it.</p>
 <div class="fragment takeaway-line">
-<p><strong>Balance check:</strong> 1 × 2.25 = 3 × 0.75. Both sides equal 2.25, so it balances. The pivot is <strong>0.75</strong> of the way from 4 to 7.</p>
+<p><strong>Balance check:</strong> <span class="c-motion">1</span> × 2.25 = <span class="c-sensor">3</span> × 0.75. Both sides equal 2.25, so it balances. The pivot is <strong><span class="c-estimate">0.75</span></strong> of the way from <span class="c-motion">4</span> to <span class="c-sensor">7</span>.</p>
 </div>
 <aside class="notes">
 <p><strong>~2 min.</strong> Students know balance points from physics and geometry. “A heavy kid sits closer to the pivot, so the pivot moves toward the heavy kid. Here ‘heavy’ means <em>steady</em>.”</p>
@@ -759,7 +759,7 @@ Steady sensor: jump almost all the way.
 </div>
 </div>
 <div class="plain-language-equation">
-<p><strong>Updated guess</strong> = motion guess + <strong>K</strong> × (sensor − motion guess)</p>
+<p><strong><span class="c-estimate">Updated guess</span></strong> = <span class="c-motion">motion guess</span> + <strong><span class="c-estimate">K</span></strong> × (<span class="c-sensor">sensor</span> − <span class="c-motion">motion guess</span>)</p>
 </div>
 <p>Engineers call the dial <strong>K</strong>, the <strong>Kalman gain</strong>. A real filter sets it <strong>automatically</strong>.</p>
 <aside class="notes">
@@ -779,8 +779,8 @@ Steady sensor: jump almost all the way.
 <section id="measuring-shakiness-the-spread-score" class="slide level2">
 <h2>Measuring “shakiness”: the spread score</h2>
 <div class="spread-grid">
-<div class="spread-card motion-card"><h3>Motion</h3><p>Usually off by about <strong>1.7 m</strong></p><p class="spread-math">1.7 × 1.7 ≈ <strong>3</strong></p></div>
-<div class="spread-card sensor-card"><h3>Sensor</h3><p>Usually off by about <strong>1 m</strong></p><p class="spread-math">1 × 1 = <strong>1</strong></p></div>
+<div class="spread-card motion-card"><h3>Motion</h3><p>Usually off by about <strong class="c-motion">1.7 m</strong></p><p class="spread-math"><span class="c-motion">1.7 × 1.7</span> ≈ <strong class="c-motion">3</strong></p></div>
+<div class="spread-card sensor-card"><h3>Sensor</h3><p>Usually off by about <strong class="c-sensor">1 m</strong></p><p class="spread-math"><span class="c-sensor">1 × 1</span> = <strong class="c-sensor">1</strong></p></div>
 </div>
 <p><strong>Spread score = typical miss × itself.</strong> Squaring makes big misses count extra.</p>
 <p><small class="footnote-line">Scientists call the spread score the <em>variance</em>. Its units are m² because we multiplied meters by meters.</small></p>
@@ -801,10 +801,10 @@ Steady sensor: jump almost all the way.
 <section id="kalman-gain-math" class="slide level2 compact-slide">
 <h2>How the filter sets the dial</h2>
 <div class="gain-math-slide">
-<div class="gain-main-equation"><span>Trust dial</span><strong>K = motion spread ÷ (motion spread + sensor spread)</strong></div>
+<div class="gain-main-equation"><span>Trust dial</span><strong><span class="c-estimate">K</span> = <span class="c-motion">motion spread</span> ÷ (<span class="c-motion">motion spread</span> + <span class="c-sensor">sensor spread</span>)</strong></div>
 <div class="gain-definition-row"><div><strong class="c-motion">3</strong><span>Motion spread</span><small>More wheel slip makes this bigger.</small></div><div><strong class="c-sensor">1</strong><span>Sensor spread</span><small>A noisier sensor makes this bigger.</small></div><div><strong class="c-estimate">K</strong><span>Trust dial</span><small>Near 0: ignore sensor. Near 1: follow it.</small></div></div>
-<div class="gain-example reliable"><h3>Our cart</h3><strong>K = 3 ÷ (3 + 1) = 0.75</strong><p>Updated guess = 4 + 0.75 × (7 − 4) = <strong>6.25 m</strong>, the same answer as the seesaw.</p></div>
-<div class="gain-math-caption">Sensor gets noisier → its spread goes up → K goes <strong>down</strong> → the guess moves less.</div>
+<div class="gain-example reliable"><h3>Our cart</h3><strong><span class="c-estimate">K</span> = <span class="c-motion">3</span> ÷ (<span class="c-motion">3</span> + <span class="c-sensor">1</span>) = <span class="c-estimate">0.75</span></strong><p><span class="c-estimate">Updated guess</span> = <span class="c-motion">4</span> + <span class="c-estimate">0.75</span> × (<span class="c-sensor">7</span> − <span class="c-motion">4</span>) = <strong><span class="c-estimate">6.25 m</span></strong>, the same answer as the seesaw.</p></div>
+<div class="gain-math-caption"><span class="c-sensor">Sensor</span> gets noisier → <span class="c-sensor">its spread</span> goes up → <span class="c-estimate">K</span> goes <strong>down</strong> → the <span class="c-estimate">guess</span> moves less.</div>
 </div>
 <aside class="notes">
 <p><strong>~2 min.</strong> This fraction is the seesaw written as a formula. “The <em>other</em> side’s shakiness goes on top. If motion is shaky, the sensor gets more say.”</p>
@@ -824,9 +824,9 @@ Steady sensor: jump almost all the way.
 <section id="you-try" class="slide level2 you-try-slide">
 <h2>You try</h2>
 <div class="you-try-grid">
-<div><h3>1. Warm-up</h3><p>Motion says <strong>10 m</strong>. Sensor says <strong>14 m</strong>. K = <strong>0.5</strong>.</p><p class="fragment answer">10 + 0.5 × 4 = <strong>12 m</strong></p></div>
-<div><h3>2. Find K first</h3><p>Same readings. Motion spread <strong>1</strong>, sensor spread <strong>3</strong>.</p><p class="fragment answer">K = 1 ÷ (1 + 3) = 0.25<br>10 + 0.25 × 4 = <strong>11 m</strong></p></div>
-<div><h3>3. Challenge</h3><p>What sensor spread makes the guess land <strong>exactly on the sensor</strong>?</p><p class="fragment answer">Sensor spread <strong>0</strong>, a perfect sensor. Then K = 1.</p></div>
+<div><h3>1. Warm-up</h3><p>Motion says <strong class="c-motion">10 m</strong>. Sensor says <strong class="c-sensor">14 m</strong>. K = <strong class="c-estimate">0.5</strong>.</p><p class="fragment answer"><span class="c-motion">10</span> + <span class="c-estimate">0.5</span> × (<span class="c-sensor">14</span> − <span class="c-motion">10</span>) = <strong class="c-estimate">12 m</strong></p></div>
+<div><h3>2. Find K first</h3><p>Same readings. Motion spread <strong class="c-motion">1</strong>, sensor spread <strong class="c-sensor">3</strong>.</p><p class="fragment answer"><span class="c-estimate">K</span> = <span class="c-motion">1</span> ÷ (<span class="c-motion">1</span> + <span class="c-sensor">3</span>) = <span class="c-estimate">0.25</span><br><span class="c-motion">10</span> + <span class="c-estimate">0.25</span> × (<span class="c-sensor">14</span> − <span class="c-motion">10</span>) = <strong class="c-estimate">11 m</strong></p></div>
+<div><h3>3. Challenge</h3><p>What sensor spread makes the guess land <strong>exactly on the sensor</strong>?</p><p class="fragment answer">Sensor spread <strong class="c-sensor">0</strong>, a perfect sensor. Then <span class="c-estimate">K</span> = <span class="c-motion">1</span> ÷ (<span class="c-motion">1</span> + <span class="c-sensor">0</span>) = <span class="c-estimate">1</span>.</p></div>
 </div>
 <aside class="notes">
 <p><strong>~4 min. Checkpoint.</strong> Mini-whiteboards or scratch paper. Give about 60 seconds per problem, then click to show the answer. Problem 2 is the important one: a noisy sensor only gets a small nudge (11 m, not 12 m). If time is short, skip the challenge.</p>
@@ -847,19 +847,19 @@ Steady sensor: jump almost all the way.
 <p>The cart moves at <strong>1 m/s</strong>. The sensor only reports every <strong>2 seconds</strong>.</p>
 <div class="motion-timeline" role="img" aria-label="At zero seconds the sensor sees two meters. At one second there is no reading, so motion predicts three meters. At two seconds motion predicts four meters and the sensor sees 4.2 meters, so the estimate is nudged toward 4.2.">
 <div class="motion-step observed">
-<p><span class="time-label">0 seconds</span> <span class="timeline-dot"></span> <strong>Sensor sees 2.0 m</strong> <small>Start here</small></p>
+<p><span class="time-label">0 seconds</span> <span class="timeline-dot"></span> <strong>Sensor sees <span class="c-sensor">2.0 m</span></strong> <small>Start here</small></p>
 </div>
 <div class="timeline-connector">
 
 </div>
 <div class="motion-step predicted">
-<p><span class="time-label">1 second</span> <span class="timeline-dot"></span> <strong>No reading</strong> <small>Motion: 2.0 + 1 = 3.0 m</small></p>
+<p><span class="time-label">1 second</span> <span class="timeline-dot"></span> <strong>No reading</strong> <small>Motion: 2.0 + 1 = <span class="c-motion">3.0 m</span></small></p>
 </div>
 <div class="timeline-connector">
 
 </div>
 <div class="motion-step corrected">
-<p><span class="time-label">2 seconds</span> <span class="timeline-dot"></span> <strong>Motion says 4.0 m, sensor says 4.2 m</strong> <small>Nudge the guess toward 4.2</small></p>
+<p><span class="time-label">2 seconds</span> <span class="timeline-dot"></span> <strong>Motion says <span class="c-motion">4.0 m</span>, sensor says <span class="c-sensor">4.2 m</span></strong> <small>Nudge the <span class="c-estimate">guess</span> toward <span class="c-sensor">4.2</span></small></p>
 </div>
 </div>
 <div class="takeaway-line">
@@ -912,7 +912,7 @@ Read the sensor.
 Set the dial
 </h3>
 <p>
-K = motion spread ÷ total spread.
+<span class="c-estimate">K</span> = <span class="c-motion">motion spread</span> ÷ total spread.
 </p>
 </div>
 <div class="flow-arrow" aria-hidden="true">
@@ -957,7 +957,7 @@ Move K of the way to the sensor. Repeat.
 <p><strong>Lowest average miss wins.</strong> Changing K or the noise restarts the score.</p>
 <p><strong>Predict first:</strong> if the sensor gets very noisy, should your K go <strong>up</strong> or <strong>down</strong>?</p>
 </div><div class="column" style="width:38%;">
-<div class="qr-card"><img src="assets/demo-qr.svg" alt="QR code linking to the live cart demo"><strong>Play on your phone</strong><small>Turn your phone sideways</small></div>
+<div class="qr-card"><img src="assets/demo-qr.svg?v=2" alt="QR code linking to the live cart demo"><strong>Play on your phone</strong><small>Turn your phone sideways</small></div>
 </div></div>
 <aside class="notes">
 <p><strong>~1 min setup.</strong> Students in pairs scan the QR code. One drives, one sets K. Give them 3–4 minutes, then ask who beat the automatic dial and with what K.</p>
@@ -1062,16 +1062,16 @@ auto
 </div>
 <div class="kalman-live-math" aria-live="polite">
 <div>
-<span>Motion guess</span><strong>Where the wheels say</strong><small><b data-role="math-prior">6.00 m</b> at <b data-role="model-speed">0.00 m/s</b></small>
+<span class="c-motion">Motion guess</span><strong>Where the wheels say</strong><small><b class="c-motion" data-role="math-prior">6.00 m</b> at <b data-role="model-speed">0.00 m/s</b></small>
 </div>
 <div>
-<span>Sensor</span><strong>Where the sensor says</strong><small>Reads <b data-role="math-sensor">6.00 m</b></small>
+<span class="c-sensor">Sensor</span><strong>Where the sensor says</strong><small>Reads <b class="c-sensor" data-role="math-sensor">6.00 m</b></small>
 </div>
 <div>
-<span>Gap</span><strong>sensor − motion</strong><small><b data-role="innovation">0.00 m</b></small>
+<span>Gap</span><strong><span class="c-sensor">sensor</span> − <span class="c-motion">motion</span></strong><small><b data-role="innovation">0.00 m</b></small>
 </div>
 <div>
-<span>Updated guess</span><strong>motion + K × gap</strong><small><b data-role="equation">6.00 + 0.55 × 0.00 = 6.00 m</b></small>
+<span class="c-estimate">Updated guess</span><strong><span class="c-motion">motion</span> + <span class="c-estimate">K</span> × gap</strong><small><b data-role="equation">6.00 + 0.55 × 0.00 = 6.00 m</b></small>
 </div>
 </div>
 <div class="score-board" aria-live="off">
@@ -1393,10 +1393,10 @@ auto
 <span>Rear reading</span><strong data-role="rear-distance">6.00 m to wall</strong><small>Position = distance = <b data-role="rear-math-position">6.00 m</b></small>
 </div>
 <div>
-<span>Combine sensors</span><strong>Steadier sensor counts more</strong><small>Front <b data-role="front-weight">87%</b> · rear <b data-role="rear-weight">13%</b> → <b data-role="fused-reading">6.00 m</b></small>
+<span class="c-sensor">Combine sensors</span><strong>Steadier sensor counts more</strong><small>Front <b data-role="front-weight">87%</b> · rear <b data-role="rear-weight">13%</b> → <b data-role="fused-reading">6.00 m</b></small>
 </div>
 <div>
-<span>Updated guess</span><strong>motion + K × gap</strong><small><b data-role="equation">6.00 + 0.55 × 0.00 = 6.00 m</b></small>
+<span class="c-estimate">Updated guess</span><strong><span class="c-motion">motion</span> + <span class="c-estimate">K</span> × gap</strong><small><b data-role="equation">6.00 + 0.55 × 0.00 = 6.00 m</b></small>
 </div>
 </div>
 <div class="sim-footer">
@@ -1878,6 +1878,24 @@ Use these if students ask, or for a math-focused class
         if (Reveal.isScrollView()) {
 
           Reveal.toggleScrollView(false);
+
+        }
+
+    
+
+        // QR codes link with ?slide=<id> because some scanner apps drop the
+
+        // #/<id> fragment. Jump to that slide once Reveal is ready.
+
+        const requestedSlide = new URLSearchParams(window.location.search).get("slide");
+
+        const target = requestedSlide && document.getElementById(requestedSlide);
+
+        if (target && target.tagName === "SECTION") {
+
+          const { h, v } = Reveal.getIndices(target);
+
+          Reveal.slide(h, v);
 
         }
 
@@ -2429,7 +2447,7 @@ Use these if students ask, or for a math-focused class
 
             get("innovation").textContent = `${innovation >= 0 ? "+" : ""}${meters(innovation)}`;
 
-            get("equation").textContent = `${prior.toFixed(2)} + ${gain.toFixed(2)} × (${innovation.toFixed(2)}) = ${posterior.toFixed(2)} m`;
+            get("equation").innerHTML = `<span class="c-motion">${prior.toFixed(2)}</span> + <span class="c-estimate">${gain.toFixed(2)}</span> × (${innovation.toFixed(2)}) = <span class="c-estimate">${posterior.toFixed(2)} m</span>`;
 
             get("prior-variance").textContent = priorVariance.toFixed(3);
 
@@ -2687,7 +2705,7 @@ Use these if students ask, or for a math-focused class
 
             get("fused-reading").textContent = meters(fusedReading);
 
-            get("equation").textContent = `${prior.toFixed(2)} + ${gain.toFixed(2)} × (${innovation.toFixed(2)}) = ${posterior.toFixed(2)} m`;
+            get("equation").innerHTML = `<span class="c-motion">${prior.toFixed(2)}</span> + <span class="c-estimate">${gain.toFixed(2)}</span> × (${innovation.toFixed(2)}) = <span class="c-estimate">${posterior.toFixed(2)} m</span>`;
 
             const direction = state.driveCommand < 0 ? "LEFT" : state.driveCommand > 0 ? "RIGHT" : "STOP";
 

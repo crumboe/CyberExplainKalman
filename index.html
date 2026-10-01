@@ -15,7 +15,9 @@
   <meta name="twitter:title" content="How Machines Make Better Guesses">
   <meta name="twitter:description" content="From a hidden bag to a moving robot">
   <meta name="twitter:image" content="https://crumboe.github.io/CyberExplainKalman/assets/kalman-og.png">
-  <meta http-equiv="refresh" content="0; url=The%20Machine%20Mindset.html">
+  <!-- The script below redirects and keeps ?slide= and #/slide; the meta
+       refresh is only a no-JavaScript fallback, since it would drop them. -->
+  <noscript><meta http-equiv="refresh" content="0; url=The%20Machine%20Mindset.html"></noscript>
   <style>
     html, body { height: 100%; }
     body {
@@ -30,6 +32,7 @@
   </style>
   <script>
     const deck = new URL("The Machine Mindset.html", window.location.href);
+    deck.search = window.location.search;
     deck.hash = window.location.hash;
     window.location.replace(deck.href);
   </script>

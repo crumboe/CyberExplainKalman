@@ -5,6 +5,15 @@
       Reveal.toggleScrollView(false);
     }
 
+    // QR codes link with ?slide=<id> because some scanner apps drop the
+    // #/<id> fragment. Jump to that slide once Reveal is ready.
+    const requestedSlide = new URLSearchParams(window.location.search).get("slide");
+    const target = requestedSlide && document.getElementById(requestedSlide);
+    if (target && target.tagName === "SECTION") {
+      const { h, v } = Reveal.getIndices(target);
+      Reveal.slide(h, v);
+    }
+
     document.querySelectorAll("[data-bayes-demo]").forEach((demo) => {
       if (demo.dataset.bound === "true") return;
       demo.dataset.bound = "true";
@@ -278,7 +287,7 @@
         get("model-speed").textContent = speed(state.modelVelocity);
         get("math-sensor").textContent = meters(measurement);
         get("innovation").textContent = `${innovation >= 0 ? "+" : ""}${meters(innovation)}`;
-        get("equation").textContent = `${prior.toFixed(2)} + ${gain.toFixed(2)} × (${innovation.toFixed(2)}) = ${posterior.toFixed(2)} m`;
+        get("equation").innerHTML = `<span class="c-motion">${prior.toFixed(2)}</span> + <span class="c-estimate">${gain.toFixed(2)}</span> × (${innovation.toFixed(2)}) = <span class="c-estimate">${posterior.toFixed(2)} m</span>`;
         get("prior-variance").textContent = priorVariance.toFixed(3);
         get("sensor-variance").textContent = sensorVariance.toFixed(3);
         showGain(get, state, gain);
@@ -407,7 +416,7 @@
         get("front-math-position").textContent = meters(frontPosition);
         get("rear-math-position").textContent = meters(rearPosition);
         get("fused-reading").textContent = meters(fusedReading);
-        get("equation").textContent = `${prior.toFixed(2)} + ${gain.toFixed(2)} × (${innovation.toFixed(2)}) = ${posterior.toFixed(2)} m`;
+        get("equation").innerHTML = `<span class="c-motion">${prior.toFixed(2)}</span> + <span class="c-estimate">${gain.toFixed(2)}</span> × (${innovation.toFixed(2)}) = <span class="c-estimate">${posterior.toFixed(2)} m</span>`;
         const direction = state.driveCommand < 0 ? "LEFT" : state.driveCommand > 0 ? "RIGHT" : "STOP";
         get("drive-status").textContent = direction === "STOP" ? direction : `${direction} · traction ${Math.round((1 - motionSigma * clamp(0.32 + state.tractionBias, 0.15, 0.55)) * 100)}%`;
         get("model-speed").textContent = speed(state.modelVelocity);
