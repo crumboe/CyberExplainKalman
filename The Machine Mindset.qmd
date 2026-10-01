@@ -25,7 +25,10 @@ format:
     # default activation width, while a negative value disables auto-scroll.
     scroll-activation-width: -1
     scrollable: true
-    css: custom.css
+    # Linked with a version tag (bump it when custom.css changes) so browsers
+    # don't keep serving a stale cached stylesheet.
+    include-in-header:
+      text: <link rel="stylesheet" href="custom.css?v=2026-10-01b">
     include-after-body: disable-mobile-scroll.html
 ---
 
@@ -45,12 +48,12 @@ How does your phone know where you are?
 
 ```{=html}
 <div class="use-grid">
-<div><span class="use-icon" aria-hidden="true">📱</span><h3>Phone GPS</h3><p>Keeps the dot smooth between satellite fixes and through tunnels.</p></div>
-<div><span class="use-icon" aria-hidden="true">🚁</span><h3>Drones</h3><p>Stay level in the wind using shaky motion sensors.</p></div>
-<div><span class="use-icon" aria-hidden="true">🥽</span><h3>VR headsets</h3><p>Track your head hundreds of times a second so you don't get sick.</p></div>
-<div><span class="use-icon" aria-hidden="true">🤖</span><h3>FIRST Robotics</h3><p>Robots read AprilTags on the field to work out where they are.</p></div>
-<div><span class="use-icon" aria-hidden="true">🚗</span><h3>Self-driving cars</h3><p>Blend camera, radar, and wheel data into one picture of the road.</p></div>
-<div><span class="use-icon" aria-hidden="true">🌙</span><h3>Apollo 11</h3><p>Helped navigate the 1969 Moon landing on a tiny computer.</p></div>
+<div><h3>Phone GPS</h3><p>Keeps the dot smooth between satellite fixes and through tunnels.</p></div>
+<div><h3>Drones</h3><p>Stay level in the wind using shaky motion sensors.</p></div>
+<div><h3>VR headsets</h3><p>Track your head hundreds of times a second so you don't get sick.</p></div>
+<div><h3>FIRST Robotics</h3><p>Robots read AprilTags on the field to work out where they are.</p></div>
+<div><h3>Self-driving cars</h3><p>Blend camera, radar, and wheel data into one picture of the road.</p></div>
+<div><h3>Apollo 11</h3><p>Helped navigate the 1969 Moon landing on a tiny computer.</p></div>
 </div>
 ```
 
@@ -439,7 +442,7 @@ Then: "The 5.5 voters had the right *idea*. You blend the two. You just weight t
 The sensor is **3 times steadier**, so it sits **3 times heavier**. The balance point slides toward it.
 
 ::: {.fragment .takeaway-line}
-**Balance check:** 1 × 2.25 = 3 × 0.75. Both sides equal 2.25. ✔ The pivot is **0.75** of the way from 4 to 7.
+**Balance check:** 1 × 2.25 = 3 × 0.75. Both sides equal 2.25, so it balances. The pivot is **0.75** of the way from 4 to 7.
 :::
 
 ::: notes
